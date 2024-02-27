@@ -117,6 +117,15 @@ typedef struct Vec2
 class Keyboard
 {
 public:
+    enum VelocityLut
+    {
+        LINEAR,
+        EXPONENTIAL,
+        LOGARITHMIC,
+        QUADRATIC,
+        LUT_AMOUNT
+    };
+
     Keyboard(){};
     ~Keyboard(){};
 
@@ -124,7 +133,7 @@ public:
     {
         _config = *cfg;
         _adc = adc;
-
+        GenerateLUTs();
         log_d("Keyboard initialized");
     };
 
@@ -174,7 +183,7 @@ public:
     uint8_t GetVelocity(uint8_t chn)
     {
         uint8_t velocity = (uint8_t)(_config._keys[chn].velocity * 127.0f);
-        return velocity;
+        return velocity_luts[velocityLut][velocity];
     };
 
     float GetAftertouch(uint8_t chn)
@@ -257,6 +266,23 @@ public:
         for (uint8_t i = _min; i < _max; i++)
         {
             strip_last_position[i] = -1.0f;
+            StripChanged(i);
+        }
+    };
+
+    void SetVelocityLut(VelocityLut lut)
+    {
+        velocityLut = lut;
+    };
+
+    void PlotLuts()
+    {
+        for (uint8_t i = 0; i < VelocityLut::LUT_AMOUNT; i++)
+        {
+            for (uint8_t j = 0; j < 128; j++)
+            {
+                Serial.println(">" + String(i) + ":" + String(velocity_luts[i][j]) + ":" + String(j) + "|xy");
+            }
         }
     };
 
@@ -277,6 +303,21 @@ private:
 
     unsigned long deltaTime = 0;
     unsigned long previousTime = 0;
+
+    VelocityLut velocityLut = LINEAR;
+
+    uint8_t velocity_luts[VelocityLut::LUT_AMOUNT][128] = {0};
+
+    void GenerateLUTs()
+    {
+        for (uint8_t i = 0; i < 128; i++)
+        {
+            velocity_luts[LINEAR][i] = i;
+            velocity_luts[EXPONENTIAL][i] = (i * i) >> 7;
+            velocity_luts[LOGARITHMIC][i] = (uint8_t)(128.0f * log2f(1.0f + (float)i / 127.0f));
+            velocity_luts[QUADRATIC][i] = (i * i) >> 8;
+        }
+    }
 
     void CalcXY()
     {

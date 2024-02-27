@@ -12,10 +12,25 @@ import {
 } from '@chakra-ui/react'
 import { NumberInput } from '../components/CustomInputs'
 import { PropTypes } from 'prop-types'
+import { useContext, useMemo } from 'react'
+import MidiContext from './MidiProvider'
 
 export function CcCard({ name, channel, cc, value }) {
+    const { ccMessages } = useContext(MidiContext)
+
+    const updatedValue = useMemo(() => {
+        const ccMessage = ccMessages.find((message) => message.index === cc)
+        return ccMessage ? Math.round(ccMessage.value * 100) : value
+    }, [ccMessages, cc, value])
     return (
-        <Card borderRadius={20} borderColor="gray.100" borderBottomWidth={4}>
+        <Card
+            as={Flex}
+            justifyContent="space-between"
+            borderRadius={20}
+            borderColor="gray.100"
+            borderBottomWidth={4}
+            height="250px"
+        >
             <CardHeader pt={4} pb={1}>
                 <Flex
                     justifyContent="space-between"
@@ -26,7 +41,8 @@ export function CcCard({ name, channel, cc, value }) {
                     <Button
                         flexGrow="0"
                         colorScheme="green"
-                        size="md"
+                        size="lg"
+                        px={3}
                         borderRadius="full"
                     >
                         {name}
@@ -36,29 +52,21 @@ export function CcCard({ name, channel, cc, value }) {
                         flexGrow="5"
                         colorScheme="green"
                         height={3}
-                        value={value}
+                        value={updatedValue}
                     />
                 </Flex>
             </CardHeader>
-            <Stack divider={<StackDivider />} spacing="0">
+            <Stack divider={<StackDivider />} spacing="3" pb={2}>
                 <CardBody py={3}>
                     <Flex justifyContent="space-between" align="center">
                         <Text mr="10px">CH</Text>
-                        <NumberInput
-                            def_value={channel}
-                            min_value={1}
-                            max_value={16}
-                        />
+                        <NumberInput def={channel} min={1} max={16} />
                     </Flex>
                 </CardBody>
                 <CardBody py={3}>
                     <Flex justifyContent="space-between" align="center">
-                        <Text mr="10px">CC</Text>
-                        <NumberInput
-                            def_value={cc}
-                            min_value={0}
-                            max_value={127}
-                        />
+                        <Text mr="4px">CC</Text>
+                        <NumberInput def={cc} min={0} max={127} />
                     </Flex>
                 </CardBody>
             </Stack>

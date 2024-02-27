@@ -49,7 +49,8 @@ public:
     {
         FastLED.addLeds<WS2812B, PIN_LED, GRB>(leds, NUM_LEDS);
         FastLED.setCorrection(TypicalLEDStrip);
-        // FastLED.setBrightness(170);
+        FastLED.setDither(0);
+        FastLED.setBrightness(170);
         fill_solid(leds, NUM_LEDS, CRGB::Black);
 
         FastLED.show();
@@ -148,6 +149,11 @@ public:
         slider_color = hue;
     }
 
+    void SetPalette(CRGBPalette16 palette)
+    {
+        currentPattern->SetPalette(palette);
+    }
+
 private:
     uint8_t pos_x = 0;
     uint8_t pos_y = 0;
@@ -180,4 +186,4 @@ private:
     uint8_t slider_color = HUE_ORANGE;
 };
 
-#endif// LED_HPP
+#endif // LED_HPP

@@ -26,7 +26,7 @@ public:
     void SetAmount(float amount) override
     {
         this->amount = amount;
-        step = static_cast<uint8_t>((1.0f - amount) * 9.0f);
+        step = static_cast<uint8_t>(amount * 9.0f);
     };
 
     void SetColor(uint8_t color) override
@@ -49,12 +49,11 @@ private:
         // blur, then store luma values inside the luma array for each led
         for (int j = 0; j < 10; j++)
         {
-            blur2d(lumaleds, 4, 4, 2 + j * 7);
+            blur2d(lumaleds, 4, 4, 2 + j * 4);
             lumaleds[0] = CRGB::White;
             for (int i = 0; i < 16; i++)
             {
                 luma[j][i] = brighten8_raw(lumaleds[i].getLuma());
-                luma[j][i] = brighten8_raw(luma[j][i]);
             }
         }
     };
@@ -66,7 +65,7 @@ private:
 
 bool TouchBlur::RunPattern()
 {
-    fadeToBlackBy(patternleds, 16, 3);
+    fill_solid(patternleds, 16, CRGB::Black);
     if (state)
     {
         // Assuming step is set externally before calling this function
@@ -75,9 +74,14 @@ bool TouchBlur::RunPattern()
         {
             for (int y = 0; y < 4; y++)
             {
+                // Calculate the coordinates of the neighboring pixels
+                float new_x = (pos_x - (uint8_t)pos_x) + (float)x;
+                float new_y = (pos_y - (uint8_t)pos_y) + (float)y;
+
+                // Calculate the weight for the center pixel
                 uint8_t luma_value = luma[step][abs(x - (uint8_t)pos_x) + abs(y - (uint8_t)pos_y) * 4];
-                CRGB color = ColorFromPalette(currentPalette, colorIndex, luma_value, LINEARBLEND);
-                wu_pixel(static_cast<int32_t>(pos_x * (1 << 8)), static_cast<int32_t>(pos_y * (1 << 8)), &color);
+                CRGB color = ColorFromPalette(currentPalette, colorIndex, luma_value, LINEARBLEND_NOWRAP);
+                wu_pixel(static_cast<int32_t>(new_x * (1 << 8)), static_cast<int32_t>(new_y * (1 << 8)), &color);
             }
         }
     }

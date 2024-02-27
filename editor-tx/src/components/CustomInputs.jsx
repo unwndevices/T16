@@ -8,12 +8,14 @@ import {
     Text,
     VStack,
 } from '@chakra-ui/react'
+import { useState } from 'react'
 
 export function NumberInput({ def = 0, min = 0, max = 10 }) {
     const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
         useNumberInput({
             step: 1,
             defaultValue: def,
+            value: def,
             min: min,
             max: max,
         })
@@ -36,6 +38,54 @@ NumberInput.propTypes = {
     def: PropTypes.number,
     min: PropTypes.number,
     max: PropTypes.number,
+}
+export function AliasNumberInput({ aliases }) {
+    const [currentAliasIndex, setCurrentAliasIndex] = useState(0)
+    const [currentAlias, setCurrentAlias] = useState(aliases[currentAliasIndex])
+    const { getIncrementButtonProps, getDecrementButtonProps } = useNumberInput(
+        {
+            step: 1,
+            defaultValue: 0,
+            min: 0,
+            max: aliases.length - 1,
+            onChange: (index) => {
+                setCurrentAliasIndex(index)
+                setCurrentAlias(aliases[index])
+            },
+        }
+    )
+
+    const inc = getIncrementButtonProps({
+        onClick: () => {
+            setCurrentAliasIndex(
+                (prevIndex) => (prevIndex + 1) % aliases.length
+            )
+        },
+    })
+    const dec = getDecrementButtonProps({
+        onClick: () => {
+            setCurrentAliasIndex(
+                (prevIndex) => (prevIndex - 1 + aliases.length) % aliases.length
+            )
+        },
+    })
+
+    return (
+        <HStack maxW="320px">
+            <Button {...dec}>-</Button>
+            <Input
+                maxW={20}
+                type="text"
+                readOnly="readonly"
+                value={currentAlias}
+            />
+            <Button {...inc}>+</Button>
+        </HStack>
+    )
+}
+
+AliasNumberInput.propTypes = {
+    aliases: PropTypes.array,
 }
 
 function InputControl({ label, ...props }) {

@@ -8,7 +8,7 @@ class Strips : public Pattern
 public:
     Strips()
     {
-        currentPalette = unwn_gp;
+        currentPalette = acid_gp;
         state = true;
     };
     bool RunPattern() override;
@@ -31,7 +31,7 @@ private:
 
 bool Strips::RunPattern()
 {
-    fadeToBlackBy(patternleds, 16, 10);
+    fill_solid(patternleds, 16, CRGB::Black);
     if (state)
     {
 

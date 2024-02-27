@@ -22,6 +22,7 @@ struct AdcChannelConfig
 
     uint8_t _pin;
     uint8_t _mux_pin[MUX_SEL_LAST];
+    
 };
 
 class Adc
@@ -32,7 +33,7 @@ public:
         float value = 0.0f;
         uint16_t minVal = 2584;
         uint16_t maxVal = 3770;
-        uint16_t buffer[8] = {0};
+        uint16_t buffer[16] = {0};
     };
 
     Adc();  // constructor
@@ -50,6 +51,7 @@ public:
     void Start();                                                        // method to start the task (and ADC
     static void Update(void *parameter);                                 // method to update
     void ReadValues();                                                   // method to read the values from the ADC
+    void ReadValuesDMA();                                                // method to read the values from the ADC using DMA
     float Get(uint8_t chn) const;                                        // method to get the value of a channel as a float
     float GetMux(uint8_t chn, uint8_t index) const;                      // method to get the value of a mux channel as a float
 
@@ -84,6 +86,9 @@ public:
 
         return output;
     }
+
+    static ulong microseconds;
+    static ulong previousMicroseconds;
 
 private:
     void SetMuxChannel(uint8_t chn) const; // method to set the mux channel

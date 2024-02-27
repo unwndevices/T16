@@ -6,12 +6,11 @@ import {
     Button,
     Stack,
     StackDivider,
-    Select,
     Spacer,
 } from '@chakra-ui/react'
 
 import { PropTypes } from 'prop-types'
-import { NumberInput } from './CustomInputs'
+import { NumberInput, AliasNumberInput } from './CustomInputs'
 
 export function NumberCard({ name, min = 0, max = 127 }) {
     return (
@@ -47,8 +46,48 @@ export function NumberCard({ name, min = 0, max = 127 }) {
     )
 }
 
+export function AliasNumberCard({ name, aliases }) {
+    return (
+        <Card borderRadius={20} borderColor="gray.100" borderBottomWidth={4}>
+            <Flex flexDirection="column" height="150px">
+                <CardHeader pt={4} pb={1}>
+                    <Flex
+                        justifyContent="space-between"
+                        alignItems="center"
+                        alignContent="center"
+                        wrap="wrap"
+                    >
+                        <Button
+                            flexGrow="0"
+                            colorScheme="green"
+                            size="md"
+                            borderRadius="full"
+                        >
+                            {name}
+                        </Button>
+                    </Flex>
+                </CardHeader>
+                <Spacer />
+                <Stack divider={<StackDivider />} spacing="0">
+                    <CardBody py={3}>
+                        <Flex justifyContent="space-between" align="center">
+                            <AliasNumberInput aliases={aliases} />
+                        </Flex>
+                    </CardBody>
+                </Stack>
+            </Flex>
+        </Card>
+    )
+}
+
+AliasNumberCard.propTypes = {
+    name: PropTypes.string,
+    aliases: PropTypes.array,
+}
+
 NumberCard.propTypes = {
     name: PropTypes.string,
     min: PropTypes.number,
     max: PropTypes.number,
+    aliases: PropTypes.array,
 }

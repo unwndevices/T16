@@ -1,5 +1,8 @@
 #include "adc.hpp"
 
+#define ADC_BUFFER 512
+#define ADC_NUM_BYTES 64 // 256 samples of 16 bits
+
 AdcChannelConfig::AdcChannelConfig()
 {
     _pin = 0;
@@ -143,6 +146,8 @@ void Adc::Start()
     xTaskCreatePinnedToCore(Update, "adc", 4048, this, 1, &_task, 1);
 }
 
+ulong Adc::microseconds = 0;
+ulong Adc::previousMicroseconds = 0;
 void Adc::Update(void *parameter)
 {
     Adc *adcInstance = static_cast<Adc *>(parameter);
@@ -150,8 +155,6 @@ void Adc::Update(void *parameter)
     while (1)
     {
         adcInstance->ReadValues();
-        // Add a delay or any additional logic if needed
-        vTaskDelay(1); // Adjust the delay as per your requirements
     }
 }
 

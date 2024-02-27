@@ -9,7 +9,7 @@ export default function Dashboard() {
             <GridItem colSpan={1} p={2}>
                 <SelectCard
                     name="Mode"
-                    entries={['Keyboard', 'Pad', 'Sliders']}
+                    entries={['General', 'Pad', 'Sliders']}
                 />
             </GridItem>
             <GridItem colSpan={1} p={2}>

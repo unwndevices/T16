@@ -1,11 +1,14 @@
 #include "pinout.h"
 #include <Arduino.h>
+
 #define configTICK_RATE_HZ 4000
 
+// GLOBAL DEFINES
+#define CV_AMT 8
+#define BANK_AMT 4
+#define CV_TOTAL (CV_AMT * BANK_AMT)
+
 #include <Adafruit_TinyUSB.h>
-
-uint8_t version = 0x01;
-
 #include <MIDI.h>
 Adafruit_USBD_MIDI usb_midi;
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, MIDI);
@@ -13,6 +16,13 @@ MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, MIDI);
 #include "DataManager.hpp"
 DataManager calibration("/calibration_data.json");
 DataManager config("/configuration_data.json");
+
+#include <FastLED.h>
+
+DEFINE_GRADIENT_PALETTE(unwn_gp){0, 176, 65, 251, 127, 230, 2, 2, 255, 255, 111, 156};
+DEFINE_GRADIENT_PALETTE(topo_gp){0, 255, 205, 71, 255, 34, 193, 195};
+DEFINE_GRADIENT_PALETTE(alt_gp){0, 189, 70, 70, 255, 78, 75, 232};
+DEFINE_GRADIENT_PALETTE(acid_gp){0, 255, 217, 105, 255, 170, 255, 110};
 
 #include "led/Led.hpp"
 LedManager led_manager;
@@ -76,15 +86,26 @@ struct KeyModeData
 {
     uint8_t base_octave = 0;
     uint8_t base_note = 24;
+    uint8_t velocity_curve = 0;
     bool flip_x = false;
     bool flip_y = false;
 } kb_cfg;
 
 struct ControlChangeData
 {
-    uint8_t channel[20];
-    uint8_t id[20];
+    uint8_t channel[CV_TOTAL];
+    uint8_t id[CV_TOTAL];
 } cc_cfg;
+
+struct Parameters
+{
+    float slew = 0.0f;
+    uint8_t bank = 0;
+    uint8_t mod = 0;
+    float bend = 0.0f;
+    bool isBending = false;
+    bool midiLearn = false;
+} parameters;
 
 void InitConfiguration()
 {
@@ -94,15 +115,16 @@ void InitConfiguration()
     config.SaveVar(cfg.channel, "channel");
     config.SaveVar(kb_cfg.base_octave, "octave");
     config.SaveVar(kb_cfg.base_note, "note");
+    config.SaveVar(kb_cfg.velocity_curve, "velocity");
 
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < CV_TOTAL; i++)
     {
         cc_cfg.channel[i] = 1;
         cc_cfg.id[i] = i + 13;
     }
 
-    config.SaveArray(cc_cfg.channel, "channels", 20);
-    config.SaveArray(cc_cfg.id, "cc_ids", 20);
+    config.SaveArray(cc_cfg.channel, "channels", CV_TOTAL);
+    config.SaveArray(cc_cfg.id, "cc_ids", CV_TOTAL);
 }
 
 void ProcessKey(int idx, Key::State state)
@@ -128,15 +150,6 @@ void ProcessKey(int idx, Key::State state)
         log_d("Key %d, Aftertouch: %d", idx, pressure);
     }
 }
-
-struct Parameters
-{
-    float slew = 0.0f;
-    uint8_t bank = 0;
-    uint8_t mod = 0;
-    float bend = 0.0f;
-    bool isBending = false;
-} parameters;
 
 void ProcessSlider()
 {
@@ -280,6 +293,9 @@ void ProcessButton(int idx, Button::State state)
         if (idx == PIN_EXT1)
         {
             log_d("Touch button long pressed");
+            log_d("MIDI Learn mode");
+            parameters.midiLearn = !parameters.midiLearn;
+            keyboard.PlotLuts();
         }
         if (idx == PIN_EXT5)
         {
@@ -383,9 +399,10 @@ void setup()
         config.LoadVar(cfg.brightness, "brightness");
         config.LoadVar(cfg.channel, "channel");
         config.LoadVar(kb_cfg.base_octave, "octave");
+        config.LoadVar(kb_cfg.velocity_curve, "velocity");
         config.LoadVar(kb_cfg.base_note, "note");
-        config.LoadArray(cc_cfg.channel, "channels", 20);
-        config.LoadArray(cc_cfg.id, "cc_ids", 20);
+        config.LoadArray(cc_cfg.channel, "channels", CV_TOTAL);
+        config.LoadArray(cc_cfg.id, "cc_ids", CV_TOTAL);
     }
 
     config.Print();
@@ -400,6 +417,8 @@ void setup()
 
     keyboard_config.Init(keys, 16);
     keyboard.Init(&keyboard_config, &adc);
+    //keyboard.SetVelocityLut((Keyboard::VelocityLut)kb_cfg.velocity_curve);
+    keyboard.SetVelocityLut(Keyboard::VelocityLut::EXPONENTIAL);
     keyboard.SetOnStateChanged(&ProcessKey);
     log_d("Free heap: %d", ESP.getFreeHeap());
 }
@@ -438,9 +457,13 @@ void loop()
         if (pressure > 0.00f)
         {
 
-            MIDI.sendControlChange(cc_cfg.id[2], (uint8_t)(pressure * 127.0f), cc_cfg.channel[2]);
+            if (!parameters.midiLearn)
+            {
+                MIDI.sendControlChange(cc_cfg.id[2], (uint8_t)(pressure * 127.0f), cc_cfg.channel[2]);
+            }
             led_manager.SetAmount(1.0f - pressure);
             led_manager.SetColor((uint8_t)(pressure * 255.0f));
+            log_d("Pressure: %f", pressure);
             led_manager.SetState(true);
         }
     }
@@ -460,7 +483,7 @@ void loop()
         {
             if (keyboard.StripChanged(i))
             {
-                MIDI.sendControlChange(cc_cfg.id[i + 3], (uint8_t)(keyboard.GetStrip(i) * 127.0f), cc_cfg.channel[i + 3]);
+                MIDI.sendControlChange(cc_cfg.id[i + 3], (uint8_t)(keyboard.GetStrip(i) * 0.33333f * 127.0f), cc_cfg.channel[i + 3]);
                 led_manager.SetStrip(i, keyboard.GetStrip(i));
             }
         }

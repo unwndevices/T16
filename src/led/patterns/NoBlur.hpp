@@ -8,7 +8,7 @@ class NoBlur : public Pattern
 public:
     NoBlur()
     {
-        currentPalette = unwn_gp;
+        currentPalette = topo_gp;
         GenerateLut();
     };
     bool RunPattern() override;
@@ -50,7 +50,6 @@ private:
             for (int i = 0; i < 16; i++)
             {
                 luma[j][i] = brighten8_raw(lumaleds[i].getLuma());
-                luma[j][i] = brighten8_raw(luma[j][i]);
             }
         }
     };
@@ -64,7 +63,7 @@ bool NoBlur::RunPattern()
 {
     EVERY_N_MILLIS(45)
     {
-        blur2d(patternleds, 4, 4, beatsin8(140, 2, 150));
+        blur2d(patternleds, 4, 4, 40);
     }
     // based on the current position, get the luma value from the lookup table and use it to set the color brightness for the LED
     // the luma array has its center on 0,0, so we need to treat it as the center (pos_x, pos_y) and then mirror it in every direction.
@@ -82,14 +81,14 @@ bool NoBlur::RunPattern()
                 for (int y = 0; y < 4; y++)
                 {
                     uint8_t luma_value = luma[step][abs(x - (uint8_t)pos_x) + abs(y - (uint8_t)pos_y) * 4];
-                    patternleds[XY(x, y)] |= ColorFromPalette(currentPalette, 255 - colorIndex, luma_value, LINEARBLEND_NOWRAP);
+                    patternleds[XY(x, y)] |= ColorFromPalette(currentPalette, colorIndex, luma_value, LINEARBLEND_NOWRAP);
                 }
             }
 
             if (millis() - lastMillis > speed)
             {
                 step++;
-                patternleds[XY(pos_x, pos_y)] = ColorFromPalette(currentPalette, 255 - colorIndex, 255, LINEARBLEND_NOWRAP);
+                patternleds[XY(pos_x, pos_y)] = ColorFromPalette(currentPalette, colorIndex, 255, LINEARBLEND_NOWRAP);
                 lastMillis = millis();
             }
         }

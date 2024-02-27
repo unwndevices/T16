@@ -4,9 +4,6 @@
 #include <Arduino.h>
 #include <FastLED.h>
 
-DEFINE_GRADIENT_PALETTE(sunlitwave_gp){0, 5, 9, 84, 45, 37, 24, 111, 81, 16, 5, 59, 112, 24, 1, 20, 150, 34, 1, 2, 198, 175, 36, 7, 237, 208, 104, 16, 255, 239, 211, 158};
-DEFINE_GRADIENT_PALETTE(unwn_gp){0, 176, 65, 251, 127, 230, 2, 2, 255, 255, 111, 156};
-
 #define WEIGHT(a, b) ((uint8_t)(((a) * (b) + (a) + (b)) >> 8))
 
 void wu_pixel(uint32_t x, uint32_t y, CRGB *col)
@@ -19,37 +16,10 @@ void wu_pixel(uint32_t x, uint32_t y, CRGB *col)
     for (uint8_t i = 0; i < 4; i++)
     {
         uint16_t xy = XY((x >> 8) + (i & 1), (y >> 8) + ((i >> 1) & 1));
-        patternleds[xy] += *col % wu[i];
-    }
-}
 
-
-void wu_pixel_4x4(uint32_t x, uint32_t y, CRGB *col)
-{
-    // Calculate fractional parts
-    uint8_t xx = x & 0xff, yy = y & 0xff;
-    uint8_t ix = 255 - xx, iy = 255 - yy;
-
-    // Calculate weights for 16 pixels
-    uint8_t wu[4][4] = {
-        {WEIGHT(ix, iy), WEIGHT(xx, iy), WEIGHT(255 - xx, iy), WEIGHT(2 * (255 - xx), iy)},
-        {WEIGHT(ix, yy), WEIGHT(xx, yy), WEIGHT(255 - xx, yy), WEIGHT(2 * (255 - xx), yy)},
-        {WEIGHT(ix, 255 - yy), WEIGHT(xx, 255 - yy), WEIGHT(255 - xx, 255 - yy), WEIGHT(2 * (255 - xx), 255 - yy)},
-        {WEIGHT(ix, 2 * (255 - yy)), WEIGHT(xx, 2 * (255 - yy)), WEIGHT(255 - xx, 2 * (255 - yy)), WEIGHT(2 * (255 - xx), 2 * (255 - yy))}};
-
-    // Apply weights to 16 pixels
-    for (uint8_t i = 0; i < 4; i++)
-    {
-        for (uint8_t j = 0; j < 4; j++)
-        {
-            // Calculate absolute pixel coordinates
-            uint16_t xy = XY((x >> 8) + i - 1, (y >> 8) + j - 1);
-
-            // Apply weights to pixel color
-            patternleds[xy].r = qadd8(patternleds[xy].r, (col->r * wu[i][j]) >> 8);
-            patternleds[xy].g = qadd8(patternleds[xy].g, (col->g * wu[i][j]) >> 8);
-            patternleds[xy].b = qadd8(patternleds[xy].b, (col->b * wu[i][j]) >> 8);
-        }
+        patternleds[xy].r = qadd8(patternleds[xy].r, (col->r * wu[i]) >> 8);
+        patternleds[xy].g = qadd8(patternleds[xy].g, (col->g * wu[i]) >> 8);
+        patternleds[xy].b = qadd8(patternleds[xy].b, (col->b * wu[i]) >> 8);
     }
 }
 
@@ -101,6 +71,12 @@ public:
     virtual void SetSpeed(uint8_t speed){};
 
     virtual void SetStrip(uint8_t strip, float value){};
+
+    void SetPalette(CRGBPalette16 palette)
+    {
+        currentPalette = palette;
+    }
+
     static CRGBPalette16 currentPalette;
 
 protected:
@@ -108,11 +84,6 @@ protected:
     uint8_t pos_y = 0;
     float amount = 0.0f;
     bool state = false;
-
-    void SetPalette(CRGBPalette16 palette)
-    {
-        targetPalette = palette;
-    }
 
     static CRGBPalette16 targetPalette;
 };

@@ -9,7 +9,20 @@ export const MidiProvider = ({ children }) => {
     const [output, setOutput] = useState(null)
     const [isConnected, setIsConnected] = useState(false)
     const [ccMessages, setCcMessages] = useState([]) // New state variable for CC messages
-    const [config, setConfig] = useState({}) // Initialize config as an empty object
+    const [config, setConfig] = useState({
+        version: 0,
+        mode: 0,
+        brightness: 0,
+        channel: 1,
+        octave: 0,
+        note: 0,
+        channels: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        cc_ids: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    })
+
+    useEffect(() => {
+        console.log('Config updated:', config)
+    }, [config])
 
     function onEnabled() {
         // Inputs
@@ -97,7 +110,7 @@ export const MidiProvider = ({ children }) => {
             const deserializedData = deserializeSysex(
                 e.data.slice(4, e.data.length - 1)
             )
-            setConfig(deserializedData) // Set the config dump state variable
+            setConfig(deserializedData) // If deserializedData is null, keep the current config
             console.log('Deserialized config:', deserializedData) // Print the deserialized data
         }
     }
