@@ -61,7 +61,7 @@ private:
 
 bool NoBlur::RunPattern()
 {
-    EVERY_N_MILLIS(45)
+    EVERY_N_MILLIS(20)
     {
         blur2d(patternleds, 4, 4, 40);
     }

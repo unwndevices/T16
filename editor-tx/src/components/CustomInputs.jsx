@@ -1,23 +1,17 @@
 import PropTypes from 'prop-types'
-import {
-    Box,
-    Button,
-    Input,
-    HStack,
-    useNumberInput,
-    Text,
-    VStack,
-} from '@chakra-ui/react'
-import { useState } from 'react'
+import { Button, Input, HStack, useNumberInput } from '@chakra-ui/react'
+import { useEffect, useState } from 'react'
 
-export function NumberInput({ def = 0, min = 0, max = 10 }) {
+export function NumberInput({ value, min = 0, max = 10, onSelect }) {
     const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
         useNumberInput({
             step: 1,
-            defaultValue: def,
-            value: def,
             min: min,
             max: max,
+            value: value, // Use the value prop instead of defaultValue
+            onChange: (valueAsString, valueAsNumber) => {
+                onSelect(valueAsNumber)
+            },
         })
 
     const inc = getIncrementButtonProps()
@@ -26,34 +20,52 @@ export function NumberInput({ def = 0, min = 0, max = 10 }) {
 
     return (
         <HStack maxW="320px">
-            <Button {...dec}>-</Button>
-            <Input maxW={20} {...input} />
-            <Button {...inc}>+</Button>
+            <Button colorScheme="primary" {...dec}>
+                -
+            </Button>
+            <Input
+                backgroundColor="white"
+                textAlign="right"
+                maxW={20}
+                {...input}
+            />
+            <Button colorScheme="primary" {...inc}>
+                +
+            </Button>
         </HStack>
     )
 }
 
 NumberInput.propTypes = {
-    label: PropTypes.string,
-    def: PropTypes.number,
+    value: PropTypes.number, // Update the propType for value
     min: PropTypes.number,
     max: PropTypes.number,
+    onSelect: PropTypes.func,
 }
-export function AliasNumberInput({ aliases }) {
+
+export function AliasNumberInput({ aliases, value, onSelect }) {
     const [currentAliasIndex, setCurrentAliasIndex] = useState(0)
     const [currentAlias, setCurrentAlias] = useState(aliases[currentAliasIndex])
     const { getIncrementButtonProps, getDecrementButtonProps } = useNumberInput(
         {
             step: 1,
-            defaultValue: 0,
             min: 0,
             max: aliases.length - 1,
-            onChange: (index) => {
-                setCurrentAliasIndex(index)
-                setCurrentAlias(aliases[index])
+            onChange: (valueString, valueNumber) => {
+                setCurrentAliasIndex(valueNumber)
+                setCurrentAlias(aliases[valueNumber])
+                onSelect(valueNumber)
             },
         }
     )
+
+    // Update currentAliasIndex and currentAlias when value changes
+    useEffect(() => {
+        if (value >= 0 && value < aliases.length) {
+            setCurrentAliasIndex(value)
+            setCurrentAlias(aliases[value])
+        }
+    }, [value, aliases])
 
     const inc = getIncrementButtonProps({
         onClick: () => {
@@ -72,75 +84,25 @@ export function AliasNumberInput({ aliases }) {
 
     return (
         <HStack maxW="320px">
-            <Button {...dec}>-</Button>
+            <Button colorScheme="primary" {...dec}>
+                -
+            </Button>
             <Input
                 maxW={20}
                 type="text"
                 readOnly="readonly"
                 value={currentAlias}
+                backgroundColor="white"
             />
-            <Button {...inc}>+</Button>
+            <Button colorScheme="primary" {...inc}>
+                +
+            </Button>
         </HStack>
     )
 }
 
 AliasNumberInput.propTypes = {
     aliases: PropTypes.array,
-}
-
-function InputControl({ label, ...props }) {
-    const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
-        useNumberInput(props)
-
-    const inc = getIncrementButtonProps()
-    const dec = getDecrementButtonProps()
-    const input = getInputProps()
-
-    return (
-        <VStack>
-            <Text fontSize="sm" fontStyle="italic" pt={2}>
-                {label}
-            </Text>
-            <HStack maxW="320px">
-                <Button {...dec}>-</Button>
-                <Input maxW="4em" textAlign="center" {...input} />
-                <Button {...inc}>+</Button>
-            </HStack>
-        </VStack>
-    )
-}
-
-InputControl.propTypes = {
-    label: PropTypes.string,
-    min: PropTypes.number,
-    max: PropTypes.number,
-}
-
-export function CCInput({ label = 'Default', def = 0 }) {
-    return (
-        <Box
-            h="200px"
-            borderWidth="1px"
-            borderRadius="lg"
-            p={2}
-            textAlign="left"
-        >
-            <Text fontSize="lg" fontWeight="600">
-                {label}
-            </Text>
-            <InputControl
-                label="Channel"
-                defaultValue={1}
-                step={1}
-                min={1}
-                max={16}
-            />
-            <InputControl label="CC" defaultValue={def} step={1} />
-        </Box>
-    )
-}
-
-CCInput.propTypes = {
-    label: PropTypes.string,
-    def: PropTypes.number,
+    value: PropTypes.number,
+    onSelect: PropTypes.func,
 }

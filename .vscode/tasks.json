@@ -1,0 +1,13 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "npm",
+            "script": "dev",
+            "path": "editor-tx",
+            "problemMatcher": [],
+            "label": "npm: dev - editor-tx",
+            "detail": "vite"
+        }
+    ]
+}

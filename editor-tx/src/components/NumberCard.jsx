@@ -1,93 +1,60 @@
-import {
-    Card,
-    CardHeader,
-    CardBody,
-    Flex,
-    Button,
-    Stack,
-    StackDivider,
-    Spacer,
-} from '@chakra-ui/react'
-
+import { Box, HStack, Text } from '@chakra-ui/react'
 import { PropTypes } from 'prop-types'
 import { NumberInput, AliasNumberInput } from './CustomInputs'
+import SkeletonLoader from './SkeletonLoader'
 
-export function NumberCard({ name, min = 0, max = 127 }) {
+export function NumberCard({ name, min = 0, max = 127, value, onChange }) {
+    const handleSelect = (value) => {
+        onChange(value)
+    }
+
     return (
-        <Card borderRadius={20} borderColor="gray.100" borderBottomWidth={4}>
-            <Flex flexDirection="column" height="150px">
-                <CardHeader pt={4} pb={1}>
-                    <Flex
-                        justifyContent="space-between"
-                        alignItems="center"
-                        alignContent="center"
-                        wrap="wrap"
-                    >
-                        <Button
-                            flexGrow="0"
-                            colorScheme="green"
-                            size="md"
-                            borderRadius="full"
-                        >
-                            {name}
-                        </Button>
-                    </Flex>
-                </CardHeader>
-                <Spacer />
-                <Stack divider={<StackDivider />} spacing="0">
-                    <CardBody py={3}>
-                        <Flex justifyContent="space-between" align="center">
-                            <NumberInput min={min} max={max} def={1} />
-                        </Flex>
-                    </CardBody>
-                </Stack>
-            </Flex>
-        </Card>
+        <HStack justifyContent="space-between" alignItems="center">
+            <Box minW="8vw">
+                <Text>{name}</Text>
+            </Box>
+            <SkeletonLoader>
+                <NumberInput
+                    min={min}
+                    max={max}
+                    value={value} // Pass the value prop here
+                    onSelect={handleSelect}
+                />
+            </SkeletonLoader>
+        </HStack>
     )
-}
-
-export function AliasNumberCard({ name, aliases }) {
-    return (
-        <Card borderRadius={20} borderColor="gray.100" borderBottomWidth={4}>
-            <Flex flexDirection="column" height="150px">
-                <CardHeader pt={4} pb={1}>
-                    <Flex
-                        justifyContent="space-between"
-                        alignItems="center"
-                        alignContent="center"
-                        wrap="wrap"
-                    >
-                        <Button
-                            flexGrow="0"
-                            colorScheme="green"
-                            size="md"
-                            borderRadius="full"
-                        >
-                            {name}
-                        </Button>
-                    </Flex>
-                </CardHeader>
-                <Spacer />
-                <Stack divider={<StackDivider />} spacing="0">
-                    <CardBody py={3}>
-                        <Flex justifyContent="space-between" align="center">
-                            <AliasNumberInput aliases={aliases} />
-                        </Flex>
-                    </CardBody>
-                </Stack>
-            </Flex>
-        </Card>
-    )
-}
-
-AliasNumberCard.propTypes = {
-    name: PropTypes.string,
-    aliases: PropTypes.array,
 }
 
 NumberCard.propTypes = {
     name: PropTypes.string,
     min: PropTypes.number,
     max: PropTypes.number,
+    value: PropTypes.number,
+    onChange: PropTypes.func,
+}
+
+export function AliasNumberCard({ name, aliases, value, onChange }) {
+    const handleSelect = (index) => {
+        onChange(index)
+    }
+
+    return (
+        <HStack justifyContent="space-between" alignItems="baseline">
+            <Text>{name}</Text>
+            <SkeletonLoader>
+                <AliasNumberInput
+                    aliases={aliases}
+                    value={value}
+                    onSelect={handleSelect}
+                />
+            </SkeletonLoader>
+        </HStack>
+    )
+}
+
+AliasNumberCard.propTypes = {
+    name: PropTypes.string,
     aliases: PropTypes.array,
+    value: PropTypes.number,
+    onChange: PropTypes.func,
 }

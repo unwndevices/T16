@@ -8,16 +8,13 @@ import {
 // layouts and pages
 import RootLayout from './layouts/RootLayout'
 import Dashboard from './pages/Dashboard'
-import General from './pages/General'
-import ControlChange from './pages/ControlChange'
-
+import QuickStart from './pages/QuickStart'
 // router and routes
 const router = createBrowserRouter(
     createRoutesFromElements(
         <Route path="/" element={<RootLayout />}>
             <Route index element={<Dashboard />} />
-            <Route path="general" element={<General />} />
-            <Route path="cc" element={<ControlChange />} />
+            <Route path="quickstart" element={<QuickStart />} />
         </Route>
     )
 )

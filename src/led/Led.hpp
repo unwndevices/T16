@@ -31,7 +31,6 @@ CRGBSet stateled(leds_set(0, 0));
 CRGBSet matrixleds(leds_set(1, 16));
 CRGB patternleds[16];
 CRGBSet sliderleds(leds_set(17, 23));
-CRGBSet markerleds(leds_set(24, 24));
 
 #include "led/patterns/Droplet.hpp"
 #include "led/patterns/Sea.hpp"
@@ -61,9 +60,32 @@ public:
         // basePattern = new Sea2();
     }
 
-    void SetMarker(uint8_t idx)
+    void SetMarker(uint8_t idx, bool state)
     {
-        matrixleds[idx] = ColorFromPalette(Pattern::currentPalette, 0, 64);
+        is_marker[idx] = state;
+        if (state)
+            log_d("Marker added at %d", idx);
+    }
+
+    void DrawMarkers()
+    {
+        for (uint8_t i = 0; i < 16; i++)
+        {
+            if (is_marker[i])
+            {
+                matrixleds[i] = ColorFromPalette(Pattern::currentPalette, 0, 64);
+            }
+
+            else
+            {
+                matrixleds[i] = CRGB::Black;
+            }
+        }
+    }
+
+    void SetBrightness(uint8_t brightness)
+    {
+        FastLED.setBrightness(brightness);
     }
 
     void RunPattern()
@@ -111,21 +133,21 @@ public:
 
     void SetSlider(float value, bool fill = true, uint8_t fade = 1)
     {
-        uint8_t numLedsToLight = static_cast<uint8_t>(value * sliderLength + 1);
+        uint8_t numLedsToLight = static_cast<uint8_t>(value * (sliderLength - 1));
         fadeToBlackBy(sliderleds, 7, fade);
 
         for (uint8_t i = 0; i < sliderLength; i++)
         {
             if (fill)
             {
-                if (i < numLedsToLight)
+                if (i <= numLedsToLight)
                 {
                     sliderleds[i] = CHSV(slider_color, 230, 100);
                 }
             }
             else
             {
-                if (i == numLedsToLight - 1)
+                if (i == numLedsToLight)
                 {
                     sliderleds[i] = CHSV(slider_color, 230, 100);
                 }
@@ -142,6 +164,15 @@ public:
     {
         nextPattern = pattern;
         currentPattern = new WaveTransition();
+    }
+
+    void UpdateTransition()
+    {
+        if (!nextPattern->isTransition)
+        {
+            currentPattern = nextPattern;
+        }
+        currentPattern = new WaveTransition(Direction::DOWN);
     }
 
     void SetSliderHue(uint8_t hue)
@@ -184,6 +215,7 @@ private:
     }
 
     uint8_t slider_color = HUE_ORANGE;
+    bool is_marker[16] = {false};
 };
 
-#endif // LED_HPP
+#endif// LED_HPP

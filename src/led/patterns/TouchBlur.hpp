@@ -22,7 +22,7 @@ public:
         pos_y = y;
         state = true;
     };
-
+    
     void SetAmount(float amount) override
     {
         this->amount = amount;

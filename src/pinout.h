@@ -19,6 +19,7 @@
 #define PIN_T7 14
 
 #define PIN_TX 43
+#define PIN_RX 44
 
 #define PIN_EXT1 2
 #define PIN_EXT2 42

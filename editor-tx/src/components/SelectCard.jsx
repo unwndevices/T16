@@ -1,56 +1,38 @@
-import {
-    Card,
-    CardHeader,
-    CardBody,
-    Flex,
-    Button,
-    Stack,
-    StackDivider,
-    Select,
-    Spacer,
-} from '@chakra-ui/react'
-
+import { Box, HStack, Select, Text } from '@chakra-ui/react'
 import { PropTypes } from 'prop-types'
+import SkeletonLoader from './SkeletonLoader'
 
-export function SelectCard({ name, entries }) {
+export function SelectCard({ name, value, entries, onChange }) {
+    const handleChange = (event) => {
+        const index = entries.indexOf(event.target.value)
+        onChange(index)
+    }
+
     return (
-        <Card borderRadius={20} borderColor="gray.100" borderBottomWidth={4}>
-            <Flex flexDirection="column" height="150px">
-                <CardHeader pt={4} pb={1}>
-                    <Flex
-                        justifyContent="space-between"
-                        alignItems="center"
-                        alignContent="center"
-                        wrap="wrap"
-                    >
-                        <Button
-                            flexGrow="0"
-                            colorScheme="green"
-                            size="md"
-                            borderRadius="full"
-                        >
-                            {name}
-                        </Button>
-                    </Flex>
-                </CardHeader>
-                <Spacer />
-                <Stack divider={<StackDivider />} spacing="0">
-                    <CardBody py={3}>
-                        <Flex justifyContent="space-between" align="center">
-                            <Select size="lg">
-                                {entries.map((entry) => (
-                                    <option key={entry}>{entry}</option>
-                                ))}
-                            </Select>
-                        </Flex>
-                    </CardBody>
-                </Stack>
-            </Flex>
-        </Card>
+        <HStack justifyContent="space-between" alignItems="center">
+            <Box minW="8vw">
+                <Text>{name}</Text>
+            </Box>
+            <SkeletonLoader>
+                <Select
+                    backgroundColor="white"
+                    value={entries[value]} // Set the selected value based on the index
+                    onChange={handleChange}
+                >
+                    {entries.map((entry) => (
+                        <option key={entry} value={entry}>
+                            {entry}
+                        </option>
+                    ))}
+                </Select>
+            </SkeletonLoader>
+        </HStack>
     )
 }
 
 SelectCard.propTypes = {
     name: PropTypes.string,
+    value: PropTypes.number,
     entries: PropTypes.array,
+    onChange: PropTypes.func,
 }

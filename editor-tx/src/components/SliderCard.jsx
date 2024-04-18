@@ -1,75 +1,53 @@
 import {
-    Card,
-    CardHeader,
-    CardBody,
     Flex,
-    Button,
-    Spacer,
-    Stack,
-    StackDivider,
     Slider,
     SliderTrack,
     SliderFilledTrack,
     SliderThumb,
     Text,
-    SliderMark,
+    Input,
 } from '@chakra-ui/react'
-
 import { PropTypes } from 'prop-types'
+import SkeletonLoader from './SkeletonLoader'
 
-export function SliderCard({
-    name,
-    value,
-    min = 0,
-    max = 127,
-}) {
+export function SliderCard({ name, value, min = 0, max = 127, onChange }) {
+    const handleSliderChange = (newValue) => {
+        onChange(newValue)
+    }
+
+    const handleInputChange = (event) => {
+        const inputValue = parseInt(event.target.value, 10)
+        if (!isNaN(inputValue) && inputValue >= min && inputValue <= max) {
+            onChange(inputValue)
+        }
+    }
 
     return (
-        <Card borderRadius={20} borderColor="gray.100" borderBottomWidth={4}>
-            <Flex flexDirection="column" height="150px">
-                <CardHeader pt={4} pb={1}>
-                    <Flex
-                        justifyContent="space-between"
-                        alignItems="center"
-                        alignContent="center"
-                        wrap="wrap"
-                    >
-                        <Button
-                            flexGrow="0"
-                            colorScheme="green"
-                            size="md"
-                            borderRadius="full"
-                        >
-                            {name}
-                        </Button>
-                        <Spacer />
-                        <Text>{value}</Text>
-                    </Flex>
-                </CardHeader>
-                <Stack divider={<StackDivider />} spacing="0">
-                    <CardBody py={3} pt={10}>
-                        <Flex justifyContent="space-between" align="center">
-                                <Slider
-                                    aria-label={name}
-                                    defaultValue={value}
-                                    min={min}
-                                    max={max}
-                                    size="lg"
-                                    colorScheme="green"
-                                >
-                                    <SliderTrack height={2} rounded={3}>
-                                        <SliderFilledTrack />
-                                    </SliderTrack>
-                                    <SliderThumb
-                                        boxSize={8}
-                                        backgroundColor={'green.300'}
-                                    />
-                                </Slider>
-                        </Flex>
-                    </CardBody>
-                </Stack>
+        <SkeletonLoader>
+            <Flex justifyContent="space-between" alignItems="center">
+                <Text minW="150px">{name}</Text>
+                <Input
+                    type="number"
+                    value={value}
+                    maxW="75px"
+                    mr="20px"
+                    onChange={handleInputChange}
+                />
+                <Slider
+                    aria-label={name}
+                    min={min}
+                    max={max}
+                    defaultValue={value}
+                    colorScheme="primary"
+                    onChange={handleSliderChange}
+                >
+                    <SliderTrack height={5} rounded="full">
+                        <SliderFilledTrack />
+                    </SliderTrack>
+                    <SliderThumb boxSize={5} backgroundColor={'primary.300'} />
+                </Slider>
             </Flex>
-        </Card>
+        </SkeletonLoader>
     )
 }
 
@@ -78,6 +56,5 @@ SliderCard.propTypes = {
     value: PropTypes.number,
     max: PropTypes.number,
     min: PropTypes.number,
-    stepped: PropTypes.bool,
-    step: PropTypes.number,
+    onChange: PropTypes.func,
 }

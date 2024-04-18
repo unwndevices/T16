@@ -79,6 +79,8 @@ public:
 
     static CRGBPalette16 currentPalette;
 
+    bool isTransition = false;
+
 protected:
     uint8_t pos_x = 0;
     uint8_t pos_y = 0;

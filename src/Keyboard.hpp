@@ -5,6 +5,14 @@
 #include "adc.hpp"
 #include "Signal.hpp"
 
+enum Mode
+{
+    KEYBOARD,
+    XY_PAD,
+    STRIPS,
+    MODE_AMOUNT
+};
+
 float fmap(float x, float in_min, float in_max, float out_min, float out_max)
 {
     return max(min((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min, out_max), out_min);
@@ -86,7 +94,7 @@ private:
     ulong pressStartTime = 0;
     uint8_t debounceTime = 10;
 
-    float at_threshold = 0.85f;
+    float at_threshold = 0.9f;
 
     static uint8_t instances;
 };
@@ -117,7 +125,7 @@ typedef struct Vec2
 class Keyboard
 {
 public:
-    enum VelocityLut
+    enum Lut
     {
         LINEAR,
         EXPONENTIAL,
@@ -170,9 +178,14 @@ public:
         // Update previousTime for the next iteration
         previousTime = currentTime;
 
-        // Call functions that require deltaTime as a parameter
-        CalcXY();
-        CalcStrip();
+        if (mode == XY_PAD)
+        {
+            CalcXY();
+        }
+        else if (mode == STRIPS)
+        {
+            CalcStrip();
+        }
     }
 
     float GetKey(uint8_t chn)
@@ -183,12 +196,13 @@ public:
     uint8_t GetVelocity(uint8_t chn)
     {
         uint8_t velocity = (uint8_t)(_config._keys[chn].velocity * 127.0f);
-        return velocity_luts[velocityLut][velocity];
+        return output_lut[velocityLut][velocity];
     };
 
     float GetAftertouch(uint8_t chn)
     {
-        return _config._keys[chn].GetAftertouch();
+        uint8_t aftertouch = (uint8_t)(_config._keys[chn].GetAftertouch() * 127.0f);
+        return output_lut[aftertouchLut][aftertouch];
     }
 
     float GetX()
@@ -261,29 +275,33 @@ public:
             return;
         }
         _bank = bank;
-        uint8_t _min = 4 * _bank;
-        uint8_t _max = _min + 4;
-        for (uint8_t i = _min; i < _max; i++)
-        {
-            strip_last_position[i] = -1.0f;
-            StripChanged(i);
-        }
+        bank_changed = true;
     };
 
-    void SetVelocityLut(VelocityLut lut)
+    void SetVelocityLut(Lut lut)
     {
         velocityLut = lut;
     };
 
+    void SetAftertouchLut(Lut lut)
+    {
+        aftertouchLut = lut;
+    };
+
     void PlotLuts()
     {
-        for (uint8_t i = 0; i < VelocityLut::LUT_AMOUNT; i++)
+        for (uint8_t i = 0; i < Lut::LUT_AMOUNT; i++)
         {
             for (uint8_t j = 0; j < 128; j++)
             {
-                Serial.println(">" + String(i) + ":" + String(velocity_luts[i][j]) + ":" + String(j) + "|xy");
+                Serial.println(">" + String(i) + ":" + String(output_lut[i][j]) + ":" + String(j) + "|xy");
             }
         }
+    };
+
+    void SetMode(Mode mode)
+    {
+        this->mode = mode;
     };
 
 private:
@@ -296,26 +314,30 @@ private:
     float touch_threshold = 0.15f;
     float slew = 0.4f;
 
+    Mode mode = KEYBOARD;
+
     // STRIP MODE
-    float strip_position[16] = {0.0f};
+    float strip_position[16] = {3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f};
     float strip_last_position[16] = {0.0f};
     uint8_t _bank = 0;
+    bool bank_changed = false;
 
     unsigned long deltaTime = 0;
     unsigned long previousTime = 0;
 
-    VelocityLut velocityLut = LINEAR;
+    Lut velocityLut = LINEAR;
+    Lut aftertouchLut = LINEAR;
 
-    uint8_t velocity_luts[VelocityLut::LUT_AMOUNT][128] = {0};
+    uint8_t output_lut[Lut::LUT_AMOUNT][128] = {0};
 
     void GenerateLUTs()
     {
         for (uint8_t i = 0; i < 128; i++)
         {
-            velocity_luts[LINEAR][i] = i;
-            velocity_luts[EXPONENTIAL][i] = (i * i) >> 7;
-            velocity_luts[LOGARITHMIC][i] = (uint8_t)(128.0f * log2f(1.0f + (float)i / 127.0f));
-            velocity_luts[QUADRATIC][i] = (i * i) >> 8;
+            output_lut[LINEAR][i] = i;
+            output_lut[EXPONENTIAL][i] = (i * i) >> 7;
+            output_lut[LOGARITHMIC][i] = (uint8_t)(128.0f * log2f(1.0f + (float)i / 127.0f));
+            output_lut[QUADRATIC][i] = (i * i) >> 8;
         }
     }
 

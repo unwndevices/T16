@@ -7,68 +7,68 @@ export default function ControlChange() {
     const { config } = useContext(MidiContext)
 
     return (
-        <Grid templateColumns="repeat(4, 1fr)" p={10}>
-            <GridItem colSpan={1} p={2}>
+        <Grid templateColumns="repeat(4, 1fr)" px={10} py={3}>
+            <GridItem colSpan={1} p={1}>
                 <CcCard
                     name="X"
-                    channel={config.channels[0]}
-                    cc={config.cc_ids[0]}
+                    channel={config.banks[0].channels[0]}
+                    cc={config.banks[0].ids[0]}
                     value={0}
                 />
             </GridItem>
-            <GridItem colSpan={1} p={2}>
+            <GridItem colSpan={1} p={1}>
                 <CcCard
                     name="Y"
-                    channel={config.channels[1]}
-                    cc={config.cc_ids[1]}
+                    channel={config.banks[0].channels[1]}
+                    cc={config.banks[0].ids[1]}
                     value={0}
                 />
             </GridItem>
-            <GridItem colSpan={1} p={2}>
+            <GridItem colSpan={1} p={1}>
                 <CcCard
                     name="P"
-                    channel={config.channels[2]}
-                    cc={config.cc_ids[2]}
+                    channel={config.banks[0].channels[2]}
+                    cc={config.banks[0].ids[2]}
                     value={0}
                 />
             </GridItem>
-            <GridItem colSpan={1} p={2}>
+            <GridItem colSpan={1} p={1}>
                 <CcCard
                     name={'MOD'}
-                    channel={config.channels[7]}
-                    cc={config.cc_ids[7]}
+                    channel={config.banks[0].channels[7]}
+                    cc={config.banks[0].ids[7]}
                     value={0}
                 />
             </GridItem>
-            <GridItem colSpan={1} p={2}>
+            <GridItem colSpan={1} p={1}>
                 <CcCard
                     name={'A'}
-                    channel={config.channels[3]}
-                    cc={config.cc_ids[3]}
+                    channel={config.banks[0].channels[3]}
+                    cc={config.banks[0].ids[3]}
                     value={0}
                 />
             </GridItem>
-            <GridItem colSpan={1} p={2}>
+            <GridItem colSpan={1} p={1}>
                 <CcCard
                     name={'B'}
-                    channel={config.channels[4]}
-                    cc={config.cc_ids[4]}
+                    channel={config.banks[0].channels[4]}
+                    cc={config.banks[0].ids[4]}
                     value={0}
                 />
             </GridItem>
-            <GridItem colSpan={1} p={2}>
+            <GridItem colSpan={1} p={1}>
                 <CcCard
                     name={'C'}
-                    channel={config.channels[5]}
-                    cc={config.cc_ids[5]}
+                    channel={config.banks[0].channels[5]}
+                    cc={config.banks[0].ids[5]}
                     value={0}
                 />
             </GridItem>
-            <GridItem colSpan={1} p={2}>
+            <GridItem colSpan={1} p={1}>
                 <CcCard
                     name={'D'}
-                    channel={config.channels[6]}
-                    cc={config.cc_ids[6]}
+                    channel={config.banks[0].channels[6]}
+                    cc={config.banks[0].ids[6]}
                     value={0}
                 />
             </GridItem>

@@ -69,7 +69,26 @@ void TouchSlider::Init(uint8_t *gpio)
 
 uint8_t TouchSlider::GetQuantizedPosition(uint8_t numPositions)
 {
-    return (uint8_t)(lastPosition * (float)(numPositions - 1));
+    // TODO make it work with any number of positions
+
+    uint8_t quantized_position = 0;
+    if (lastPosition < 0.25f)
+    {
+        quantized_position = 0;
+    }
+    else if (lastPosition < 0.5f)
+    {
+        quantized_position = 1;
+    }
+    else if (lastPosition < 0.75f)
+    {
+        quantized_position = 2;
+    }
+    else
+    {
+        quantized_position = 3;
+    }
+    return quantized_position;
 }
 
 bool TouchSlider::ReadValues()

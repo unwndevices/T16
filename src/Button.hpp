@@ -14,7 +14,8 @@ public:
         CLICKED,
         RELEASED,
         LONG_PRESSED,
-        LONG_RELEASED
+        LONG_RELEASED,
+        
     };
 
     Button(int pin = 0, int id = 0, int debounceTime = 10)
@@ -25,8 +26,8 @@ public:
           state(IDLE), prevState(IDLE),
           pressStartTime(0),
           elapsedTime(0),
-          longPressTime(500),
-          clickTime(230),
+          longPressTime(650),
+          clickTime(260),
           previousReading(false),
           longPressFlag(false) {}
 
@@ -46,6 +47,8 @@ public:
     {
         pinMode(pin, INPUT_PULLUP);
     }
+
+    bool GetRaw() { return reading; }
 
     void Update()
     {

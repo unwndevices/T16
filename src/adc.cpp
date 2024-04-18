@@ -106,12 +106,11 @@ void Adc::CalibrateMin()
         for (uint8_t j = 0; j < 16; j++)
         {
             i_v += analogRead(_config._pin);
-            delay(10);
+            delay(3);
         }
         i_v /= 16;
 
-        //_channels[i].minVal = constrain(i_v, 0, 4095);
-        _channels[i].minVal = constrain(0, 0, 4095);
+        _channels[i].minVal = constrain(i_v, 0, 4095);
     }
 }
 

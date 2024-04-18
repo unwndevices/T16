@@ -1,24 +1,88 @@
-import { Heading, Button, Flex, Spacer, Box, HStack } from '@chakra-ui/react'
+import {
+    Heading,
+    Button,
+    Flex,
+    Spacer,
+    Box,
+    HStack,
+    IconButton,
+    Drawer,
+    DrawerOverlay,
+    DrawerContent,
+    DrawerCloseButton,
+    DrawerBody,
+    DrawerFooter,
+    useDisclosure,
+    DrawerHeader,
+    Switch,
+    Text,
+} from '@chakra-ui/react'
 import MidiContext from './MidiProvider'
-import { useContext } from 'react'
+import React, { useContext } from 'react'
+import { MdSettings } from 'react-icons/md'
+import Settings from '../pages/Settings'
 
 export default function NavBar() {
-    const { isConnected, connect, sendConfig } = useContext(MidiContext)
+    const { isConnected, connect, sendConfig, isDemo, setDemo } =
+        useContext(MidiContext)
+    const { isOpen, onOpen, onClose } = useDisclosure()
+    const btnRef = React.useRef()
     return (
-        <Flex as="nav" p={4} pb={1} alignItems="center">
-            <Heading as="h1" size="lg" letterSpacing={'tighter'}>
-                Editor TX
+        <Flex
+            as="nav"
+            p={2}
+            px={6}
+            alignItems="center"
+            position="sticky"
+            top={0}
+            zIndex={100}
+        >
+            <Heading as="h1" size="lg" letterSpacing={1}>
+                Topo Editor
             </Heading>
             <Spacer />
             <HStack spacing={4}>
+                <HStack>
+                    <Text>Demo Mode</Text>
+                    <Switch
+                        id="demo-mode"
+                        isChecked={isDemo}
+                        onChange={(e) => setDemo(e.target.checked)}
+                    />
+                </HStack>
+
                 <Box>{isConnected ? '🟢' : '🔴'}</Box>
                 <Button
-                    colorScheme="green"
+                    colorScheme="secondary"
                     onClick={isConnected ? sendConfig : connect}
                 >
                     {isConnected ? 'Save' : 'Connect'}
                 </Button>
+
+                <IconButton
+                    onClick={onOpen}
+                    aria-label="Settings"
+                    colorScheme="secondary"
+                    icon={<MdSettings />}
+                />
             </HStack>
+            <Drawer
+                isOpen={isOpen}
+                placement="right"
+                onClose={onClose}
+                finalFocusRef={btnRef}
+                size="md"
+            >
+                <DrawerOverlay />
+                <DrawerContent>
+                    <DrawerCloseButton size="lg" right="25px" />
+                    <DrawerHeader>Settings</DrawerHeader>
+                    <DrawerBody>
+                        <Settings />
+                    </DrawerBody>
+                    <DrawerFooter />
+                </DrawerContent>
+            </Drawer>
         </Flex>
     )
 }

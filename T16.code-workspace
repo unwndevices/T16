@@ -1,21 +1,22 @@
 {
-	"folders": [
-		{
-			"name": "T16",
-			"path": "."
-		}
-	],
-	"settings": {
-		"files.associations": {
-			"*.json": "jsonc",
-			"cstddef": "cpp",
-			"*.tcc": "cpp",
-			"memory": "cpp",
-			"iostream": "cpp",
-			"istream": "cpp",
-			"sstream": "cpp",
-			"streambuf": "cpp",
-			"typeinfo": "cpp"
-		}
-	}
+    "folders": [
+        {
+            "name": "T16",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "files.associations": {
+            "*.json": "jsonc",
+            "cstddef": "cpp",
+            "*.tcc": "cpp",
+            "memory": "cpp",
+            "iostream": "cpp",
+            "istream": "cpp",
+            "sstream": "cpp",
+            "streambuf": "cpp",
+            "typeinfo": "cpp"
+        },
+        "svg.preview.background": "transparent"
+    }
 }
