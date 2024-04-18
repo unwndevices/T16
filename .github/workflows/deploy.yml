@@ -26,4 +26,4 @@ jobs:
             username: ${{ secrets.FTP_USER }}
             password: ${{ secrets.FTP_PASSWORD }}
             protocol: ${{ secrets.FTP_PROTOCOL }}
-            local-dir: editor-tx/build/
+            local-dir: editor-tx/dist/
