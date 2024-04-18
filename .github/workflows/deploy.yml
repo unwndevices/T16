@@ -1,0 +1,29 @@
+name: Deploy to Shared Hosting via FTP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build React App
+        run: |
+            cd editor-tx
+            npm install
+            npm run build
+
+      - name: Deploy to FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+            server: ${{ secrets.FTP_SERVER }}
+            username: ${{ secrets.FTP_USER }}
+            password: ${{ secrets.FTP_PASSWORD }}
+            protocol: ${{ secrets.FTP_PROTOCOL }}
+            local-dir: editor-tx/dist/
