@@ -134,8 +134,12 @@ export default function Keyboard() {
 
     return (
         <Grid templateColumns="repeat(5, 1fr)" p={5} px="2vw">
-            <GridItem colSpan={3}>
-                <Stack spacing={4} pr={10} py={3}>
+            <GridItem colSpan={{ base: 5, lg: 3 }}>
+                <Stack
+                    spacing={{ base: 6, lg: 4 }}
+                    pr={{ base: 0, lg: 10 }}
+                    py={3}
+                >
                     <SelectCard
                         name="Scale"
                         entries={scaleNames}
@@ -206,7 +210,7 @@ export default function Keyboard() {
                     />
                 </Stack>
             </GridItem>
-            <GridItem colSpan={2} pl={10}>
+            <GridItem colSpan={{ base: 5, lg: 2 }} pl={{ base: 0, lg: 10 }}>
                 <ScaleDisplay
                     scales={allScales}
                     selectedRoot={currentRoot}
@@ -217,6 +221,5 @@ export default function Keyboard() {
                 />
             </GridItem>
         </Grid>
-        
     )
 }

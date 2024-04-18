@@ -25,7 +25,7 @@ export function NumberInput({ value, min = 0, max = 10, onSelect }) {
             </Button>
             <Input
                 backgroundColor="white"
-                textAlign="right"
+                textAlign="center"
                 maxW={20}
                 {...input}
             />
@@ -90,6 +90,7 @@ export function AliasNumberInput({ aliases, value, onSelect }) {
             <Input
                 maxW={20}
                 type="text"
+                textAlign="center"
                 readOnly="readonly"
                 value={currentAlias}
                 backgroundColor="white"

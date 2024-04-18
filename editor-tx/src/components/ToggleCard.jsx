@@ -11,7 +11,7 @@ export function ToggleCard({ name, id, value, onChange }) {
     return (
         <Flex justifyContent="space-between" alignItems="center">
             <Box minW="8vw">
-                <Text>{name}</Text>
+                <Text pr={4}>{name}</Text>
             </Box>
             <SkeletonLoader>
                 <Switch

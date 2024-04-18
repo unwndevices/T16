@@ -36,6 +36,7 @@ export default function NavBar() {
             position="sticky"
             top={0}
             zIndex={100}
+            bg="#ffffffcf"
         >
             <Heading as="h1" size="lg" letterSpacing={1}>
                 Topo Editor

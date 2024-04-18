@@ -28,9 +28,9 @@ export default function Scales() {
 
     return (
         <Grid templateColumns="repeat(2, 1fr)" gap={6} p={5} px="2vw">
-            <GridItem colSpan={1}>
-                <VStack spacing={4} pr={10} py={3}>
-                    <Text>Custom Scale 1</Text>
+            <GridItem colSpan={{ base: 2, lg: 1 }}>
+                <VStack spacing={4} pr={{ base: 0, lg: 10 }}>
+                    <Text fontWeight="bold">Custom Scale 1</Text>
                     <EditableScaleDisplay
                         scale={config.custom_scale1}
                         octave={octave}
@@ -42,9 +42,9 @@ export default function Scales() {
                     />
                 </VStack>
             </GridItem>
-            <GridItem colSpan={1}>
-                <VStack spacing={4} pl={10} py={3}>
-                    <Text>Custom Scale 2</Text>
+            <GridItem colSpan={{ base: 2, lg: 1 }}>
+                <VStack spacing={4} pl={{ base: 0, lg: 10 }}>
+                    <Text fontWeight="bold">Custom Scale 2</Text>
                     <EditableScaleDisplay
                         scale={config.custom_scale2}
                         octave={octave}

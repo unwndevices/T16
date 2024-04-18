@@ -19,6 +19,7 @@ export function NumberCard({ name, min = 0, max = 127, value, onChange }) {
                     max={max}
                     value={value} // Pass the value prop here
                     onSelect={handleSelect}
+                    
                 />
             </SkeletonLoader>
         </HStack>
