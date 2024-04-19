@@ -31,7 +31,7 @@ export default function QuickStart() {
                         <Tab>Intro</Tab>
                         <Tab>Interface</Tab>
                         <Tab>Keyboard Mode</Tab>
-                        <Tab>Pad Mode</Tab>
+                        <Tab>Joystick Mode</Tab>
                         <Tab>Fader Mode</Tab>
                     </TabList>
 
@@ -99,7 +99,7 @@ export default function QuickStart() {
                         </TabPanel>
                         <TabPanel>
                             <Text fontSize="large">
-                                In Pad mode, the T16 acts as a X-Y (and Z)
+                                In Joystick mode, the T16 acts as a X-Y (and Z)
                                 controller, sending CC messages based on the
                                 position of a virtual cursor on the grid. In
                                 this mode the touchstrip sets the slew rate of

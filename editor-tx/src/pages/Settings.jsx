@@ -20,7 +20,7 @@ export default function Settings() {
             <ListItem>
                 <SelectCard
                     name="Default Mode"
-                    entries={['Keyboard', 'Pad', 'Sliders']}
+                    entries={['Keyboard', 'Joystick', 'Faders']}
                     value={config.mode}
                     onChange={(value) => handleChange('mode', value)}
                 />
