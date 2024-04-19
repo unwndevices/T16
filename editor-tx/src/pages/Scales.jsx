@@ -25,6 +25,7 @@ export default function Scales() {
     const octave = config.banks[selectedBank].octave
     const flipX = config.banks[selectedBank].flip_x
     const flipY = config.banks[selectedBank].flip_y
+    const root = config.banks[selectedBank].note
 
     return (
         <Grid templateColumns="repeat(2, 1fr)" gap={6} p={5} px="2vw">
@@ -34,6 +35,7 @@ export default function Scales() {
                     <EditableScaleDisplay
                         scale={config.custom_scale1}
                         octave={octave}
+                        root={root}
                         flipX={flipX}
                         flipY={flipY}
                         onNoteChange={(noteIndex, direction) =>
@@ -48,6 +50,7 @@ export default function Scales() {
                     <EditableScaleDisplay
                         scale={config.custom_scale2}
                         octave={octave}
+                        root={root}
                         flipX={flipX}
                         flipY={flipY}
                         onNoteChange={(noteIndex, direction) =>

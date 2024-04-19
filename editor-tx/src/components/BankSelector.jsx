@@ -11,7 +11,7 @@ export default function BankSelector() {
 
     const buttons = Array.from({ length: 4 }, (_, index) => index + 1)
     return (
-        <Box display="flex" justifyContent="space" alignItems="center">
+        <Box display="flex" justifyContent="space-between" alignItems="center">
             <Text fontWeight="bold" mr={2}>
                 Banks:
             </Text>

@@ -14,7 +14,7 @@ import Scales from './Scales'
 
 export default function Dashboard() {
     return (
-        <Grid templateColumns="repeat(4, 1fr)" p={5} px="5vw">
+        <Grid templateColumns="repeat(4, 1fr)" p={5} px="5vw" mb={10}>
             <GridItem colSpan={4}>
                 <Accordion defaultIndex={[0]} borderRadius="15px">
                     <AccordionItem>

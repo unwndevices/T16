@@ -33,7 +33,6 @@ export default function ScaleDisplay({
         let x = index % 4
         let y = Math.floor(index / 4)
 
-        // Flip the x and y coordinates based on flipX and flipY props
         if (flipX) {
             x = 3 - x
         }
@@ -41,17 +40,25 @@ export default function ScaleDisplay({
             y = 3 - y
         }
 
-        // Calculate the correct index based on flipped x and y coordinates
         const flippedIndex = y * 4 + x
-        const noteIndex =
-            selectedScaleSteps[flippedIndex % selectedScaleSteps.length]
+        const scaleStepIndex = flippedIndex % selectedScaleSteps.length
+        const noteIndex = selectedScaleSteps[scaleStepIndex]
         const noteNameIndex = (noteIndex + selectedRoot) % 12
         const noteName = noteNames[noteNameIndex]
-        const isRoot =
-            flippedIndex % selectedScaleSteps.length === 0 ||
-            noteNameIndex % 12 === 0
-        // Calculate the octave based on the note index and the passed octave
-        if (noteNameIndex <= previousNoteIndex) {
+
+        // Correctly identify the root note by checking if the current scale step index is 0
+        // This means we are at the start of the scale pattern
+        const isRoot = scaleStepIndex === 0 || noteIndex % 12 === 0
+
+        // Logic for calculating the octave remains unchanged
+        const currentNoteFullIndex = noteNameIndex + 12 * displayOctave
+        const previousNoteFullIndex =
+            previousNoteIndex +
+            12 * (displayOctave - (noteNameIndex <= previousNoteIndex ? 1 : 0))
+        if (
+            currentNoteFullIndex <= previousNoteFullIndex &&
+            previousNoteIndex !== -1
+        ) {
             displayOctave += 1
         }
         previousNoteIndex = noteNameIndex
@@ -69,7 +76,7 @@ export default function ScaleDisplay({
                         <KeyCard
                             name={`Key ${index + 1}`}
                             output={`${noteName}${displayOctave}`}
-                            root={isRoot}
+                            isRoot={isRoot}
                         />
                     </GridItem>
                 )
