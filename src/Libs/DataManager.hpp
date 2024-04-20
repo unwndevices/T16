@@ -33,7 +33,7 @@ public:
         JsonArray jsonArray = doc[name].as<JsonArray>();
         if (jsonArray.isNull())
         {
-            jsonArray = doc.createNestedArray(name); // Create a new array if not exist
+            jsonArray = doc[name].to<JsonArray>();
         }
         else
         {
@@ -163,4 +163,4 @@ private:
     bool hasChanged = false;
 };
 
-#endif// DATAMANAGER_HPP
+#endif // DATAMANAGER_HPP

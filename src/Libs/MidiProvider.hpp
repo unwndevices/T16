@@ -6,6 +6,12 @@
 #include <MIDI.h>
 #include <Adafruit_TinyUSB.h>
 
+struct CustomSettings : public midi::DefaultSettings
+{
+    static const unsigned SysExMaxSize = 2048; // to allow configuration transfers
+    static const unsigned BaudRate = 31250;
+};
+
 class MidiProvider
 {
 public:
@@ -24,10 +30,10 @@ public:
 
 private:
     Adafruit_USBD_MIDI usb_midi;
-    midi::SerialMIDI<Adafruit_USBD_MIDI> serialMIDI_USB;
-    midi::MidiInterface<midi::SerialMIDI<Adafruit_USBD_MIDI>> MIDI_USB;
-    midi::SerialMIDI<HardwareSerial> serialMIDI_SERIAL;
-    midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> MIDI_SERIAL;
+    midi::SerialMIDI<Adafruit_USBD_MIDI, CustomSettings> serialMIDI_USB;
+    midi::MidiInterface<midi::SerialMIDI<Adafruit_USBD_MIDI, CustomSettings>> MIDI_USB;
+    midi::SerialMIDI<HardwareSerial, CustomSettings> serialMIDI_SERIAL;
+    midi::MidiInterface<midi::SerialMIDI<HardwareSerial, CustomSettings>> MIDI_SERIAL;
     bool midiThru;
     bool midiOut;
 };

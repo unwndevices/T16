@@ -1,5 +1,5 @@
-#ifndef LED_HPP
-#define LED_HPP
+#ifndef LEDMANAGER_HPP
+#define LEDMANAGER_HPP
 
 #include <Arduino.h>
 #include <FastLED.h>
@@ -32,13 +32,13 @@ CRGBSet matrixleds(leds_set(1, 16));
 CRGB patternleds[16];
 CRGBSet sliderleds(leds_set(17, 23));
 
-#include "led/patterns/Droplet.hpp"
-#include "led/patterns/Sea.hpp"
-#include "led/patterns/Sea2.hpp"
-#include "led/patterns/NoBlur.hpp"
-#include "led/patterns/TouchBlur.hpp"
-#include "led/patterns/WaveTransition.hpp"
-#include "led/patterns/Strips.hpp"
+#include "patterns/Droplet.hpp"
+#include "patterns/Sea.hpp"
+#include "patterns/Sea2.hpp"
+#include "patterns/NoBlur.hpp"
+#include "patterns/TouchBlur.hpp"
+#include "patterns/WaveTransition.hpp"
+#include "patterns/Strips.hpp"
 
 class LedManager
 {
@@ -218,4 +218,4 @@ private:
     bool is_marker[16] = {false};
 };
 
-#endif// LED_HPP
+#endif// LEDMANAGER_HPP

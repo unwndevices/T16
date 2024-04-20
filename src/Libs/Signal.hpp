@@ -46,4 +46,4 @@ private:
     std::map<SlotID, Slot> m_slots;
     uint8_t nextSlotId = 0; // This will auto-increment for each new Slot
 };
-#endif // SIGNAL_HPP
+#endif// SIGNAL_HPP
