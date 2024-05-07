@@ -22,7 +22,7 @@ export default function Scales() {
                 updatedScale,
         })
     }
-    const octave = config.banks[selectedBank].octave
+    const octave = config.banks[selectedBank].oct
     const flipX = config.banks[selectedBank].flip_x
     const flipY = config.banks[selectedBank].flip_y
     const root = config.banks[selectedBank].note

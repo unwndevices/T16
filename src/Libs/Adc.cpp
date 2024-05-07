@@ -77,58 +77,32 @@ void Adc::SetCalibration(uint16_t *min, uint16_t *max, uint8_t channels)
     }
 }
 
-void Adc::CalibrationRoutine()
+void Adc::CalibrateMin(uint8_t chn)
 {
-    log_d("Please send a 'm' to calibrate max values");
-    SetMuxChannel(0);
-    while (Serial.read() != 'm')
+    SetMuxChannel(chn);
+    uint i_v = 0;
+    for (uint8_t j = 0; j < 16; j++)
     {
-        log_d("%d", analogRead(_config._pin));
-        delay(300);
+        i_v += analogRead(_config._pin);
+        delay(5);
     }
-    CalibrateMax();
-    log_d("Please send a 'n' to calibrate min values");
-    SetMuxChannel(0);
-    while (Serial.read() != 'n')
-    {
-        log_d("%d", analogRead(_config._pin));
-        delay(300);
-    }
-    CalibrateMin();
+    i_v /= 16;
+
+    _channels[chn].minVal = constrain(i_v, 0, 4095);
 }
 
-void Adc::CalibrateMin()
+void Adc::CalibrateMax(uint8_t chn)
 {
-    for (uint8_t i = 0; i < 16; i++)
+    SetMuxChannel(chn);
+    uint i_v = 0;
+    for (uint8_t j = 0; j < 16; j++)
     {
-        SetMuxChannel(i);
-        uint16_t i_v = 0;
-        for (uint8_t j = 0; j < 16; j++)
-        {
-            i_v += analogRead(_config._pin);
-            delay(3);
-        }
-        i_v /= 16;
-
-        _channels[i].minVal = constrain(i_v, 0, 4095);
+        i_v += analogRead(_config._pin);
+        delay(5);
     }
-}
+    i_v /= 16;
 
-void Adc::CalibrateMax()
-{
-    for (uint8_t i = 0; i < 16; i++)
-    {
-        SetMuxChannel(i);
-        uint16_t i_v = 0;
-        for (uint8_t j = 0; j < 16; j++)
-        {
-            i_v += analogRead(_config._pin);
-            delay(10);
-        }
-        i_v /= 16;
-
-        _channels[i].maxVal = constrain(i_v, 0, 4095);
-    }
+    _channels[chn].maxVal = constrain(i_v, 0, 4095);
 }
 
 void Adc::GetCalibration(uint16_t *min, uint16_t *max, uint8_t channels)
@@ -195,6 +169,11 @@ void Adc::SetMuxChannel(uint8_t chn) const
 float Adc::Get(uint8_t chn) const
 {
     return _channels[chn].value;
+}
+
+uint16_t Adc::GetRaw() const
+{
+    return analogRead(_config._pin);
 }
 
 float Adc::GetMux(uint8_t chn, uint8_t index) const

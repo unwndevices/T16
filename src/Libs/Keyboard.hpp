@@ -10,6 +10,7 @@ enum Mode
     KEYBOARD,
     XY_PAD,
     STRIPS,
+    STRUM,
     MODE_AMOUNT
 };
 
@@ -44,7 +45,7 @@ public:
             state = STARTED;
             pressStartTime = millis();
         }
-        else if (state == STARTED && value > 0.3f)
+        else if (state == STARTED && value > press_threshold)
         {
             state = PRESSED;
             ulong pressTime = millis() - pressStartTime;
@@ -90,11 +91,17 @@ public:
 
     Signal<int, Key::State> onStateChanged;
 
+    void SetATThreshold(float threshold)
+    {
+        at_threshold = threshold;
+    }
+
 private:
     ulong pressStartTime = 0;
     uint8_t debounceTime = 10;
 
-    float at_threshold = 0.9f;
+    float press_threshold = 0.3f;
+    float at_threshold = 0.85f;
 
     static uint8_t instances;
 };
@@ -303,6 +310,24 @@ public:
     {
         this->mode = mode;
     };
+
+    void SetATFullRange(bool full_at)
+    {
+        if (!full_at)
+        {
+            for (uint8_t i = 0; i < _config._key_amount; i++)
+            {
+                _config._keys[i].SetATThreshold(0.9f);
+            }
+        }
+        else
+        {
+            for (uint8_t i = 0; i < _config._key_amount; i++)
+            {
+                _config._keys[i].SetATThreshold(0.3f);
+            }
+        }
+    }
 
 private:
     KeyboardConfig _config;

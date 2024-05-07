@@ -51,6 +51,38 @@ int8_t scales[SCALE_AMOUNT][16] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}  // CUSTOM2 Placeholder
 };
 
+enum Chord
+{
+    MAJOR = 0,        // Major chord: root, major third, perfect fifth
+    MINOR,            // Minor chord: root, minor third, perfect fifth
+    DIMINISH,         // Diminished chord: root, minor third, diminished fifth
+    SUSPENDED_FOURTH, // Suspended fourth chord: root, perfect fourth, perfect fifth
+    MAJOR_SEVENTH,    // Major seventh chord: root, major third, perfect fifth, major seventh
+    MINOR_SEVENTH,    // Minor seventh chord: root, minor third, perfect fifth, minor seventh
+    SEVENTH,          // Seventh chord: root, major third, perfect fifth, minor seventh
+    CHORD_AMOUNT
+};
+
+int8_t chords[CHORD_AMOUNT][4] = {
+    {0, 4, 7, -1}, // MAJOR
+    {0, 3, 7, -1}, // MINOR
+    {0, 4, 7, 11}, // SEVENTH
+    {0, 3, 7, 10}, // MINOR_SEVENTH
+    {0, 4, 7, 11}, // MAJOR_SEVENTH
+    {0, 3, 6, 10}, // SUSPENDED_FOURTH
+    {0, 3, 6, -1}  // DIMINISH
+};
+
+int8_t strum_chords[CHORD_AMOUNT][7] = {
+    {0, 4, 7, 12, 16, 19, 24}, // MAJOR
+    {0, 3, 7, 12, 15, 19, 24}, // MINOR
+    {0, 4, 7, 11, 12, 16, 19}, // SEVENTH
+    {0, 3, 7, 10, 12, 15, 19}, // MINOR_SEVENTH
+    {0, 4, 7, 11, 12, 16, 19}, // MAJOR_SEVENTH
+    {0, 3, 6, 10, 12, 15, 18}, // SUSPENDED_FOURTH
+    {0, 3, 6, 12, 15, 18, 24}  // DIMINISH
+};
+
 uint8_t note_map[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 
 void SetNoteMap(uint8_t scale, uint8_t root_note, bool flip_x, bool flip_y, std::function<void(uint8_t, bool)> markerCallback)

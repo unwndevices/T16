@@ -128,7 +128,7 @@ export default function Keyboard() {
 
     const currentScale = config.banks[selectedBank].scale
     const currentRoot = config.banks[selectedBank].note
-    const currentOctave = config.banks[selectedBank].octave
+    const currentOctave = config.banks[selectedBank].oct
     const flipX = config.banks[selectedBank].flip_x
     const flipY = config.banks[selectedBank].flip_y
 
@@ -136,7 +136,7 @@ export default function Keyboard() {
         <Grid templateColumns="repeat(5, 1fr)" p={5} px="2vw">
             <GridItem colSpan={{ base: 5, lg: 3 }}>
                 <Stack
-                    spacing={{ base: 6, lg: 4 }}
+                    spacing={{ base: 6, lg: 3 }}
                     pr={{ base: 0, lg: 10 }}
                     py={3}
                 >
@@ -158,8 +158,8 @@ export default function Keyboard() {
                         name="Octave"
                         min={0}
                         max={5}
-                        value={config.banks[selectedBank].octave}
-                        onChange={(value) => handleChange('octave', value)}
+                        value={config.banks[selectedBank].oct}
+                        onChange={(value) => handleChange('oct', value)}
                     />
                     <Divider />
                     <HStack justifyContent="space-between">
@@ -181,8 +181,8 @@ export default function Keyboard() {
                         name="Channel"
                         min={1}
                         max={16}
-                        value={config.banks[selectedBank].channel}
-                        onChange={(value) => handleChange('channel', value)}
+                        value={config.banks[selectedBank].ch}
+                        onChange={(value) => handleChange('ch', value)}
                     />
                     <Divider />
                     <SelectCard
@@ -193,8 +193,8 @@ export default function Keyboard() {
                             'Logarithmic',
                             'Cubic',
                         ]}
-                        value={config.banks[selectedBank].velocity}
-                        onChange={(value) => handleChange('velocity', value)}
+                        value={config.banks[selectedBank].vel}
+                        onChange={(value) => handleChange('vel', value)}
                     />
                     <Divider />
                     <SelectCard
@@ -205,8 +205,8 @@ export default function Keyboard() {
                             'Logarithmic',
                             'Cubic',
                         ]}
-                        value={config.banks[selectedBank].aftertouch}
-                        onChange={(value) => handleChange('aftertouch', value)}
+                        value={config.banks[selectedBank].at}
+                        onChange={(value) => handleChange('at', value)}
                     />
                 </Stack>
             </GridItem>

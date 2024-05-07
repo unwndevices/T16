@@ -22,7 +22,6 @@ struct AdcChannelConfig
 
     uint8_t _pin;
     uint8_t _mux_pin[MUX_SEL_LAST];
-    
 };
 
 class Adc
@@ -43,9 +42,9 @@ public:
 
     void SetCalibration(uint16_t *min, uint16_t *max, uint8_t channels);
 
-    void CalibrationRoutine(); // method to calibrate the ADC
-    void CalibrateMin();       // method to calibrate the ADC
-    void CalibrateMax();       // method to calibrate the ADC
+    void CalibrationRoutine();      // method to calibrate the ADC
+    void CalibrateMin(uint8_t chn); // method to calibrate the ADC
+    void CalibrateMax(uint8_t chn); // method to calibrate the ADC
 
     void GetCalibration(uint16_t *min, uint16_t *max, uint8_t channels); // method to get the calibration values
     void Start();                                                        // method to start the task (and ADC
@@ -54,7 +53,7 @@ public:
     void ReadValuesDMA();                                                // method to read the values from the ADC using DMA
     float Get(uint8_t chn) const;                                        // method to get the value of a channel as a float
     float GetMux(uint8_t chn, uint8_t index) const;                      // method to get the value of a mux channel as a float
-
+    uint16_t GetRaw() const;                                             // method to get the raw value of a channel
     inline static void fonepole(float &out, float in, float coeff)
     {
         out = (in * coeff) + (out * (1.0f - coeff));
@@ -90,9 +89,8 @@ public:
     static ulong microseconds;
     static ulong previousMicroseconds;
 
-private:
     void SetMuxChannel(uint8_t chn) const; // method to set the mux channel
-
+private:
     AdcChannelConfig _config;
     std::vector<AdcChannel> _channels;
     uint8_t _mux_pin[4];

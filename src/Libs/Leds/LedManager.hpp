@@ -67,6 +67,14 @@ public:
             log_d("Marker added at %d", idx);
     }
 
+    void SetLed(uint8_t idx, bool state)
+    {
+        if (state)
+            matrixleds[idx] = CHSV(HUE_ORANGE, 230, 70);
+        else
+            matrixleds[idx] = CRGB::Black;
+    }
+
     void DrawMarkers()
     {
         for (uint8_t i = 0; i < 16; i++)
@@ -155,6 +163,30 @@ public:
         }
     }
 
+    void SetSlider(uint8_t position, bool fill = false, uint8_t fade = 1)
+    {
+        fadeToBlackBy(sliderleds, 7, fade);
+        if (fill)
+        {
+            for (uint8_t i = 0; i <= position; i++)
+            {
+                sliderleds[i] = CHSV(slider_color, 230, 100);
+            }
+        }
+        else
+        {
+            sliderleds[position] = CHSV(slider_color, 230, 100);
+        }
+    }
+
+    void SetSliderLed(uint8_t idx, bool state)
+    {
+        if (state)
+            sliderleds[idx] = CHSV(slider_color, 230, 100);
+        else
+            sliderleds[idx] = CRGB::Black;
+    }
+
     void SetPattern(Pattern *pattern)
     {
         currentPattern = pattern;
@@ -218,4 +250,4 @@ private:
     bool is_marker[16] = {false};
 };
 
-#endif// LEDMANAGER_HPP
+#endif // LEDMANAGER_HPP

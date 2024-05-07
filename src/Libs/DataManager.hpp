@@ -99,6 +99,7 @@ public:
     {
         JsonDocument doc;
         deserializeJson(doc, buffer);
+        serializeJson(doc, Serial);
         SaveJsonDocument(doc);
     }
 

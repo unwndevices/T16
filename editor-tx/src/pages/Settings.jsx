@@ -67,6 +67,13 @@ export default function Settings() {
                     onChange={(value) => handleChange('passthrough', value)}
                 />
             </ListItem>
+            <ListItem>
+                <ToggleCard
+                    name="🔵🦷"
+                    value={config.midi_ble}
+                    onChange={(value) => handleChange('midi_ble', value)}
+                />
+            </ListItem>
         </List>
     )
 }

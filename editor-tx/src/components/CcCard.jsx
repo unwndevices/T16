@@ -12,14 +12,23 @@ import {
 } from '@chakra-ui/react'
 import { NumberInput } from '../components/CustomInputs'
 import { PropTypes } from 'prop-types'
-import { useContext, useMemo, useState, useEffect } from 'react'
+import { useContext, useMemo } from 'react'
 import MidiContext from './MidiProvider'
 import SkeletonLoader from './SkeletonLoader'
 
-export function CcCard({ name, channel, cc, value, onChange }) {
-    const { ccMessages, config } = useContext(MidiContext)
-    const handleSelect = (value) => {
-        onChange(value)
+export function CcCard({ name, channel, cc, value, onChange, isDuplicate }) {
+    const { ccMessages } = useContext(MidiContext)
+
+    // Assuming onChange updates the state or props that control channel or cc,
+    // ensure it's correctly implemented to reflect changes.
+    const handleSelectChannel = (newChannel) => {
+        // Update the channel state or props here
+        onChange({ channel: newChannel, cc, value })
+    }
+
+    const handleSelectCc = (newCc) => {
+        // Update the cc state or props here
+        onChange({ channel, cc: newCc, value })
     }
 
     const updatedValue = useMemo(() => {
@@ -71,7 +80,7 @@ export function CcCard({ name, channel, cc, value, onChange }) {
                                 min={1}
                                 max={16}
                                 value={channel} // Set the value of the input component
-                                onSelect={handleSelect}
+                                onSelect={handleSelectChannel}
                             />
                         </SkeletonLoader>
                     </Flex>
@@ -85,7 +94,8 @@ export function CcCard({ name, channel, cc, value, onChange }) {
                                 min={0}
                                 max={127}
                                 value={cc} // Set the value of the input component
-                                onSelect={handleSelect}
+                                onSelect={handleSelectCc}
+                                isHighlighted={isDuplicate}
                             />
                         </SkeletonLoader>
                     </Flex>
@@ -100,4 +110,6 @@ CcCard.propTypes = {
     channel: PropTypes.number,
     cc: PropTypes.number,
     value: PropTypes.number,
+    onChange: PropTypes.func,
+    isDuplicate: PropTypes.bool,
 }

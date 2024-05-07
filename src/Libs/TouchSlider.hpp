@@ -2,6 +2,7 @@
 #define TOUCHSLIDER_HPP
 #include <Arduino.h>
 #include "Timer.hpp"
+#include "Signal.hpp"
 
 #define NUM_SENSORS 7
 
@@ -46,6 +47,7 @@ public:
     CapTouch t[NUM_SENSORS]; // Change this to match your slider
     void Init(uint8_t *gpio);
     void SetPosition(float position) { lastPosition = position; };
+    void SetPosition(uint8_t intPosition, uint8_t numPositions);
     float GetPosition() { return lastPosition; };
     uint8_t GetQuantizedPosition(uint8_t numPositions);
     float GetSpeed() { return speed * (float)direction; };
@@ -55,6 +57,22 @@ public:
     {
         float prevPosition = GetPosition();
         ReadValues();
+
+        for (uint8_t i = 0; i < NUM_SENSORS; i++)
+        {
+            bool currentState = IsTouched(i);
+
+            if (currentState && !prevSensorState[i])
+            {
+                onSensorTouched.Emit(i, true);
+            }
+            else if (!currentState && prevSensorState[i])
+            {
+                onSensorTouched.Emit(i, false);
+            }
+
+            prevSensorState[i] = currentState;
+        }
     }
 
     bool IsTouched(float threshold = 0.0f)
@@ -73,6 +91,14 @@ public:
     int direction;
     float speed;
 
+    bool IsTouched(uint8_t sensorNum, uint16_t threshold = 12000)
+    {
+
+        return t[sensorNum].GetValue() > threshold;
+    }
+
+    Signal<uint8_t, bool> onSensorTouched;
+
 private:
     int touchThreshold = 12000;
     bool touched = false;
@@ -85,9 +111,9 @@ private:
     unsigned long pressTime = 0;
     unsigned long releaseTime = 0;
     const unsigned long clickTime = 300;
+    bool prevSensorState[NUM_SENSORS] = {false};
 
     Timer timer;
-
     int ReadSensorValue(int sensorNum) { return t[sensorNum].GetValue(); };
 };
 

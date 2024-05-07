@@ -2,7 +2,13 @@ import PropTypes from 'prop-types'
 import { Button, Input, HStack, useNumberInput } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 
-export function NumberInput({ value, min = 0, max = 10, onSelect }) {
+export function NumberInput({
+    value,
+    min = 0,
+    max = 10,
+    onSelect,
+    isHighlighted,
+}) {
     const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
         useNumberInput({
             step: 1,
@@ -28,6 +34,8 @@ export function NumberInput({ value, min = 0, max = 10, onSelect }) {
                 textAlign="center"
                 maxW={20}
                 {...input}
+                borderColor={isHighlighted ? 'red.300' : 'rgb(232, 230, 243)'}
+                borderWidth={isHighlighted ? '2px' : '1px'}
             />
             <Button colorScheme="primary" {...inc}>
                 +
@@ -41,6 +49,7 @@ NumberInput.propTypes = {
     min: PropTypes.number,
     max: PropTypes.number,
     onSelect: PropTypes.func,
+    isHighlighted: PropTypes.bool,
 }
 
 export function AliasNumberInput({ aliases, value, onSelect }) {

@@ -7,7 +7,7 @@ const MidiContext = createContext()
 
 export const MidiProvider = ({ children }) => {
     const toast = useToast()
-    const [isDemo, setDemo] = useState(true)
+    const [isDemo, setDemo] = useState(false)
     const [input, setInput] = useState(null)
     const [output, setOutput] = useState(null)
     const [isConnected, setIsConnected] = useState(false)
@@ -19,60 +19,61 @@ export const MidiProvider = ({ children }) => {
         midi_trs: 0,
         trs_type: 0,
         passthrough: 0,
+        midi_ble: 0,
         brightness: 0,
+        banks: [
+            {
+                ch: 1,
+                oct: 0,
+                scale: 0,
+                note: 0,
+                vel: 0,
+                at: 0,
+                flip_x: 0,
+                flip_y: 0,
+                chs: [1, 1, 1, 1, 1, 1, 1, 1],
+                ids: [13, 14, 15, 16, 17, 18, 19, 20],
+            },
+            {
+                ch: 1,
+                oct: 0,
+                scale: 0,
+                note: 0,
+                vel: 0,
+                at: 0,
+                flip_x: 0,
+                flip_y: 0,
+                chs: [1, 1, 1, 1, 1, 1, 1, 1],
+                ids: [21, 22, 23, 24, 25, 26, 27, 28],
+            },
+            {
+                ch: 1,
+                oct: 0,
+                scale: 0,
+                note: 0,
+                vel: 0,
+                at: 0,
+                flip_x: 0,
+                flip_y: 0,
+                chs: [1, 1, 1, 1, 1, 1, 1, 1],
+                ids: [21, 22, 23, 24, 25, 26, 27, 28],
+            },
+            {
+                ch: 1,
+                oct: 0,
+                scale: 0,
+                note: 0,
+                vel: 0,
+                at: 0,
+                flip_x: 0,
+                flip_y: 0,
+                chs: [1, 1, 1, 1, 1, 1, 1, 1],
+                ids: [31, 32, 33, 34, 35, 36, 37, 38],
+            },
+        ],
         custom_scale1: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
         custom_scale2: [
             0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45,
-        ],
-        banks: [
-            {
-                channel: 1,
-                octave: 0,
-                scale: 0,
-                note: 0,
-                velocity: 0,
-                aftertouch: 0,
-                flip_x: 0,
-                flip_y: 0,
-                channels: [0, 0, 0, 0, 0, 0, 0, 0],
-                ids: [0, 0, 0, 0, 0, 0, 0, 0],
-            },
-            {
-                channel: 1,
-                octave: 0,
-                scale: 0,
-                note: 0,
-                velocity: 0,
-                aftertouch: 0,
-                flip_x: 0,
-                flip_y: 0,
-                channels: [0, 0, 0, 0, 0, 0, 0, 0],
-                ids: [0, 0, 0, 0, 0, 0, 0, 0],
-            },
-            {
-                channel: 1,
-                octave: 0,
-                scale: 0,
-                note: 0,
-                velocity: 0,
-                aftertouch: 0,
-                flip_x: 0,
-                flip_y: 0,
-                channels: [0, 0, 0, 0, 0, 0, 0, 0],
-                ids: [0, 0, 0, 0, 0, 0, 0, 0],
-            },
-            {
-                channel: 1,
-                octave: 0,
-                scale: 0,
-                note: 0,
-                velocity: 0,
-                aftertouch: 0,
-                flip_x: 0,
-                flip_y: 0,
-                channels: [0, 0, 0, 0, 0, 0, 0, 0],
-                ids: [0, 0, 0, 0, 0, 0, 0, 0],
-            },
         ],
     })
 
@@ -118,7 +119,7 @@ export const MidiProvider = ({ children }) => {
                 console.log('MIDIAccess state changed:', event.port.state)
                 if (event.port.state === 'connected') {
                     // Check if the connected port is the input or output you're looking for
-                    if (event.port.name === 'unwn TX16') {
+                    if (event.port.name === 'Topo T16') {
                         if (event.port.type === 'input') {
                             setInput(event.port)
                             setIsConnected(true)
@@ -138,9 +139,9 @@ export const MidiProvider = ({ children }) => {
                 }
             })
 
-            const _input = WebMidi.getInputByName('unwn TX16')
+            const _input = WebMidi.getInputByName('Topo T16')
             setInput(_input)
-            const _output = WebMidi.getOutputByName('unwn TX16')
+            const _output = WebMidi.getOutputByName('Topo T16')
             setOutput(_output)
             setIsConnected(_input.connection)
 
