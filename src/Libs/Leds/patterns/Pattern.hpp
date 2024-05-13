@@ -67,6 +67,10 @@ public:
 
     virtual void SetPosition(float x, float y){};
 
+    virtual void SetLed(uint8_t x, uint8_t y, bool state = true){};
+    virtual void SetNote(uint8_t note){};
+    virtual void SetChord(uint8_t chord){};
+
     virtual void SetColor(uint8_t color){};
     virtual void SetSpeed(uint8_t speed){};
 

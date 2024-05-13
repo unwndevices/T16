@@ -1,6 +1,8 @@
 #include "pinout.h"
 #include <Arduino.h>
 
+#include "Performance.hpp"
+
 #include "Configuration.hpp"
 
 #include "Libs/MidiProvider.hpp"
@@ -12,7 +14,8 @@ DataManager config("/configuration_data.json");
 
 #include <FastLED.h>
 
-DEFINE_GRADIENT_PALETTE(unwn_gp){0, 176, 65, 251, 127, 230, 2, 2, 255, 255, 111, 156};
+DEFINE_GRADIENT_PALETTE(unwn_gp){0, 255, 246, 197, 128, 255, 178, 28, 255, 255, 83, 0};
+// DEFINE_GRADIENT_PALETTE(unwn_gp){0, 176, 65, 251, 127, 230, 2, 2, 255, 255, 111, 156};
 DEFINE_GRADIENT_PALETTE(topo_gp){0, 0, 107, 189, 128, 255, 147, 0, 255, 0, 255, 121};
 DEFINE_GRADIENT_PALETTE(alt_gp){0, 189, 70, 70, 255, 78, 75, 232};
 DEFINE_GRADIENT_PALETTE(acid_gp){0, 126, 255, 36, 255, 130, 0, 255};
@@ -24,6 +27,7 @@ LedManager led_manager;
 TouchBlur touch_blur;
 NoBlur no_blur;
 Strips strips;
+Strum strum;
 
 #include "Libs/Adc.hpp"
 Adc adc;
@@ -70,6 +74,7 @@ void OnBankChange()
     led_manager.SetPalette(palette[kb_cfg[parameters.bank].palette]);
     uint8_t base_note = kb_cfg[parameters.bank].base_note + (kb_cfg[parameters.bank].base_octave * 12);
     SetNoteMap(kb_cfg[parameters.bank].scale, base_note, kb_cfg[parameters.bank].flip_x, kb_cfg[parameters.bank].flip_y, SetMarkerCallback);
+    SetChordMapping(kb_cfg[parameters.bank].scale);
     keyboard.SetBank(parameters.bank);
     keyboard.SetVelocityLut((Keyboard::Lut)kb_cfg[parameters.bank].velocity_curve);
     keyboard.SetAftertouchLut((Keyboard::Lut)kb_cfg[parameters.bank].aftertouch_curve);
@@ -79,45 +84,46 @@ void OnBankChange()
 
 uint8_t current_chord = 0;
 uint8_t current_base_note = 0;
+uint8_t current_key_idx = 0;
 
 void ProcessStrum(int idx, Key::State state)
 {
     if (state == Key::State::PRESSED)
     {
-        if (idx < 8)
+        if (idx < 12)
         {
+            current_key_idx = idx;
             current_base_note = note_map[idx] + (kb_cfg[parameters.bank].base_octave * 12);
-            for (int i = 0; i < 8; i++)
-            {
-                led_manager.SetLed(i, false);
-            }
-            led_manager.SetLed(idx, true);
+            led_manager.SetNote(idx);
+            log_d("Pressed: idx=%d, base_note=%d, chord=%d", idx, current_base_note, current_chord);
+            current_chord = current_chord_mapping[idx];
+            led_manager.SetChord(current_chord);
         }
         else
         {
-            current_chord = idx - 8;
-            for (int i = 0; i < 8; i++)
-            {
-                led_manager.SetLed(i, false);
-            }
-            led_manager.SetLed(idx, true);
+            current_chord = idx - 12;
+            current_chord_mapping[current_base_note] = current_chord;
+            led_manager.SetChord(current_chord);
         }
     }
 }
 
 void ProcessSliderStrum(uint8_t idx, bool state)
 {
-    if (state)
-    {
-        midi_provider.SendChordNoteOn(idx, strum_chords[current_chord][idx] + current_base_note, 127, kb_cfg[parameters.bank].channel);
-        led_manager.SetSliderLed(idx, true);
-        FastLED.show();
-    }
-    else
-    {
-        midi_provider.SendChordNoteOff(idx, kb_cfg[parameters.bank].channel);
-        led_manager.SetSliderLed(idx, false);
-    }
+    if (cfg.mode == Mode::STRUM)
+        if (state)
+        {
+            int velocity = keyboard.GetPressure(current_key_idx);
+            log_d("velocity: %d", velocity);
+            midi_provider.SendChordNoteOn(idx, strum_chords[current_chord][idx] + current_base_note, velocity, kb_cfg[parameters.bank].channel);
+            led_manager.SetSliderLed(idx, 254);
+            FastLED.show();
+        }
+        else
+        {
+            midi_provider.SendChordNoteOff(idx, kb_cfg[parameters.bank].channel);
+            led_manager.SetSliderLed(idx, 25);
+        }
 }
 
 void ProcessKey(int idx, Key::State state)
@@ -154,7 +160,7 @@ void ProcessSlider()
             led_manager.SetSlider(0.5f, false);
             if (parameters.isBending)
             {
-                parameters.bend = 0;
+                parameters.bend = 0.0f;
                 midi_provider.SendPitchBend(parameters.bend, kb_cfg[parameters.bank].channel);
                 parameters.isBending = false;
             }
@@ -163,7 +169,8 @@ void ProcessSlider()
         {
             // convert the float value to a 14 bit integer, with 0 being the float value 0.5
             value = (slider.GetPosition() - 0.5f) * 2.0f;
-            parameters.bend = (value * 8192.0f);
+            parameters.bend = (value * 8191.0f);
+            log_d("bend: %d", (int)parameters.bend);
             midi_provider.SendPitchBend((int)parameters.bend, kb_cfg[parameters.bank].channel);
             led_manager.SetSlider(slider.GetPosition(), false);
             parameters.isBending = true;
@@ -205,7 +212,7 @@ void ProcessSliderButton()
     {
     case SliderMode::BEND:
         log_d("Slider mode: Bend");
-        led_manager.SetSliderHue(HSVHue::HUE_PINK + 10);
+        led_manager.SetSliderHue(HSVHue::HUE_PINK);
         break;
     case SliderMode::OCTAVE:
         log_d("Slider mode: Octave");
@@ -249,7 +256,6 @@ void ProcessModeButton()
     case Mode::XY_PAD:
         log_d("Mode: XY");
         keyboard.RemoveOnStateChanged();
-        slider.onSensorTouched.DisconnectAll();
         keyboard.SetMode(Mode::XY_PAD);
         led_manager.TransitionToPattern(&touch_blur);
         slider_mode = SliderMode::SLEW;
@@ -258,7 +264,6 @@ void ProcessModeButton()
     case Mode::STRIPS:
         log_d("Mode: Strips");
         keyboard.RemoveOnStateChanged();
-        slider.onSensorTouched.DisconnectAll();
         keyboard.SetMode(Mode::STRIPS);
         led_manager.TransitionToPattern(&strips);
         slider_mode = SliderMode::SLEW;
@@ -270,7 +275,7 @@ void ProcessModeButton()
         keyboard.SetOnStateChanged(&ProcessStrum);
         slider.onSensorTouched.Connect(ProcessSliderStrum);
         keyboard.SetMode(Mode::STRUM);
-        led_manager.TransitionToPattern(&strips);
+        led_manager.TransitionToPattern(&strum);
         slider_mode = SliderMode::STRUMMING;
         ProcessSliderButton();
         break;
@@ -295,6 +300,10 @@ void ProcessButton(int idx, Button::State state)
                 {
                     slider_mode = SliderMode::MOD;
                 }
+            }
+            if (cfg.mode == Mode::STRUM)
+            {
+                slider_mode = SliderMode::STRUMMING;
             }
             ProcessSliderButton();
         }
@@ -348,6 +357,7 @@ void ApplyConfiguration()
 {
     midi_provider.SetMidiBle((bool)cfg.midi_ble);
     midi_provider.SetMidiOut((bool)cfg.midi_trs);
+    midi_provider.SetMidiTRSType((bool)cfg.trs_type);
     midi_provider.SetMidiThru((bool)cfg.passthrough);
     led_manager.SetBrightness(cfg.brightness);
 
@@ -358,6 +368,7 @@ void ApplyConfiguration()
 
     uint8_t base_note = kb_cfg[parameters.bank].base_note + (kb_cfg[parameters.bank].base_octave * 12);
     SetNoteMap(kb_cfg[parameters.bank].scale, base_note, kb_cfg[parameters.bank].flip_x, kb_cfg[parameters.bank].flip_y, SetMarkerCallback);
+    SetChordMapping(kb_cfg[parameters.bank].scale);
     keyboard.SetVelocityLut((Keyboard::Lut)kb_cfg[parameters.bank].velocity_curve);
     keyboard.SetAftertouchLut((Keyboard::Lut)kb_cfg[parameters.bank].aftertouch_curve);
 
@@ -426,7 +437,7 @@ bool CalibrationRoutine()
 
 void setup()
 {
-    midi_provider.Init(PIN_RX, PIN_TX);
+    midi_provider.Init(PIN_RX, PIN_TX, PIN_TX2);
 
     Serial.begin(115200);
     Serial.setDebugOutput(true);
@@ -505,14 +516,13 @@ void setup()
 
 void loop()
 {
-
     midi_provider.Read();
 
     t_btn.Update();
     m_btn.Update();
-    keyboard.Update();
     slider.Update();
 
+    keyboard.Update();
     fill_solid(matrixleds, 16, CRGB::Black);
 
     if (cfg.mode == Mode::XY_PAD)
@@ -533,7 +543,7 @@ void loop()
         led_manager.SetPosition(xy.x, xy.y);
 
         float pressure = keyboard.GetPressure();
-        if (pressure > 0.00f)
+        if (pressure >= 0.00f)
         {
 
             if (!parameters.midiLearn)

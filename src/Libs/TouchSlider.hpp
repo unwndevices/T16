@@ -57,10 +57,9 @@ public:
     {
         float prevPosition = GetPosition();
         ReadValues();
-
         for (uint8_t i = 0; i < NUM_SENSORS; i++)
         {
-            bool currentState = IsTouched(i);
+            bool currentState = IsTouched(i, 18000);
 
             if (currentState && !prevSensorState[i])
             {
@@ -99,6 +98,21 @@ public:
 
     Signal<uint8_t, bool> onSensorTouched;
 
+    void Start()
+    {
+        xTaskCreatePinnedToCore(TouchSlider::taskUpdate, "TouchSlider", 1024 * 2, this, 1, &_task, 0);
+    }
+
+    static void taskUpdate(void *pvParameters)
+    {
+        TouchSlider *slider = static_cast<TouchSlider *>(pvParameters);
+        while (1)
+        {
+            slider->Update();
+            vTaskDelay(pdMS_TO_TICKS(2));
+        }
+    }
+
 private:
     int touchThreshold = 12000;
     bool touched = false;
@@ -115,6 +129,8 @@ private:
 
     Timer timer;
     int ReadSensorValue(int sensorNum) { return t[sensorNum].GetValue(); };
+
+    TaskHandle_t _task;
 };
 
 #endif // TOUCHSLIDER_HPP

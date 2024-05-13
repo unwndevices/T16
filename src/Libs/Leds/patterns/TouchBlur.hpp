@@ -14,7 +14,7 @@ public:
     };
     bool RunPattern() override;
 
-    void SetPosition(uint8_t x, uint8_t y) override{};
+    void SetPosition(uint8_t x, uint8_t y) override {};
 
     void SetPosition(float x, float y) override
     {
@@ -22,7 +22,7 @@ public:
         pos_y = y;
         state = true;
     };
-    
+
     void SetAmount(float amount) override
     {
         this->amount = amount;
@@ -34,7 +34,7 @@ public:
         colorIndex = color;
     };
 
-    void SetSpeed(uint8_t speed) override{};
+    void SetSpeed(uint8_t speed) override {};
 
 private:
     uint8_t luma[10][16] = {0};
@@ -53,7 +53,7 @@ private:
             lumaleds[0] = CRGB::White;
             for (int i = 0; i < 16; i++)
             {
-                luma[j][i] = brighten8_raw(lumaleds[i].getLuma());
+                luma[9 - j][i] = brighten8_raw(lumaleds[i].getLuma());
             }
         }
     };

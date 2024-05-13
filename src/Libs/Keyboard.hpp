@@ -49,7 +49,7 @@ public:
         {
             state = PRESSED;
             ulong pressTime = millis() - pressStartTime;
-            velocity = fmap((float)pressTime, 55.0f, 3.0f, 0.04f, 1.0f);
+            velocity = fmap((float)pressTime, 55.0f, 4.0f, 0.18f, 1.0f);
 
             onStateChanged.Emit(idx, state);
         }
@@ -70,6 +70,15 @@ public:
                 state = AFTERTOUCH;
             }
             onStateChanged.Emit(idx, state);
+        }
+
+        if (value > 0.15f)
+        {
+            pressure = fmap(value, 0.15f, at_threshold, 0.1f, 1.0f);
+        }
+        else
+        {
+            pressure = 0.1f;
         }
     }
 
@@ -96,13 +105,18 @@ public:
         at_threshold = threshold;
     }
 
+    float GetPressure()
+    {
+        return pressure;
+    }
+
 private:
     ulong pressStartTime = 0;
     uint8_t debounceTime = 10;
+    float pressure = 0.0f;
 
     float press_threshold = 0.3f;
     float at_threshold = 0.85f;
-
     static uint8_t instances;
 };
 
@@ -225,6 +239,12 @@ public:
     {
         return max_pressure;
     };
+
+    uint8_t GetPressure(uint8_t chn)
+    {
+        uint8_t pressure = (uint8_t)(_config._keys[chn].GetPressure() * 127.0f);
+        return output_lut[velocityLut][pressure];
+    }
 
     bool XChanged()
     {
@@ -405,7 +425,6 @@ private:
 
         if (total < threshold)
         {
-            max_pressure = 0.0f;
             return;
         }
         else

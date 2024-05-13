@@ -9,8 +9,8 @@
 #include <hardware/BLEMIDI_ESP32_NimBLE.h>
 struct CustomSettings : public midi::DefaultSettings
 {
-    //static const bool Use1ByteParsing = false;
-    static const unsigned SysExMaxSize = 4098; // to allow configuration transfers
+    // static const bool Use1ByteParsing = false;
+    static const unsigned SysExMaxSize = 2048; // to allow configuration transfers
     static const unsigned BaudRate = 31250;
 };
 
@@ -18,7 +18,7 @@ class MidiProvider
 {
 public:
     MidiProvider();
-    void Init(int pin_rx, int pin_tx);
+    void Init(int pin_rx, int pin_tx, int pin_tx2);
     void Read();
     void SendNoteOn(uint8_t key, uint8_t note, uint8_t velocity, uint8_t channel);
     void SendNoteOff(uint8_t key, uint8_t channel);
@@ -40,18 +40,21 @@ public:
 
     void ClearChordPool(uint8_t channel);
 
+    void SetMidiTRSType(bool type);
+
 private:
     Adafruit_USBD_MIDI usb_midi;
     midi::SerialMIDI<Adafruit_USBD_MIDI, CustomSettings> serialMIDI_USB;
     midi::MidiInterface<midi::SerialMIDI<Adafruit_USBD_MIDI, CustomSettings>> MIDI_USB;
     midi::SerialMIDI<HardwareSerial, CustomSettings> serialMIDI_SERIAL;
     midi::MidiInterface<midi::SerialMIDI<HardwareSerial, CustomSettings>> MIDI_SERIAL;
-    // midi::MidiInterface<bleMidi::BLEMIDI_Transport<bleMidi::BLEMIDI_ESP32_NimBLE>, bleMidi::MySettings> MIDI_BLE;
-    // bleMidi::BLEMIDI_Transport<bleMidi::BLEMIDI_ESP32_NimBLE> BLEMIDI;
+    midi::MidiInterface<bleMidi::BLEMIDI_Transport<bleMidi::BLEMIDI_ESP32_NimBLE>, CustomSettings> MIDI_BLE;
+    bleMidi::BLEMIDI_Transport<bleMidi::BLEMIDI_ESP32_NimBLE> BLEMIDI;
 
     bool midiBle;
     bool midiThru;
     bool midiOut;
+    bool midiTRSType;
 
     int8_t note_pool[16];
     int8_t chord_pool[5]; // 1 for the key, 4 for the notes

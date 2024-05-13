@@ -21,8 +21,8 @@ struct KeyModeData
     uint8_t scale = 0;
     uint8_t base_octave = 0;
     uint8_t base_note = 24;
-    uint8_t velocity_curve = 0;
-    uint8_t aftertouch_curve = 0;
+    uint8_t velocity_curve = 1;
+    uint8_t aftertouch_curve = 1;
     uint8_t flip_x = 0;
     uint8_t flip_y = 0;
     bool hasChanged = false;
@@ -45,7 +45,7 @@ struct ConfigurationData
     uint8_t trs_type = 0;
     uint8_t passthrough = 0;
     uint8_t midi_ble = 0;
-    
+
     int8_t custom_scale1[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int8_t custom_scale2[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     bool hasChanged = false;

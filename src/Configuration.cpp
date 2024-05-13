@@ -24,10 +24,10 @@ void InitConfiguration(DataManager &config, bool overwrite)
         bankObject["pal"] = bank;
         bankObject["ch"] = 1;
         bankObject["scale"] = 0;
-        bankObject["oct"] = 0;
-        bankObject["note"] = 24;
-        bankObject["vel"] = 0;
-        bankObject["at"] = 0;
+        bankObject["oct"] = 2;
+        bankObject["note"] = 0;
+        bankObject["vel"] = 1;
+        bankObject["at"] = 1;
         bankObject["flip_x"] = 0;
         bankObject["flip_y"] = 0;
         JsonArray channelArray = bankObject["chs"].to<JsonArray>();

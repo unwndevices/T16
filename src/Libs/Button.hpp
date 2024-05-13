@@ -15,7 +15,7 @@ public:
         RELEASED,
         LONG_PRESSED,
         LONG_RELEASED,
-        
+
     };
 
     Button(int pin = 0, int id = 0, int debounceTime = 10)
@@ -46,6 +46,21 @@ public:
     void Init()
     {
         pinMode(pin, INPUT_PULLUP);
+    }
+
+    void Start()
+    {
+        xTaskCreatePinnedToCore(Button::taskUpdate, "button", 1024 * 2, this, 3, &_task, 0);
+    }
+
+    static void taskUpdate(void *pvParameters)
+    {
+        Button *button = static_cast<Button *>(pvParameters);
+        while (1)
+        {
+            button->Update();
+            vTaskDelay(pdMS_TO_TICKS(4));
+        }
     }
 
     bool GetRaw() { return reading; }
@@ -166,6 +181,7 @@ private:
     unsigned long pressStartTime, elapsedTime;
     unsigned long longPressTime, clickTime;
     bool longPressFlag;
+    TaskHandle_t _task;
 };
 
 #endif // !BUTTON_HPP

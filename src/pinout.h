@@ -20,9 +20,9 @@
 
 #define PIN_TX 43
 #define PIN_RX 44
+#define PIN_TX2 42
 
 #define PIN_EXT1 2
-#define PIN_EXT2 42
 #define PIN_EXT3 41
 #define PIN_EXT4 40
 #define PIN_EXT5 0

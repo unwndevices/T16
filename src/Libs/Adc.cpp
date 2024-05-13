@@ -128,6 +128,7 @@ void Adc::Update(void *parameter)
     while (1)
     {
         adcInstance->ReadValues();
+        // vTaskDelay(1);
     }
 }
 

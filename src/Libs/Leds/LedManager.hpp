@@ -39,6 +39,7 @@ CRGBSet sliderleds(leds_set(17, 23));
 #include "patterns/TouchBlur.hpp"
 #include "patterns/WaveTransition.hpp"
 #include "patterns/Strips.hpp"
+#include "patterns/Strum.hpp"
 
 class LedManager
 {
@@ -48,6 +49,7 @@ public:
     {
         FastLED.addLeds<WS2812B, PIN_LED, GRB>(leds, NUM_LEDS);
         FastLED.setCorrection(TypicalLEDStrip);
+        FastLED.setTemperature(Candle);
         FastLED.setDither(0);
         FastLED.setBrightness(170);
         fill_solid(leds, NUM_LEDS, CRGB::Black);
@@ -139,6 +141,16 @@ public:
         currentPattern->SetAmount(amount);
     }
 
+    void SetNote(uint8_t note)
+    {
+        currentPattern->SetNote(note);
+    }
+
+    void SetChord(uint8_t chord)
+    {
+        currentPattern->SetChord(chord);
+    }
+
     void SetSlider(float value, bool fill = true, uint8_t fade = 1)
     {
         uint8_t numLedsToLight = static_cast<uint8_t>(value * (sliderLength - 1));
@@ -179,12 +191,9 @@ public:
         }
     }
 
-    void SetSliderLed(uint8_t idx, bool state)
+    void SetSliderLed(uint8_t idx, uint8_t intensity)
     {
-        if (state)
-            sliderleds[idx] = CHSV(slider_color, 230, 100);
-        else
-            sliderleds[idx] = CRGB::Black;
+        sliderleds[idx] = CHSV(slider_color, 230, intensity);
     }
 
     void SetPattern(Pattern *pattern)
