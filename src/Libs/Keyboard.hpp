@@ -8,9 +8,10 @@
 enum Mode
 {
     KEYBOARD,
+    STRUM,
     XY_PAD,
     STRIPS,
-    STRUM,
+    QUICK_SETTINGS,
     MODE_AMOUNT
 };
 

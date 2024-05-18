@@ -28,6 +28,7 @@ TouchBlur touch_blur;
 NoBlur no_blur;
 Strips strips;
 Strum strum;
+QuickSettings quick;
 
 #include "Libs/Adc.hpp"
 Adc adc;
@@ -56,6 +57,7 @@ enum SliderMode
     BANK,
     SLEW,
     STRUMMING,
+    QUICK,
     SLIDER_MODE_AMOUNT
 };
 
@@ -145,7 +147,34 @@ void ProcessKey(int idx, Key::State state)
     else if (state == Key::State::AFTERTOUCH)
     {
         uint8_t pressure = keyboard.GetAftertouch(idx);
+        log_d("Aftertouch: %d", pressure);
         midi_provider.SendAfterTouch(idx, (midi::DataByte)pressure, kb_cfg[parameters.bank].channel);
+    }
+}
+
+uint8_t current_qs_option = 0;
+uint8_t current_value_length = 0;
+void ProcessQuickSettings(int idx, Key::State state)
+{
+    if (state == Key::State::PRESSED)
+    {
+        log_d("Quick Settings: %d", idx);
+        if (idx < 4)
+        {
+            current_qs_option = parameters.quickSettingsPage * 4 + idx;
+            led_manager.SetOption(current_qs_option, 4);
+            log_d("Current QS Option: %d", current_qs_option);
+            uint8_t current_value = qs.settings[current_qs_option].value;
+            current_value_length = qs.settings[current_qs_option].numOptions;
+            led_manager.SetValue(current_value, current_value_length);
+            log_d("Current Value: %d", current_value);
+            log_d("Current Value Length: %d", current_value_length);
+        }
+        else
+        {
+            led_manager.SetValue(idx - 4, current_value_length);
+            qs.settings[current_qs_option].value = idx - 4;
+        }
     }
 }
 
@@ -178,7 +207,7 @@ void ProcessSlider()
         break;
     case SliderMode::OCTAVE:
         kb_cfg[parameters.bank].base_octave = slider.GetQuantizedPosition(7);
-        led_manager.SetSlider(slider.GetQuantizedPosition(7), false);
+        led_manager.SetSlider((uint8_t)slider.GetQuantizedPosition(7), false);
         break;
     case SliderMode::MOD:
         parameters.mod = slider.GetPosition();
@@ -198,10 +227,18 @@ void ProcessSlider()
             parameters.bank = bank;
             OnBankChange();
         }
-        led_manager.SetSlider(slider.GetQuantizedPosition(4), false);
+        led_manager.SetSlider((uint8_t)(slider.GetQuantizedPosition(4) * 2), false, 30);
         break;
     }
     case SliderMode::STRUMMING:
+        break;
+    case SliderMode::QUICK:
+        uint8_t page = slider.GetQuantizedPosition(3);
+        if (parameters.quickSettingsPage != page)
+        {
+            parameters.quickSettingsPage = page;
+        }
+        led_manager.SetSlider((uint8_t)(page * 3), false, 40);
         break;
     }
 }
@@ -238,6 +275,11 @@ void ProcessSliderButton()
         log_d("Slider mode: Strum");
         led_manager.SetSliderHue(HSVHue::HUE_BLUE + 10);
         break;
+    case SliderMode::QUICK:
+        log_d("Slider mode: Quick");
+        slider.SetPosition(0.0f);
+        led_manager.SetSliderHue(HSVHue::HUE_PINK);
+        break;
     }
 }
 
@@ -247,6 +289,7 @@ void ProcessModeButton()
     {
     case Mode::KEYBOARD:
         log_d("Mode: Keyboard");
+        keyboard.RemoveOnStateChanged();
         keyboard.SetOnStateChanged(&ProcessKey);
         keyboard.SetMode(Mode::KEYBOARD);
         led_manager.TransitionToPattern(&no_blur);
@@ -279,38 +322,88 @@ void ProcessModeButton()
         slider_mode = SliderMode::STRUMMING;
         ProcessSliderButton();
         break;
+    case Mode::QUICK_SETTINGS:
+        log_d("Mode: Quick Settings");
+        slider_mode = SliderMode::QUICK;
+        keyboard.RemoveOnStateChanged();
+        keyboard.SetOnStateChanged(&ProcessQuickSettings);
+        LoadQuickSettings(parameters.bank);
+        led_manager.TransitionToPattern(&quick);
+        break;
     }
 }
 
 void ProcessButton(int idx, Button::State state)
 {
+
     if (state == Button::State::CLICKED)
     {
         if (idx == PIN_EXT1)
         {
             log_d("Touch button clicked");
-            if (cfg.mode != Mode::XY_PAD && cfg.mode != Mode::STRIPS)
+            if (cfg.mode == Mode::KEYBOARD)
             {
-                slider_mode = (SliderMode)((slider_mode + 1) % (SLIDER_MODE_AMOUNT - 1));
-            }
-            else
-            {
-                slider_mode = (SliderMode)((slider_mode + 1) % SLIDER_MODE_AMOUNT);
-                if (slider_mode < SliderMode::MOD)
+                SliderMode allowed_modes[] = {SliderMode::BEND, SliderMode::MOD, SliderMode::OCTAVE, SliderMode::BANK};
+                int num_modes = sizeof(allowed_modes) / sizeof(allowed_modes[0]);
+                int current_index = -1;
+                for (int i = 0; i < num_modes; i++)
                 {
-                    slider_mode = SliderMode::MOD;
+                    if (slider_mode == allowed_modes[i])
+                    {
+                        current_index = i;
+                        break;
+                    }
                 }
+                current_index = (current_index + 1) % num_modes;
+                slider_mode = allowed_modes[current_index];
             }
-            if (cfg.mode == Mode::STRUM)
+            else if (cfg.mode == Mode::STRUM)
             {
-                slider_mode = SliderMode::STRUMMING;
+                SliderMode allowed_modes[] = {SliderMode::STRUMMING, SliderMode::OCTAVE, SliderMode::BANK};
+                int num_modes = sizeof(allowed_modes) / sizeof(allowed_modes[0]);
+                int current_index = -1;
+                for (int i = 0; i < num_modes; i++)
+                {
+                    if (slider_mode == allowed_modes[i])
+                    {
+                        current_index = i;
+                        break;
+                    }
+                }
+                current_index = (current_index + 1) % num_modes;
+                slider_mode = allowed_modes[current_index];
+            }
+            else if (cfg.mode == Mode::XY_PAD || cfg.mode == Mode::STRIPS)
+            {
+                SliderMode allowed_modes[] = {SliderMode::SLEW, SliderMode::BANK};
+                int num_modes = sizeof(allowed_modes) / sizeof(allowed_modes[0]);
+                int current_index = -1;
+                for (int i = 0; i < num_modes; i++)
+                {
+                    if (slider_mode == allowed_modes[i])
+                    {
+                        current_index = i;
+                        break;
+                    }
+                }
+                current_index = (current_index + 1) % num_modes;
+                slider_mode = allowed_modes[current_index];
+            }
+            else if (cfg.mode == Mode::QUICK_SETTINGS)
+            {
+                slider_mode = SliderMode::QUICK;
             }
             ProcessSliderButton();
         }
+
         if (idx == PIN_EXT5)
         {
             log_d("Mode button clicked");
-            cfg.mode = (Mode)((cfg.mode + 1) % MODE_AMOUNT);
+            cfg.mode = (Mode)((cfg.mode + 1) % (MODE_AMOUNT - 1)); // Exclude Quick Settings mode
+            if (cfg.mode == Mode::QUICK_SETTINGS)
+            {
+                cfg.mode = Mode::KEYBOARD; // Skip Quick Settings mode and go to Keyboard mode
+            }
             ProcessModeButton();
         }
     }
@@ -319,17 +412,63 @@ void ProcessButton(int idx, Button::State state)
     {
         if (idx == PIN_EXT1)
         {
-            log_d("Touch button long pressed");
-            log_d("Midi Learn mode");
-            parameters.midiLearn = true;
+            if (m_btn.GetState() == Button::State::LONG_PRESSED)
+            {
+                if (cfg.mode != Mode::QUICK_SETTINGS)
+                {
+                    log_d("Both buttons long pressed");
+                    log_d("Entering Quick Settings mode");
+                    cfg.mode = Mode::QUICK_SETTINGS;
+                    ProcessModeButton();
+                }
+                else
+                {
+                    log_d("Both buttons long pressed");
+                    log_d("Exiting Quick Settings mode");
+                    SaveQuickSettings(parameters.bank);
+                    SaveConfiguration(config);
+                    log_d("Saved configuration");
+                    cfg.mode = Mode::KEYBOARD;
+                    ProcessModeButton();
+                }
+            }
+            else
+            {
+                log_d("Touch button long pressed");
+                log_d("Midi Learn mode");
+                parameters.midiLearn = true;
+            }
         }
         if (idx == PIN_EXT5)
         {
-            log_d("Mode button long pressed");
-            log_d("MIDI panic!");
-            for (uint8_t i = 0; i < 16; i++)
+            if (t_btn.GetState() == Button::State::LONG_PRESSED)
             {
-                midi_provider.SendNoteOff(i, kb_cfg[parameters.bank].channel);
+                if (cfg.mode != Mode::QUICK_SETTINGS)
+                {
+                    log_d("Both buttons long pressed");
+                    log_d("Entering Quick Settings mode");
+                    cfg.mode = Mode::QUICK_SETTINGS;
+                    ProcessModeButton();
+                }
+                else
+                {
+                    log_d("Both buttons long pressed");
+                    log_d("Exiting Quick Settings mode");
+                    SaveQuickSettings(parameters.bank);
+                    SaveConfiguration(config);
+                    log_d("Saved configuration");
+                    cfg.mode = Mode::KEYBOARD;
+                    ProcessModeButton();
+                }
+            }
+            else
+            {
+                log_d("Mode button long pressed");
+                log_d("MIDI panic!");
+                for (uint8_t i = 0; i < 16; i++)
+                {
+                    midi_provider.SendNoteOff(i, kb_cfg[parameters.bank].channel);
+                }
             }
         }
     }
@@ -359,7 +498,9 @@ void ApplyConfiguration()
     midi_provider.SetMidiOut((bool)cfg.midi_trs);
     midi_provider.SetMidiTRSType((bool)cfg.trs_type);
     midi_provider.SetMidiThru((bool)cfg.passthrough);
-    led_manager.SetBrightness(cfg.brightness);
+    uint8_t brightness = cfg.brightness * 35 + 10;
+    led_manager.SetBrightness(brightness);
+    log_d("Brightness: %d", brightness);
 
     SetCustomScale(scales[CUSTOM1], cfg.custom_scale1, 16);
     SetCustomScale(scales[CUSTOM2], cfg.custom_scale2, 16);
@@ -371,7 +512,6 @@ void ApplyConfiguration()
     SetChordMapping(kb_cfg[parameters.bank].scale);
     keyboard.SetVelocityLut((Keyboard::Lut)kb_cfg[parameters.bank].velocity_curve);
     keyboard.SetAftertouchLut((Keyboard::Lut)kb_cfg[parameters.bank].aftertouch_curve);
-
     led_manager.UpdateTransition();
 }
 
@@ -479,18 +619,20 @@ void setup()
     if (t_btn.GetRaw())
     {
         log_d("Resetting configuration");
-        InitConfiguration(config);
+        SaveConfiguration(config);
     }
     if (!config.LoadVar(cfg.version, "version"))
     {
         log_d("first time configuration");
-        InitConfiguration(config);
+        SaveConfiguration(config);
     }
     else
     {
         LoadConfiguration(config);
         ApplyConfiguration();
     }
+
+    cfg.mode = Mode::KEYBOARD;
 
     config.Print();
 
@@ -516,6 +658,7 @@ void setup()
 
 void loop()
 {
+
     midi_provider.Read();
 
     t_btn.Update();
@@ -581,6 +724,10 @@ void loop()
     else if (cfg.mode == Mode::STRUM)
     {
         // TODO
+    }
+
+    else if (cfg.mode == Mode::QUICK_SETTINGS)
+    {
     }
 
     ProcessSlider();

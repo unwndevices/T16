@@ -63,18 +63,20 @@ public:
         this->state = state;
     };
 
-    virtual void SetAmount(float amount){};
+    virtual void SetAmount(float amount) {};
 
-    virtual void SetPosition(float x, float y){};
+    virtual void SetPosition(float x, float y) {};
 
-    virtual void SetLed(uint8_t x, uint8_t y, bool state = true){};
-    virtual void SetNote(uint8_t note){};
-    virtual void SetChord(uint8_t chord){};
+    virtual void SetLed(uint8_t x, uint8_t y, bool state = true) {};
+    virtual void SetNote(uint8_t note) {};
+    virtual void SetChord(uint8_t chord) {};
 
-    virtual void SetColor(uint8_t color){};
-    virtual void SetSpeed(uint8_t speed){};
+    virtual void SetColor(uint8_t color) {};
+    virtual void SetSpeed(uint8_t speed) {};
+    virtual void SetOption(uint8_t option, uint8_t amount) {};
+    virtual void SetValue(uint8_t value, uint8_t amount) {};
 
-    virtual void SetStrip(uint8_t strip, float value){};
+    virtual void SetStrip(uint8_t strip, float value) {};
 
     void SetPalette(CRGBPalette16 palette)
     {

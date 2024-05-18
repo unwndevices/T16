@@ -33,4 +33,4 @@ void calculateCoreLoads()
     core1Load = 100.0f - (float)idleStack1 / configMINIMAL_STACK_SIZE * 100.0f;
 }
 
-#endif // PERFORMANCE_HPP
+#endif// PERFORMANCE_HPP

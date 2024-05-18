@@ -9,7 +9,10 @@ MidiProvider::MidiProvider() : serialMIDI_USB(usb_midi),
                                midiBle(false),
                                midiThru(false),
                                midiOut(false),
-                               midiTRSType(false)
+                               midiTRSType(false),
+                               pin_rx(0),
+                               pin_tx(0),
+                               pin_tx2(0)
 {
     memset(note_pool, -1, sizeof(note_pool));
     memset(chord_pool, -1, sizeof(chord_pool));
@@ -27,6 +30,7 @@ void MidiProvider::Init(int pin_rx, int pin_tx, int pin_tx2)
     }
 
     MIDI_USB.begin();
+
     if (midiTRSType)
     {
         // Type B
@@ -41,16 +45,18 @@ void MidiProvider::Init(int pin_rx, int pin_tx, int pin_tx2)
         pinMode(pin_tx, OUTPUT);
         digitalWrite(pin_tx, HIGH);
     }
-    MIDI_SERIAL.begin();
+    if (midiOut)
+    {
+        MIDI_SERIAL.begin();
+    }
 }
 
 void MidiProvider::Read()
 {
-    if (!midiBle)
-    {
-        MIDI_USB.read();
-    }
-    else
+
+    MIDI_USB.read();
+
+    if (midiBle)
     {
         MIDI_BLE.read();
     }
@@ -254,6 +260,10 @@ void MidiProvider::SendControlChange(uint8_t controller, uint8_t value, uint8_t 
 void MidiProvider::SendSysEx(size_t size, const byte *data)
 {
     MIDI_USB.sendSysEx(size, data);
+    if (midiBle)
+    {
+        MIDI_BLE.sendSysEx(size, data);
+    }
 }
 
 void MidiProvider::SetHandleSystemExclusive(void (*function)(byte *, unsigned))
@@ -288,6 +298,20 @@ void MidiProvider::SetMidiBle(bool enabled)
 void MidiProvider::SetMidiTRSType(bool type)
 {
     midiTRSType = type;
+    if (midiTRSType)
+    {
+        // Type B
+        Serial2.begin(11520000, SERIAL_8N1, pin_rx, pin_tx);
+        pinMode(pin_tx2, OUTPUT);
+        digitalWrite(pin_tx2, HIGH);
+    }
+    else
+    {
+        Serial2.begin(11520000, SERIAL_8N1, pin_rx, pin_tx2);
+        pinMode(pin_tx, OUTPUT);
+        digitalWrite(pin_tx, HIGH);
+    }
+    MIDI_SERIAL.begin();
 }
 
 void MidiProvider::ClearChordPool(uint8_t channel)

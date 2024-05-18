@@ -31,8 +31,8 @@ export default function Settings() {
             <ListItem>
                 <SliderCard
                     name="Brightness"
-                    min={10}
-                    max={254}
+                    min={0}
+                    max={7}
                     value={config.brightness}
                     onChange={(value) => handleChange('brightness', value)}
                 />

@@ -9,7 +9,8 @@
 #include <hardware/BLEMIDI_ESP32_NimBLE.h>
 struct CustomSettings : public midi::DefaultSettings
 {
-    // static const bool Use1ByteParsing = false;
+    static const bool Use1ByteParsing = false;
+    static const size_t MaxBufferSize = 64;
     static const unsigned SysExMaxSize = 2048; // to allow configuration transfers
     static const unsigned BaudRate = 31250;
 };
@@ -49,7 +50,7 @@ private:
     midi::SerialMIDI<HardwareSerial, CustomSettings> serialMIDI_SERIAL;
     midi::MidiInterface<midi::SerialMIDI<HardwareSerial, CustomSettings>> MIDI_SERIAL;
     midi::MidiInterface<bleMidi::BLEMIDI_Transport<bleMidi::BLEMIDI_ESP32_NimBLE>, CustomSettings> MIDI_BLE;
-    bleMidi::BLEMIDI_Transport<bleMidi::BLEMIDI_ESP32_NimBLE> BLEMIDI;
+    bleMidi::BLEMIDI_Transport<bleMidi::BLEMIDI_ESP32_NimBLE, CustomSettings> BLEMIDI;
 
     bool midiBle;
     bool midiThru;
@@ -59,6 +60,8 @@ private:
     int8_t note_pool[16];
     int8_t chord_pool[5]; // 1 for the key, 4 for the notes
     int8_t strum_pool[7];
+
+    int8_t pin_rx, pin_tx, pin_tx2;
 };
 
-#endif // MIDIPROVIDER_HPP
+#endif// MIDIPROVIDER_HPP

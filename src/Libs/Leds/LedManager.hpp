@@ -40,6 +40,7 @@ CRGBSet sliderleds(leds_set(17, 23));
 #include "patterns/WaveTransition.hpp"
 #include "patterns/Strips.hpp"
 #include "patterns/Strum.hpp"
+#include "patterns/QuickSettings.hpp"
 
 class LedManager
 {
@@ -151,6 +152,16 @@ public:
         currentPattern->SetChord(chord);
     }
 
+    void SetOption(uint8_t option, uint8_t amount)
+    {
+        currentPattern->SetOption(option, amount);
+    }
+
+    void SetValue(uint8_t value, uint8_t amount)
+    {
+        currentPattern->SetValue(value, amount);
+    }
+
     void SetSlider(float value, bool fill = true, uint8_t fade = 1)
     {
         uint8_t numLedsToLight = static_cast<uint8_t>(value * (sliderLength - 1));
@@ -191,9 +202,9 @@ public:
         }
     }
 
-    void SetSliderLed(uint8_t idx, uint8_t intensity)
+    void SetSliderLed(uint8_t idx, uint8_t intensity, uint8_t steps = 1)
     {
-        sliderleds[idx] = CHSV(slider_color, 230, intensity);
+        sliderleds[idx * steps] = CHSV(slider_color, 230, intensity);
     }
 
     void SetPattern(Pattern *pattern)
@@ -259,4 +270,4 @@ private:
     bool is_marker[16] = {false};
 };
 
-#endif // LEDMANAGER_HPP
+#endif// LEDMANAGER_HPP

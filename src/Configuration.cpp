@@ -5,8 +5,9 @@ ConfigurationData cfg;
 KeyModeData kb_cfg[BANK_AMT];
 ControlChangeData cc_cfg[CC_AMT];
 Parameters parameters;
+QuickSettingsData qs;
 
-void InitConfiguration(DataManager &config, bool overwrite)
+void SaveConfiguration(DataManager &config, bool overwrite)
 {
     config.SaveVar(cfg.version, "version");
     config.SaveVar(cfg.mode, "mode");
@@ -22,14 +23,14 @@ void InitConfiguration(DataManager &config, bool overwrite)
     {
         JsonObject bankObject = banksArray.add<JsonObject>(); // Create a bank object
         bankObject["pal"] = bank;
-        bankObject["ch"] = 1;
-        bankObject["scale"] = 0;
-        bankObject["oct"] = 2;
-        bankObject["note"] = 0;
-        bankObject["vel"] = 1;
-        bankObject["at"] = 1;
-        bankObject["flip_x"] = 0;
-        bankObject["flip_y"] = 0;
+        bankObject["ch"] = kb_cfg[bank].channel;
+        bankObject["scale"] = kb_cfg[bank].scale;
+        bankObject["oct"] = kb_cfg[bank].base_octave;
+        bankObject["note"] = kb_cfg[bank].base_note;
+        bankObject["vel"] = kb_cfg[bank].velocity_curve;
+        bankObject["at"] = kb_cfg[bank].aftertouch_curve;
+        bankObject["flip_x"] = kb_cfg[bank].flip_x;
+        bankObject["flip_y"] = kb_cfg[bank].flip_y;
         JsonArray channelArray = bankObject["chs"].to<JsonArray>();
         JsonArray idArray = bankObject["ids"].to<JsonArray>();
         for (int i = 0; i < CC_AMT; i++)
@@ -43,6 +44,38 @@ void InitConfiguration(DataManager &config, bool overwrite)
     }
 
     config.SaveBanksArray(banksArray);
+}
+
+void LoadQuickSettings(uint8_t bank)
+{
+    qs.settings[0].value = cfg.brightness;
+    qs.settings[1].value = cfg.midi_trs;
+    qs.settings[2].value = cfg.trs_type;
+    qs.settings[3].value = cfg.midi_ble;
+    qs.settings[4].value = kb_cfg[bank].channel;
+    qs.settings[5].value = kb_cfg[bank].scale;
+    qs.settings[6].value = kb_cfg[bank].base_octave;
+    qs.settings[7].value = kb_cfg[bank].base_note;
+    qs.settings[8].value = kb_cfg[bank].velocity_curve;
+    qs.settings[9].value = kb_cfg[bank].aftertouch_curve;
+    qs.settings[10].value = kb_cfg[bank].flip_x;
+    qs.settings[11].value = kb_cfg[bank].flip_y;
+}
+
+void SaveQuickSettings(uint8_t bank)
+{
+    cfg.brightness = qs.settings[0].value;
+    cfg.midi_trs = qs.settings[1].value;
+    cfg.trs_type = qs.settings[2].value;
+    cfg.midi_ble = qs.settings[3].value;
+    kb_cfg[bank].channel = qs.settings[4].value;
+    kb_cfg[bank].scale = qs.settings[5].value;
+    kb_cfg[bank].base_octave = qs.settings[6].value;
+    kb_cfg[bank].base_note = qs.settings[7].value;
+    kb_cfg[bank].velocity_curve = qs.settings[8].value;
+    kb_cfg[bank].aftertouch_curve = qs.settings[9].value;
+    kb_cfg[bank].flip_x = qs.settings[10].value;
+    kb_cfg[bank].flip_y = qs.settings[11].value;
 }
 
 void LoadConfiguration(DataManager &config)
