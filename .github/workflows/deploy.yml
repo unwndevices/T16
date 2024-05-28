@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build React App
         run: |
@@ -20,7 +20,7 @@ jobs:
             npm run build
 
       - name: Deploy to FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
             server: ${{ secrets.FTP_SERVER }}
             username: ${{ secrets.FTP_USER }}
