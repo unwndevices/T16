@@ -23,7 +23,7 @@ import {
 } from '@chakra-ui/react'
 
 import { Image } from '@chakra-ui/react'
-import Interface from '../assets/interface.webp'
+import Interface from '../assets/Interface.webp'
 import KeyboardLayout from '../assets/keyboard_layout.webp'
 import JoystickLayout from '../assets/joystick.webp'
 import FadersLayout from '../assets/faders.webp'
@@ -95,8 +95,8 @@ const content = [
                         allowing you to set a scale (chromatic by default), the
                         root note and the direction to fit your playing style.
                         To help you navigate the scale, root notes are
-                        highlighted on the grid using the Key's RGB leds. In
-                        this mode the touchstrip has the following functions:
+                        highlighted on the grid using the Key&apos;s RGB leds.
+                        In this mode the touchstrip has the following functions:
                         <List>
                             <ListItem>
                                 <ListIcon as={MdCircle} color="pink.400" />
