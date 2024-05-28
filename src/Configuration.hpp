@@ -76,10 +76,10 @@ struct QuickSettingsData
 
     SettingPair settings[NUM_SETTINGS] = {
         // Page 1
-        {254, 8}, // brightness: 0-255 (256 options)
-        {0, 2},   // midi_trs: 0-1 (2 options)
-        {0, 2},   // trs_type: 0-1 (2 options)
-        {0, 2},   // midi_ble: 0-1 (2 options)
+        {8, 8}, // brightness: 0-255 (256 options)
+        {0, 2}, // midi_trs: 0-1 (2 options)
+        {0, 2}, // trs_type: 0-1 (2 options)
+        {0, 2}, // midi_ble: 0-1 (2 options)
 
         // Page 2
         {1, 12}, // channel: 1-16 (16 options)

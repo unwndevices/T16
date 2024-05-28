@@ -14,14 +14,14 @@ AdcChannelConfig::AdcChannelConfig()
 
 void AdcChannelConfig::InitSingle(uint8_t pin)
 {
-    analogSetAttenuation(ADC_0db);
+    analogSetAttenuation(ADC_6db);
     _pin = pin;
     pinMode(_pin, INPUT);
 }
 
 void AdcChannelConfig::InitMux(uint8_t pin, uint8_t mux_pin_0, uint8_t mux_pin_1, uint8_t mux_pin_2, uint8_t mux_pin_3)
 {
-    analogSetAttenuation(ADC_0db);
+    analogSetAttenuation(ADC_6db);
     _pin = pin;
     pinMode(_pin, INPUT);
     _mux_pin[MUX_SEL_0] = mux_pin_0;

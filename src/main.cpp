@@ -34,7 +34,11 @@ QuickSettings quick;
 Adc adc;
 
 #include "Libs/Keyboard.hpp"
+#ifdef REV_B
+Key keys[] = {14, 15, 13, 12, 10, 11, 8, 9, 1, 0, 3, 2, 5, 4, 7, 6};
+#else
 Key keys[] = {6, 7, 15, 11, 5, 2, 14, 9, 4, 1, 13, 8, 3, 0, 12, 10};
+#endif
 Keyboard keyboard;
 
 #include "Libs/TouchSlider.hpp"
@@ -44,8 +48,8 @@ TouchSlider slider;
 uint8_t marker = 0;
 
 #include "Libs/Button.hpp"
-Button t_btn(PIN_EXT1);
-Button m_btn(PIN_EXT5);
+Button t_btn(PIN_TOUCH);
+Button m_btn(PIN_MODE);
 
 #include "Scales.hpp"
 
@@ -338,7 +342,7 @@ void ProcessButton(int idx, Button::State state)
 
     if (state == Button::State::CLICKED)
     {
-        if (idx == PIN_EXT1)
+        if (idx == PIN_TOUCH)
         {
             log_d("Touch button clicked");
             if (cfg.mode == Mode::KEYBOARD)
@@ -396,7 +400,7 @@ void ProcessButton(int idx, Button::State state)
             ProcessSliderButton();
         }
 
-        if (idx == PIN_EXT5)
+        if (idx == PIN_MODE)
         {
             log_d("Mode button clicked");
             cfg.mode = (Mode)((cfg.mode + 1) % (MODE_AMOUNT - 1)); // Exclude Quick Settings mode
@@ -410,7 +414,7 @@ void ProcessButton(int idx, Button::State state)
 
     if (state == Button::State::LONG_PRESSED)
     {
-        if (idx == PIN_EXT1)
+        if (idx == PIN_TOUCH)
         {
             if (m_btn.GetState() == Button::State::LONG_PRESSED)
             {
@@ -439,7 +443,7 @@ void ProcessButton(int idx, Button::State state)
                 parameters.midiLearn = true;
             }
         }
-        if (idx == PIN_EXT5)
+        if (idx == PIN_MODE)
         {
             if (t_btn.GetState() == Button::State::LONG_PRESSED)
             {
@@ -475,7 +479,7 @@ void ProcessButton(int idx, Button::State state)
 
     if (state == Button::State::LONG_RELEASED)
     {
-        if (idx == PIN_EXT1)
+        if (idx == PIN_TOUCH)
         {
             log_d("Touch button long released");
             parameters.midiLearn = false;
@@ -513,6 +517,7 @@ void ApplyConfiguration()
     keyboard.SetVelocityLut((Keyboard::Lut)kb_cfg[parameters.bank].velocity_curve);
     keyboard.SetAftertouchLut((Keyboard::Lut)kb_cfg[parameters.bank].aftertouch_curve);
     led_manager.UpdateTransition();
+    cfg.mode = Mode::KEYBOARD;
 }
 
 void ProcessSysEx(byte *data, unsigned length)
@@ -553,7 +558,7 @@ bool CalibrationRoutine()
     {
         adc.CalibrateMax(i);
     }
-    log_d("Min calibration done");
+    Serial.println("Min calibration done");
 
     for (int i = 0; i < 16; i++)
     {
@@ -562,7 +567,7 @@ bool CalibrationRoutine()
         adc.SetMuxChannel(keys[i].mux_idx);
         while (m_btn.GetState() != Button::State::CLICKED)
         {
-            log_d("Getting raw value: %d", adc.GetRaw());
+            Serial.printf("Getting raw value: %d\n", adc.GetRaw());
             FastLED.show();
             m_btn.Update();
         }
@@ -570,9 +575,14 @@ bool CalibrationRoutine()
         adc.CalibrateMin(keys[i].mux_idx);
         delay(500);
     }
-    log_d("Max calibration done");
+    Serial.println("Max calibration done");
 
     return true;
+}
+
+void HardwareTest()
+{
+    led_manager.TestAll();
 }
 
 void setup()
@@ -585,8 +595,8 @@ void setup()
 
     midi_provider.SetHandleSystemExclusive(ProcessSysEx);
     // Button initialization
-    t_btn.Init(PIN_EXT1);
-    m_btn.Init(PIN_EXT5);
+    t_btn.Init(PIN_TOUCH);
+    m_btn.Init(PIN_MODE);
     t_btn.onStateChanged.Connect(&ProcessButton);
     m_btn.onStateChanged.Connect(&ProcessButton);
 
@@ -604,7 +614,8 @@ void setup()
     calibration.Init();
     if (!calibration.LoadArray(calibration_data.minVal, "minVal", 16))
     {
-        log_d("Calibration data not found, starting calibration routine");
+        HardwareTest();
+        Serial.println("Calibration data not found, starting calibration routine");
         CalibrationRoutine();
         adc.GetCalibration(calibration_data.minVal, calibration_data.maxVal, 16);
         calibration.SaveArray(calibration_data.minVal, "minVal", 16);

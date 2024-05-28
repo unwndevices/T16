@@ -41,7 +41,7 @@ public:
     {
         value = adc->GetMux(0, mux_idx);
 
-        if (value > 0.15f && state == IDLE)
+        if (value > 0.10f && state == IDLE)
         {
             state = STARTED;
             pressStartTime = millis();
@@ -54,12 +54,12 @@ public:
 
             onStateChanged.Emit(idx, state);
         }
-        else if (value < 0.25f && (state == PRESSED || state == AFTERTOUCH))
+        else if (value < 0.14f && (state == PRESSED || state == AFTERTOUCH))
         {
             state = RELEASED;
             onStateChanged.Emit(idx, state);
         }
-        else if (value < 0.15f && (state == STARTED || state == RELEASED))
+        else if (value < 0.10f && (state == STARTED || state == RELEASED))
         {
             state = IDLE;
         }
@@ -73,9 +73,9 @@ public:
             onStateChanged.Emit(idx, state);
         }
 
-        if (value > 0.15f)
+        if (value > 0.10f)
         {
-            pressure = fmap(value, 0.15f, at_threshold, 0.1f, 1.0f);
+            pressure = fmap(value, 0.10f, at_threshold, 0.1f, 1.0f);
         }
         else
         {
@@ -90,7 +90,7 @@ public:
 
     float GetAftertouch()
     {
-        return fmap(value, at_threshold, 1.0f, 0.0f, 1.0f);
+        return fmap(value, at_threshold, 0.95f, 0.0f, 1.0f);
     }
 
     uint8_t idx;
@@ -116,8 +116,8 @@ private:
     uint8_t debounceTime = 10;
     float pressure = 0.0f;
 
-    float press_threshold = 0.3f;
-    float at_threshold = 0.85f;
+    float press_threshold = 0.2f;
+    float at_threshold = 0.58f;
     static uint8_t instances;
 };
 

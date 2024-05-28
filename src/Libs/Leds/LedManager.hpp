@@ -24,6 +24,8 @@ uint16_t XY(uint8_t x, uint8_t y)
     return i;
 }
 
+#ifndef REV_B
+
 CRGB leds_plus_safety_pixel[NUM_LEDS + 1];
 CRGB *const leds(leds_plus_safety_pixel + 1);
 CRGBSet leds_set(leds, NUM_LEDS);
@@ -31,6 +33,17 @@ CRGBSet stateled(leds_set(0, 0));
 CRGBSet matrixleds(leds_set(1, 16));
 CRGB patternleds[16];
 CRGBSet sliderleds(leds_set(17, 23));
+#endif// LEDMANAGER_HPP
+
+#ifdef REV_B
+CRGB leds_plus_safety_pixel[NUM_LEDS + 1];
+CRGB *const leds(leds_plus_safety_pixel + 1);
+CRGBSet leds_set(leds, NUM_LEDS);
+CRGBSet stateled(leds_set(0, 0));
+CRGBSet sliderleds(leds_set(1, 7));
+CRGBSet matrixleds(leds_set(8, 16));
+CRGB patternleds[16];
+#endif// LEDMANAGER_HPP
 
 #include "patterns/Droplet.hpp"
 #include "patterns/Sea.hpp"
@@ -173,14 +186,14 @@ public:
             {
                 if (i <= numLedsToLight)
                 {
-                    sliderleds[i] = CHSV(slider_color, 230, 100);
+                    sliderleds[6 - i] = CHSV(slider_color, 230, 100);
                 }
             }
             else
             {
                 if (i == numLedsToLight)
                 {
-                    sliderleds[i] = CHSV(slider_color, 230, 100);
+                    sliderleds[6 - i] = CHSV(slider_color, 230, 100);
                 }
             }
         }
@@ -193,18 +206,18 @@ public:
         {
             for (uint8_t i = 0; i <= position; i++)
             {
-                sliderleds[i] = CHSV(slider_color, 230, 100);
+                sliderleds[6 - i] = CHSV(slider_color, 230, 100);
             }
         }
         else
         {
-            sliderleds[position] = CHSV(slider_color, 230, 100);
+            sliderleds[6 - position] = CHSV(slider_color, 230, 100);
         }
     }
 
     void SetSliderLed(uint8_t idx, uint8_t intensity, uint8_t steps = 1)
     {
-        sliderleds[idx * steps] = CHSV(slider_color, 230, intensity);
+        sliderleds[6 - idx * steps] = CHSV(slider_color, 230, intensity);
     }
 
     void SetPattern(Pattern *pattern)
@@ -235,6 +248,21 @@ public:
     void SetPalette(CRGBPalette16 palette)
     {
         currentPattern->SetPalette(palette);
+    }
+
+    void SetStatus(bool state)
+    {
+        stateled = state ? CRGB::White : CRGB::Black;
+        FastLED.show();
+    }
+
+    void TestAll()
+    {
+        for (uint8_t i = 0; i < NUM_LEDS; i++)
+        {
+            leds_set[i] = CHSV(HUE_AQUA, 230, 70);
+        }
+        FastLED.show();
     }
 
 private:

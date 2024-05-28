@@ -12,10 +12,12 @@ import QuickStart from './pages/QuickStart'
 // router and routes
 const router = createBrowserRouter(
     createRoutesFromElements(
-        <Route path="/" element={<RootLayout />}>
-            <Route index element={<Dashboard />} />
+        <>
+            <Route path="/" element={<RootLayout />}>
+                <Route index element={<Dashboard />} />
+            </Route>
             <Route path="quickstart" element={<QuickStart />} />
-        </Route>
+        </>
     )
 )
 

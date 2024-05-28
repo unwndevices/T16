@@ -19,13 +19,14 @@ import {
 } from '@chakra-ui/react'
 import MidiContext from './MidiProvider'
 import React, { useContext } from 'react'
-import { MdSettings } from 'react-icons/md'
+import { MdOutlineMenuBook, MdSettings } from 'react-icons/md'
 import Settings from '../pages/Settings'
 
 export default function NavBar() {
     const { isConnected, connect, sendConfig, isDemo, setDemo } =
         useContext(MidiContext)
     const { isOpen, onOpen, onClose } = useDisclosure()
+
     const btnRef = React.useRef()
     return (
         <Flex
@@ -38,9 +39,21 @@ export default function NavBar() {
             zIndex={100}
             bg="#ffffffcf"
         >
-            <Heading as="h1" size="lg" letterSpacing={1}>
-                Topo Editor
-            </Heading>
+            <HStack spacing={4}>
+                <Heading as="h1" size="lg" letterSpacing={1}>
+                    Topo Editor
+                </Heading>
+                <Button
+                    as="a"
+                    href="/quickstart"
+                    rightIcon={<MdOutlineMenuBook />}
+                    colorScheme="primary"
+                    variant="outline"
+                    target="_blank"
+                >
+                    Guide
+                </Button>
+            </HStack>
             <Spacer />
             <HStack spacing={4}>
                 <HStack>
