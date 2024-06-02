@@ -26,8 +26,10 @@ export default function ScaleDisplay({
     flipY,
 }) {
     const selectedScaleSteps = scales[selectedScale].steps
-    let previousNoteIndex = -1
+    let previousNoteIndex = (selectedRoot + scales[selectedScale].steps[0]) % 12
     let displayOctave = octave
+    let previousNoteFullIndex = previousNoteIndex + 12 * displayOctave
+
     // Helper function to get the note name, root flag, and octave for a given index
     const getNoteInfoForIndex = (index) => {
         let x = index % 4
@@ -46,21 +48,13 @@ export default function ScaleDisplay({
         const noteNameIndex = (noteIndex + selectedRoot) % 12
         const noteName = noteNames[noteNameIndex]
 
-        // Correctly identify the root note by checking if the current scale step index is 0
-        // This means we are at the start of the scale pattern
-        const isRoot = scaleStepIndex === 0 || noteIndex % 12 === 0
+        const isRoot = scaleStepIndex === 0
 
-        // Logic for calculating the octave remains unchanged
         const currentNoteFullIndex = noteNameIndex + 12 * displayOctave
-        const previousNoteFullIndex =
-            previousNoteIndex +
-            12 * (displayOctave - (noteNameIndex <= previousNoteIndex ? 1 : 0))
-        if (
-            currentNoteFullIndex <= previousNoteFullIndex &&
-            previousNoteIndex !== -1
-        ) {
+        if (currentNoteFullIndex < previousNoteFullIndex) {
             displayOctave += 1
         }
+        previousNoteFullIndex = noteNameIndex + 12 * displayOctave
         previousNoteIndex = noteNameIndex
 
         return { noteName, isRoot, displayOctave }
@@ -69,13 +63,16 @@ export default function ScaleDisplay({
     return (
         <Grid templateColumns="repeat(4, 1fr)" gap={2}>
             {Array.from({ length: 16 }, (_, index) => {
-                const { noteName, isRoot, displayOctave } =
-                    getNoteInfoForIndex(index)
+                const {
+                    noteName,
+                    isRoot,
+                    displayOctave: noteOctave,
+                } = getNoteInfoForIndex(index)
                 return (
                     <GridItem key={index}>
                         <KeyCard
                             name={`Key ${index + 1}`}
-                            output={`${noteName}${displayOctave}`}
+                            output={`${noteName}${noteOctave}`}
                             isRoot={isRoot}
                         />
                     </GridItem>

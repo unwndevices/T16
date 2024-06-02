@@ -95,7 +95,6 @@ export const MidiProvider = ({ children }) => {
 
     const connect = async () => {
         if (isDemo) {
-            // If demo mode is enabled, bypass the MIDI device checks
             setIsConnected(true)
             toast({
                 title: 'Demo Mode',
@@ -105,90 +104,94 @@ export const MidiProvider = ({ children }) => {
                 isClosable: true,
             })
         } else {
-            // If demo mode is disabled, proceed with the normal connection process
-            await WebMidi.enable({ sysex: true })
-                .then(() => console.log('WebMidi with sysex enabled!'))
-                .catch((err) => alert(err))
-            onEnabled()
+            try {
+                await WebMidi.enable({ sysex: true })
+                console.log('WebMidi with sysex enabled!')
+                onEnabled()
 
-            // Get the MIDIAccess object
-            const access = await navigator.requestMIDIAccess()
-
-            // Listen for the statechange event on the MIDIAccess object
-            access.addEventListener('statechange', (event) => {
-                console.log('MIDIAccess state changed:', event.port.state)
-                if (event.port.state === 'connected') {
-                    // Check if the connected port is the input or output you're looking for
-                    if (event.port.name === 'Topo T16') {
-                        if (event.port.type === 'input') {
-                            setInput(event.port)
-                            setIsConnected(true)
-                        } else if (event.port.type === 'output') {
-                            setOutput(event.port)
+                const access = await navigator.requestMIDIAccess()
+                access.addEventListener('statechange', (event) => {
+                    console.log('MIDIAccess state changed:', event.port.state)
+                    if (event.port.state === 'connected') {
+                        if (event.port.name === 'Topo T16') {
+                            if (event.port.type === 'input') {
+                                setInput(event.port)
+                                setIsConnected(true)
+                            } else if (event.port.type === 'output') {
+                                setOutput(event.port)
+                            }
                         }
-                    }
-                } else if (event.port.state === 'disconnected') {
-                    // Check if the disconnected port is the input or output you're using
-                    if (event.port === input) {
-                        setInput(null)
-                        setIsConnected(false)
-                    } else if (event.port === output) {
-                        setOutput(null)
-                    }
-                    disconnect()
-                }
-            })
-
-            const _input = WebMidi.getInputByName('Topo T16')
-            setInput(_input)
-            const _output = WebMidi.getOutputByName('Topo T16')
-            setOutput(_output)
-            setIsConnected(_input.connection)
-
-            // Add event listener to handle connection state changes
-            _input.addListener('statechange', (event) => {
-                setIsConnected(event.target.connection) // Update isConnected state
-                console.log(
-                    'Connection state changed:',
-                    event.target.connection
-                )
-            })
-
-            _input.addListener('sysex', onSysex)
-            _input.addListener('controlchange', (e) => {
-                console.log(`Received 'controlchange' message.`, e)
-                setCcMessages((prevMessages) => {
-                    const newMessage = {
-                        index: e.controller.number,
-                        value: e.value,
-                    }
-
-                    // Check if a message with the same index already exists
-                    const existingMessageIndex = prevMessages.findIndex(
-                        (message) => message.index === newMessage.index
-                    )
-
-                    if (existingMessageIndex !== -1) {
-                        // If it exists, replace it with the new message
-                        return prevMessages.map((message, index) =>
-                            index === existingMessageIndex
-                                ? newMessage
-                                : message
-                        )
-                    } else {
-                        // If it doesn't exist, add the new message to the array
-                        return [...prevMessages, newMessage]
+                    } else if (event.port.state === 'disconnected') {
+                        if (event.port === input) {
+                            setInput(null)
+                            setIsConnected(false)
+                        } else if (event.port === output) {
+                            setOutput(null)
+                        }
+                        disconnect()
                     }
                 })
-            })
 
-            toast({
-                title: 'Connection Successful',
-                description: 'MIDI device connected successfully.',
-                status: 'success',
-                duration: 3000,
-                isClosable: true,
-            })
+                const _input = WebMidi.getInputByName('Topo T16')
+                setInput(_input)
+                const _output = WebMidi.getOutputByName('Topo T16')
+                setOutput(_output)
+                setIsConnected(_input && _input.connection)
+
+                if (_input) {
+                    _input.addListener('statechange', (event) => {
+                        setIsConnected(event.target.connection)
+                        console.log(
+                            'Connection state changed:',
+                            event.target.connection
+                        )
+                    })
+
+                    _input.addListener('sysex', onSysex)
+                    _input.addListener('controlchange', (e) => {
+                        console.log(`Received 'controlchange' message.`, e)
+                        setCcMessages((prevMessages) => {
+                            const newMessage = {
+                                index: e.controller.number,
+                                value: e.value,
+                            }
+
+                            const existingMessageIndex = prevMessages.findIndex(
+                                (message) => message.index === newMessage.index
+                            )
+
+                            if (existingMessageIndex !== -1) {
+                                return prevMessages.map((message, index) =>
+                                    index === existingMessageIndex
+                                        ? newMessage
+                                        : message
+                                )
+                            } else {
+                                return [...prevMessages, newMessage]
+                            }
+                        })
+                    })
+                }
+
+                toast({
+                    title: 'Connection Successful',
+                    description: 'MIDI device connected successfully.',
+                    status: 'success',
+                    duration: 3000,
+                    isClosable: true,
+                })
+            } catch (err) {
+                console.error('Error enabling WebMidi:', err)
+                toast({
+                    title: 'Connection Failed',
+                    description:
+                        'Failed to connect to the MIDI device. Please try again.',
+                    status: 'error',
+                    duration: 3000,
+                    isClosable: true,
+                })
+                setIsConnected(false)
+            }
         }
     }
 
@@ -214,12 +217,14 @@ export const MidiProvider = ({ children }) => {
 
     useEffect(() => {
         const requestSysex = () => {
-            if (output) {
+            if (output && typeof output.sendSysex === 'function') {
                 console.log('Requesting sysex message.')
                 output.sendSysex(0x7e, [0x7f, 0x06, 0x01])
                 output.sendSysex(0x7e, [0x7f, 0x07, 0x03])
             } else {
-                console.log('Output is not connected.')
+                console.log(
+                    'Output is not connected or does not support sendSysex.'
+                )
             }
         }
 
@@ -236,8 +241,13 @@ export const MidiProvider = ({ children }) => {
             const deserializedData = deserializeSysex(
                 e.data.slice(4, e.data.length - 1)
             )
-            setConfig(deserializedData) // If deserializedData is null, keep the current config
-            console.log('Deserialized config:', deserializedData) // Print the deserialized data
+            if (deserializedData) {
+                setConfig(deserializedData)
+                console.log('Deserialized config:', deserializedData)
+            } else {
+                // If deserialization failed, ensure isConnected is set to false
+                setIsConnected(false)
+            }
         }
     }
 
@@ -247,10 +257,19 @@ export const MidiProvider = ({ children }) => {
             .join('')
         console.log('JSON string:', jsonString)
         try {
-            return JSON.parse(jsonString)
+            const parsedConfig = JSON.parse(jsonString)
+            return parsedConfig
         } catch (error) {
             console.error('Error parsing JSON:', error)
-            return null
+            toast({
+                title: 'Error Parsing Configuration',
+                description:
+                    'Failed to parse the configuration from the device. Please check the device or try again.',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            })
+            return null // Return null to indicate an error
         }
     }
 
