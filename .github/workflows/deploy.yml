@@ -18,6 +18,7 @@ jobs:
             cd editor-tx
             npm install
             npm run build
+            cp .htaccess dist/.htaccess
 
       - name: Deploy to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
