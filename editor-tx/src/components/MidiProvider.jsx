@@ -133,53 +133,66 @@ export const MidiProvider = ({ children }) => {
                 })
 
                 const _input = WebMidi.getInputByName('Topo T16')
-                setInput(_input)
                 const _output = WebMidi.getOutputByName('Topo T16')
+                setInput(_input)
                 setOutput(_output)
-                setIsConnected(_input && _input.connection)
+                const isConnected = _input && _input.connection === 'open'
+                setIsConnected(isConnected)
 
-                if (_input) {
-                    _input.addListener('statechange', (event) => {
-                        setIsConnected(event.target.connection)
-                        console.log(
-                            'Connection state changed:',
-                            event.target.connection
-                        )
-                    })
-
-                    _input.addListener('sysex', onSysex)
-                    _input.addListener('controlchange', (e) => {
-                        console.log(`Received 'controlchange' message.`, e)
-                        setCcMessages((prevMessages) => {
-                            const newMessage = {
-                                index: e.controller.number,
-                                value: e.value,
-                            }
-
-                            const existingMessageIndex = prevMessages.findIndex(
-                                (message) => message.index === newMessage.index
+                if (isConnected) {
+                    if (_input) {
+                        _input.addListener('statechange', (event) => {
+                            setIsConnected(event.target.connection === 'open')
+                            console.log(
+                                'Connection state changed:',
+                                event.target.connection
                             )
-
-                            if (existingMessageIndex !== -1) {
-                                return prevMessages.map((message, index) =>
-                                    index === existingMessageIndex
-                                        ? newMessage
-                                        : message
-                                )
-                            } else {
-                                return [...prevMessages, newMessage]
-                            }
                         })
+
+                        _input.addListener('sysex', onSysex)
+                        _input.addListener('controlchange', (e) => {
+                            console.log(`Received 'controlchange' message.`, e)
+                            setCcMessages((prevMessages) => {
+                                const newMessage = {
+                                    index: e.controller.number,
+                                    value: e.value,
+                                }
+
+                                const existingMessageIndex =
+                                    prevMessages.findIndex(
+                                        (message) =>
+                                            message.index === newMessage.index
+                                    )
+
+                                if (existingMessageIndex !== -1) {
+                                    return prevMessages.map((message, index) =>
+                                        index === existingMessageIndex
+                                            ? newMessage
+                                            : message
+                                    )
+                                } else {
+                                    return [...prevMessages, newMessage]
+                                }
+                            })
+                        })
+                    }
+
+                    toast({
+                        title: 'Connection Successful',
+                        description: 'MIDI device connected successfully.',
+                        status: 'success',
+                        duration: 3000,
+                        isClosable: true,
+                    })
+                } else {
+                    toast({
+                        title: 'Connection Failed',
+                        description: 'No MIDI device connected.',
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
                     })
                 }
-
-                toast({
-                    title: 'Connection Successful',
-                    description: 'MIDI device connected successfully.',
-                    status: 'success',
-                    duration: 3000,
-                    isClosable: true,
-                })
             } catch (err) {
                 console.error('Error enabling WebMidi:', err)
                 toast({

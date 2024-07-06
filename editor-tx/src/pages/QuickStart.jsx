@@ -62,8 +62,25 @@ const content = [
             },
             {
                 subtitle: 'The Web Editor',
-                content:
-                    "The Web Editor allows you to customize many of Topo's feature, like the keyboard layout or the CC and Channel mappings. Simply go to topo.unwn.dev and connect your device. Note: the editor uses WebMidi to talk with your device, so you'll need a compatible browser, like Chrome or Firefox(using the WebMidi extension).",
+                content: (
+                    <>
+                        The Web Editor allows you to customize many of Topo's
+                        feature, like the keyboard layout or the CC and Channel
+                        mappings. Simply go to topo.unwn.dev and connect your
+                        device. Note: the editor uses WebMidi to talk with your
+                        device, so you'll need a compatible browser, like Chrome
+                        or Firefox(
+                        <Link
+                            color="blue.400"
+                            textDecoration="underline"
+                            href="https://addons.mozilla.org/en-US/firefox/addon/web-midi-api/"
+                            isExternal
+                        >
+                            using the WebMidi extension
+                        </Link>
+                        )
+                    </>
+                ),
             },
             {
                 subtitle: 'Banks',
@@ -99,7 +116,7 @@ const content = [
                         In this mode the touchstrip has the following functions:
                         <List>
                             <ListItem>
-                                <ListIcon as={MdCircle} color="pink.400" />
+                                <ListIcon as={MdCircle} color="red.400" />
                                 Pitch Bend
                             </ListItem>
                             <ListItem>
@@ -107,11 +124,11 @@ const content = [
                                 Octave Switch
                             </ListItem>
                             <ListItem>
-                                <ListIcon as={MdCircle} color="orange.400" />
+                                <ListIcon as={MdCircle} color="green.400" />
                                 Mod Wheel
                             </ListItem>
                             <ListItem>
-                                <ListIcon as={MdCircle} color="red.400" />
+                                <ListIcon as={MdCircle} color="pink.400" />
                                 Bank Select
                             </ListItem>
                         </List>
