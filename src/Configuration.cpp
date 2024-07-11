@@ -3,7 +3,7 @@
 CalibrationData calibration_data;
 ConfigurationData cfg;
 KeyModeData kb_cfg[BANK_AMT];
-ControlChangeData cc_cfg[CC_AMT];
+ControlChangeData cc_cfg[BANK_AMT];
 Parameters parameters;
 QuickSettingsData qs;
 
@@ -11,6 +11,7 @@ void SaveConfiguration(DataManager &config, bool overwrite)
 {
     config.SaveVar(cfg.version, "version");
     config.SaveVar(cfg.mode, "mode");
+    config.SaveVar(cfg.sensitivity, "sensitivity");
     config.SaveVar(cfg.brightness, "brightness");
     config.SaveVar(cfg.midi_trs, "midi_trs");
     config.SaveVar(cfg.trs_type, "trs_type");
@@ -35,8 +36,8 @@ void SaveConfiguration(DataManager &config, bool overwrite)
         JsonArray idArray = bankObject["ids"].to<JsonArray>();
         for (int i = 0; i < CC_AMT; i++)
         {
-            channelArray[i] = 1;
-            idArray[i] = i + 13;
+            channelArray[i] = cc_cfg[bank].channel[i];
+            idArray[i] = cc_cfg[bank].id[i];
         }
 
         config.SaveArray(cfg.custom_scale1, "custom_scale1", 16);
@@ -78,11 +79,12 @@ void SaveQuickSettings(uint8_t bank)
     kb_cfg[bank].flip_y = qs.settings[11].value;
 }
 
-void LoadConfiguration(DataManager &config)
+void LoadConfiguration(DataManager &config, bool partial)
 {
     log_d("Configuration found");
     log_d("Loading configuration");
     config.LoadVar(cfg.mode, "mode");
+    config.LoadVar(cfg.sensitivity, "sensitivity");
     config.LoadVar(cfg.brightness, "brightness");
     config.LoadVar(cfg.midi_trs, "midi_trs");
     config.LoadVar(cfg.trs_type, "trs_type");
@@ -114,7 +116,7 @@ void LoadConfiguration(DataManager &config)
 
             JsonArray channelsArray = bankObject["chs"].as<JsonArray>(); // Convert to JsonArray
             JsonArray idArray = bankObject["ids"].as<JsonArray>();       // Convert to JsonArray
-            for (int j = 0; j < channelsArray.size(); j++)
+            for (int j = 0; j < CC_AMT; j++)
             {
                 cc_cfg[i].channel[j] = channelsArray[j];
                 cc_cfg[i].id[j] = idArray[j];

@@ -78,7 +78,7 @@ void SetMarkerCallback(uint8_t index, bool isRootNote)
 void OnBankChange()
 {
     led_manager.SetPalette(palette[kb_cfg[parameters.bank].palette]);
-    uint8_t base_note = kb_cfg[parameters.bank].base_note + (kb_cfg[parameters.bank].base_octave * 12);
+    uint8_t base_note = kb_cfg[parameters.bank].base_note + (kb_cfg[parameters.bank].base_octave * 12) + 12;
     SetNoteMap(kb_cfg[parameters.bank].scale, base_note, kb_cfg[parameters.bank].flip_x, kb_cfg[parameters.bank].flip_y, SetMarkerCallback);
     SetChordMapping(kb_cfg[parameters.bank].scale);
     keyboard.SetBank(parameters.bank);
@@ -99,7 +99,7 @@ void ProcessStrum(int idx, Key::State state)
         if (idx < 12)
         {
             current_key_idx = idx;
-            current_base_note = note_map[idx] + (kb_cfg[parameters.bank].base_octave * 12);
+            current_base_note = note_map[idx] + (kb_cfg[parameters.bank].base_octave * 12) + 12;
             led_manager.SetNote(idx);
             log_d("Pressed: idx=%d, base_note=%d, chord=%d", idx, current_base_note, current_chord);
             current_chord = current_chord_mapping[idx];
@@ -119,7 +119,7 @@ void ProcessSliderStrum(uint8_t idx, bool state)
     if (cfg.mode == Mode::STRUM)
         if (state)
         {
-            int velocity = keyboard.GetPressure(current_key_idx);
+            uint8_t velocity = 126; // keyboard.GetPressure(current_key_idx);
             log_d("velocity: %d", velocity);
             midi_provider.SendChordNoteOn(idx, strum_chords[current_chord][idx] + current_base_note, velocity, kb_cfg[parameters.bank].channel);
             led_manager.SetSliderLed(idx, 254);
@@ -166,7 +166,7 @@ void ProcessQuickSettings(int idx, Key::State state)
         if (idx < 4)
         {
             current_qs_option = parameters.quickSettingsPage * 4 + idx;
-            led_manager.SetOption(current_qs_option, 4);
+            led_manager.SetOption(idx, 4);
             log_d("Current QS Option: %d", current_qs_option);
             uint8_t current_value = qs.settings[current_qs_option].value;
             current_value_length = qs.settings[current_qs_option].numOptions;
@@ -174,7 +174,7 @@ void ProcessQuickSettings(int idx, Key::State state)
             log_d("Current Value: %d", current_value);
             log_d("Current Value Length: %d", current_value_length);
         }
-        else
+        else if (idx <= current_value_length + 3)
         {
             led_manager.SetValue(idx - 4, current_value_length);
             qs.settings[current_qs_option].value = idx - 4;
@@ -241,6 +241,8 @@ void ProcessSlider()
         if (parameters.quickSettingsPage != page)
         {
             parameters.quickSettingsPage = page;
+            led_manager.UpdateTransition();
+            ProcessQuickSettings(0, Key::State::PRESSED);
         }
         led_manager.SetSlider((uint8_t)(page * 3), false, 40);
         break;
@@ -324,15 +326,18 @@ void ProcessModeButton()
         keyboard.SetMode(Mode::STRUM);
         led_manager.TransitionToPattern(&strum);
         slider_mode = SliderMode::STRUMMING;
+        ProcessStrum(0, Key::State::PRESSED);
         ProcessSliderButton();
         break;
     case Mode::QUICK_SETTINGS:
         log_d("Mode: Quick Settings");
         slider_mode = SliderMode::QUICK;
+        led_manager.TransitionToPattern(&quick);
         keyboard.RemoveOnStateChanged();
         keyboard.SetOnStateChanged(&ProcessQuickSettings);
         LoadQuickSettings(parameters.bank);
-        led_manager.TransitionToPattern(&quick);
+        ProcessQuickSettings(0, Key::State::PRESSED);
+        ProcessSliderButton();
         break;
     }
 }
@@ -498,11 +503,14 @@ void SetCustomScale(int8_t *scale, int8_t *custom_scale, int size)
 // calls functions to apply the configuration
 void ApplyConfiguration()
 {
+    float sensitivity = (7 - (cfg.sensitivity - 1)) * 0.02f + 0.08f;
+    keyboard.SetPressThreshold(sensitivity);
+
     midi_provider.SetMidiBle((bool)cfg.midi_ble);
     midi_provider.SetMidiOut((bool)cfg.midi_trs);
     midi_provider.SetMidiTRSType((bool)cfg.trs_type);
     midi_provider.SetMidiThru((bool)cfg.passthrough);
-    uint8_t brightness = cfg.brightness * 35 + 10;
+    uint8_t brightness = (cfg.brightness - 1) * 29 + 10;
     led_manager.SetBrightness(brightness);
     log_d("Brightness: %d", brightness);
 
@@ -511,13 +519,120 @@ void ApplyConfiguration()
 
     log_d("current bank: %d", parameters.bank);
 
-    uint8_t base_note = kb_cfg[parameters.bank].base_note + (kb_cfg[parameters.bank].base_octave * 12);
+    uint8_t base_note = kb_cfg[parameters.bank].base_note + (kb_cfg[parameters.bank].base_octave * 12) + 12;
     SetNoteMap(kb_cfg[parameters.bank].scale, base_note, kb_cfg[parameters.bank].flip_x, kb_cfg[parameters.bank].flip_y, SetMarkerCallback);
     SetChordMapping(kb_cfg[parameters.bank].scale);
     keyboard.SetVelocityLut((Keyboard::Lut)kb_cfg[parameters.bank].velocity_curve);
     keyboard.SetAftertouchLut((Keyboard::Lut)kb_cfg[parameters.bank].aftertouch_curve);
     led_manager.UpdateTransition();
     cfg.mode = Mode::KEYBOARD;
+}
+
+void HardwareTest()
+{
+    led_manager.TestAll();
+}
+
+void CalibrationRoutine()
+{
+    adc.Stop();
+    m_btn.onStateChanged.DisconnectAll();
+    t_btn.onStateChanged.DisconnectAll();
+    keyboard.RemoveOnStateChanged();
+    slider.onSensorTouched.DisconnectAll();
+    Serial.begin(115200);
+    Serial.setDebugOutput(true);
+    HardwareTest();
+    delay(1000);
+    for (int i = 0; i < 16; i++)
+    {
+        adc.CalibrateMax(i);
+    }
+    Serial.println("Min calibration done");
+
+    for (int i = 0; i < 16; i++)
+    {
+        led_manager.SetLed(i, true);
+        // wait for the mode button to be pressed
+        adc.SetMuxChannel(keys[i].mux_idx);
+        while (m_btn.GetState() != Button::State::CLICKED)
+        {
+            Serial.printf("Getting raw value: %d\n", adc.GetRaw());
+            FastLED.show();
+            m_btn.Update();
+        }
+        m_btn.Update();
+        adc.CalibrateMin(keys[i].mux_idx);
+        delay(500);
+    }
+    Serial.println("Max calibration done");
+    adc.GetCalibration(calibration_data.minVal, calibration_data.maxVal, 16);
+    calibration.SaveArray(calibration_data.minVal, "minVal", 16);
+    calibration.SaveArray(calibration_data.maxVal, "maxVal", 16);
+    ESP.restart();
+}
+
+void SingleKeyCalibration()
+{
+    HardwareTest();
+
+    int selectedKey = -1;
+    bool maxCalibrated = false;
+    bool calibrationComplete = false;
+
+    // Step 1: Select the key to calibrate
+    while (selectedKey == -1)
+    {
+        for (int i = 0; i < 16; i++)
+        {
+            if (keyboard.GetKeyState(i) == Key::State::PRESSED)
+            {
+                selectedKey = i;
+                led_manager.SetLed(i, true);
+                FastLED.show();
+                log_d("Selected key %d for calibration", i);
+                delay(500); // Debounce
+                break;
+            }
+        }
+    }
+
+    // Step 2: Max and Min calibration
+    while (!calibrationComplete)
+    {
+        m_btn.Update();
+
+        if (m_btn.GetState() == Button::State::CLICKED)
+        {
+            if (!maxCalibrated)
+            {
+                // Perform max calibration
+                adc.SetMuxChannel(keys[selectedKey].mux_idx);
+                adc.CalibrateMax(keys[selectedKey].mux_idx);
+                log_d("Max calibration done for key %d", selectedKey);
+                maxCalibrated = true;
+                led_manager.SetLed(selectedKey, false);
+                delay(500);
+                led_manager.SetLed(selectedKey, true);
+            }
+            else
+            {
+                // Perform min calibration
+                adc.SetMuxChannel(keys[selectedKey].mux_idx);
+                adc.CalibrateMin(keys[selectedKey].mux_idx);
+                log_d("Min calibration done for key %d", selectedKey);
+                calibrationComplete = true;
+            }
+            delay(500); // Debounce
+        }
+    }
+
+    // Step 3: Save the calibration
+    uint16_t minVal[16], maxVal[16];
+    adc.GetCalibration(minVal, maxVal, 16);
+    calibration.SaveArray(minVal, "minVal", 16);
+    calibration.SaveArray(maxVal, "maxVal", 16);
+    log_d("Calibration saved for key %d", selectedKey);
 }
 
 void ProcessSysEx(byte *data, unsigned length)
@@ -550,48 +665,26 @@ void ProcessSysEx(byte *data, unsigned length)
         LoadConfiguration(config);
         ApplyConfiguration();
     }
-}
 
-bool CalibrationRoutine()
-{
-    for (int i = 0; i < 16; i++)
+    if (data[2] == 127 && data[3] == 7 && data[4] == 6)
     {
-        adc.CalibrateMax(i);
+        log_d("SysEx full calibration");
+        CalibrationRoutine();
     }
-    Serial.println("Min calibration done");
 
-    for (int i = 0; i < 16; i++)
+    if (data[2] == 127 && data[3] == 7 && data[4] == 7)
     {
-        led_manager.SetLed(i, true);
-        // wait for the mode button to be pressed
-        adc.SetMuxChannel(keys[i].mux_idx);
-        while (m_btn.GetState() != Button::State::CLICKED)
-        {
-            Serial.printf("Getting raw value: %d\n", adc.GetRaw());
-            FastLED.show();
-            m_btn.Update();
-        }
-        m_btn.Update();
-        adc.CalibrateMin(keys[i].mux_idx);
-        delay(500);
+        log_d("SysEx single key calibration");
+        SingleKeyCalibration();
+        ESP.restart();
     }
-    Serial.println("Max calibration done");
-
-    return true;
-}
-
-void HardwareTest()
-{
-    led_manager.TestAll();
 }
 
 void setup()
 {
     midi_provider.Init(PIN_RX, PIN_TX, PIN_TX2);
 
-    Serial.begin(115200);
-    Serial.setDebugOutput(true);
-    delay(1000);
+    delay(200);
 
     midi_provider.SetHandleSystemExclusive(ProcessSysEx);
     // Button initialization
@@ -614,13 +707,8 @@ void setup()
     calibration.Init();
     if (!calibration.LoadArray(calibration_data.minVal, "minVal", 16))
     {
-        HardwareTest();
         Serial.println("Calibration data not found, starting calibration routine");
         CalibrationRoutine();
-        adc.GetCalibration(calibration_data.minVal, calibration_data.maxVal, 16);
-        calibration.SaveArray(calibration_data.minVal, "minVal", 16);
-        calibration.SaveArray(calibration_data.maxVal, "maxVal", 16);
-        ESP.restart();
     }
     calibration.LoadArray(calibration_data.maxVal, "maxVal", 16);
     calibration.Print();
@@ -649,7 +737,7 @@ void setup()
 
     parameters.bank = 0;
 
-    uint8_t base_note = kb_cfg[parameters.bank].base_note + (kb_cfg[parameters.bank].base_octave * 12);
+    uint8_t base_note = kb_cfg[parameters.bank].base_note + (kb_cfg[parameters.bank].base_octave * 12) + 12;
     SetNoteMap(kb_cfg[parameters.bank].scale, base_note, kb_cfg[parameters.bank].flip_x, kb_cfg[parameters.bank].flip_y, SetMarkerCallback);
 
     log_d("Configuration initialized");

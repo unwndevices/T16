@@ -33,7 +33,7 @@ CRGBSet stateled(leds_set(0, 0));
 CRGBSet matrixleds(leds_set(1, 16));
 CRGB patternleds[16];
 CRGBSet sliderleds(leds_set(17, 23));
-#endif// LEDMANAGER_HPP
+#endif // LEDMANAGER_HPP
 
 #ifdef REV_B
 CRGB leds_plus_safety_pixel[NUM_LEDS + 1];
@@ -43,7 +43,7 @@ CRGBSet stateled(leds_set(0, 0));
 CRGBSet sliderleds(leds_set(1, 7));
 CRGBSet matrixleds(leds_set(8, 16));
 CRGB patternleds[16];
-#endif// LEDMANAGER_HPP
+#endif // LEDMANAGER_HPP
 
 #include "patterns/Droplet.hpp"
 #include "patterns/Sea.hpp"
@@ -260,7 +260,7 @@ public:
     {
         for (uint8_t i = 0; i < NUM_LEDS; i++)
         {
-            leds_set[i] = CHSV(HUE_AQUA, 230, 70);
+            leds_set[i] = CHSV(HUE_BLUE, 240, 255);
         }
         FastLED.show();
     }
@@ -298,4 +298,4 @@ private:
     bool is_marker[16] = {false};
 };
 
-#endif// LEDMANAGER_HPP
+#endif // LEDMANAGER_HPP

@@ -28,27 +28,7 @@ void MidiProvider::Init(int pin_rx, int pin_tx, int pin_tx2)
     {
         MIDI_BLE.begin();
     }
-
     MIDI_USB.begin();
-
-    if (midiTRSType)
-    {
-        // Type B
-        Serial2.begin(1152000, SERIAL_8N1, pin_rx, pin_tx);
-        pinMode(pin_tx2, OUTPUT);
-        digitalWrite(pin_tx2, HIGH);
-    }
-    else
-    {
-        // Type A
-        Serial2.begin(1152000, SERIAL_8N1, pin_rx, pin_tx2);
-        pinMode(pin_tx, OUTPUT);
-        digitalWrite(pin_tx, HIGH);
-    }
-    if (midiOut)
-    {
-        MIDI_SERIAL.begin();
-    }
 }
 
 void MidiProvider::Read()
@@ -70,14 +50,13 @@ void MidiProvider::Read()
 void MidiProvider::SendNoteOn(uint8_t key, uint8_t note, uint8_t velocity, uint8_t channel)
 {
     note_pool[key] = note; // Save the note in the note pool at the index corresponding to the key
-    if (!midiBle)
-    {
-        MIDI_USB.sendNoteOn(note, velocity, channel);
-    }
-    else
+
+    MIDI_USB.sendNoteOn(note, velocity, channel);
+    if (midiBle)
     {
         MIDI_BLE.sendNoteOn(note, velocity, channel);
     }
+
     if (midiOut)
     {
         MIDI_SERIAL.sendNoteOn(note, velocity, channel);
@@ -87,14 +66,13 @@ void MidiProvider::SendNoteOn(uint8_t key, uint8_t note, uint8_t velocity, uint8
 void MidiProvider::SendNoteOff(uint8_t key, uint8_t channel)
 {
     uint8_t note = note_pool[key]; // Retrieve the note from the note pool using the key
-    if (!midiBle)
-    {
-        MIDI_USB.sendNoteOff(note, 0, channel); // Velocity is not used in NoteOff in some MIDI implementations
-    }
-    else
+
+    MIDI_USB.sendNoteOff(note, 0, channel); // Velocity is not used in NoteOff in some MIDI implementations
+    if (midiBle)
     {
         MIDI_BLE.sendNoteOff(note, 0, channel);
     }
+
     if (midiOut)
     {
         MIDI_SERIAL.sendNoteOff(note, 0, channel);
@@ -112,14 +90,14 @@ void MidiProvider::SendChordOn(uint8_t key, uint8_t note, int8_t (*chord)[4], ui
     for (int i = 1; i < 5; i++)
     {
         chord_pool[i] = note + (*chord)[i];
-        if (!midiBle)
-        {
-            MIDI_USB.sendNoteOn(chord_pool[i], velocity, channel);
-        }
-        else
+
+        MIDI_USB.sendNoteOn(chord_pool[i], velocity, channel);
+
+        if (midiBle)
         {
             MIDI_BLE.sendNoteOn(chord_pool[i], velocity, channel);
         }
+
         if (midiOut)
         {
             MIDI_SERIAL.sendNoteOn(chord_pool[i], velocity, channel);
@@ -133,14 +111,13 @@ void MidiProvider::SendChordOff(uint8_t key, uint8_t channel)
     {
         for (int i = 1; i < 5; i++)
         {
-            if (!midiBle)
-            {
-                MIDI_USB.sendNoteOff(chord_pool[i], 0, channel);
-            }
-            else
+
+            MIDI_USB.sendNoteOff(chord_pool[i], 0, channel);
+            if (midiBle)
             {
                 MIDI_BLE.sendNoteOff(chord_pool[i], 0, channel);
             }
+
             if (midiOut)
             {
                 MIDI_SERIAL.sendNoteOff(chord_pool[i], 0, channel);
@@ -157,11 +134,10 @@ void MidiProvider::SendChordPressure(uint8_t key, uint8_t pressure, uint8_t chan
     {
         for (int i = 1; i < 5; i++)
         {
-            if (!midiBle)
-            {
-                MIDI_USB.sendAfterTouch(chord_pool[i], pressure, channel);
-            }
-            else
+
+            MIDI_USB.sendAfterTouch(chord_pool[i], pressure, channel);
+
+            if (midiBle)
             {
                 MIDI_BLE.sendAfterTouch(chord_pool[i], pressure, channel);
             }
@@ -175,11 +151,10 @@ void MidiProvider::SendChordPressure(uint8_t key, uint8_t pressure, uint8_t chan
 
 void MidiProvider::SendChordNoteOn(uint8_t idx, uint8_t note, uint8_t velocity, uint8_t channel)
 {
-    if (!midiBle)
-    {
-        MIDI_USB.sendNoteOn(note, velocity, channel);
-    }
-    else
+
+    MIDI_USB.sendNoteOn(note, velocity, channel);
+
+    if (midiBle)
     {
         MIDI_BLE.sendNoteOn(note, velocity, channel);
     }
@@ -193,11 +168,10 @@ void MidiProvider::SendChordNoteOn(uint8_t idx, uint8_t note, uint8_t velocity, 
 void MidiProvider::SendChordNoteOff(uint8_t idx, uint8_t channel)
 {
     uint8_t note = strum_pool[idx]; // Retrieve the note from the note pool using the key
-    if (!midiBle)
-    {
-        MIDI_USB.sendNoteOff(note, 0, channel); // Velocity is not used in NoteOff in some MIDI implementations
-    }
-    else
+
+    MIDI_USB.sendNoteOff(note, 0, channel); // Velocity is not used in NoteOff in some MIDI implementations
+
+    if (midiBle)
     {
         MIDI_BLE.sendNoteOff(note, 0, channel);
     }
@@ -211,11 +185,10 @@ void MidiProvider::SendChordNoteOff(uint8_t idx, uint8_t channel)
 void MidiProvider::SendAfterTouch(uint8_t key, uint8_t pressure, uint8_t channel)
 {
     uint8_t note = note_pool[key]; // Retrieve the note from the note pool using the key
-    if (!midiBle)
-    {
-        MIDI_USB.sendAfterTouch(note, pressure, channel);
-    }
-    else
+
+    MIDI_USB.sendAfterTouch(note, pressure, channel);
+
+    if (midiBle)
     {
         MIDI_BLE.sendAfterTouch(note, pressure, channel);
     }
@@ -227,11 +200,9 @@ void MidiProvider::SendAfterTouch(uint8_t key, uint8_t pressure, uint8_t channel
 
 void MidiProvider::SendPitchBend(int bend, uint8_t channel)
 {
-    if (!midiBle)
-    {
-        MIDI_USB.sendPitchBend(bend, channel);
-    }
-    else
+
+    MIDI_USB.sendPitchBend(bend, channel);
+    if (midiBle)
     {
         MIDI_BLE.sendPitchBend(bend, channel);
     }
@@ -243,11 +214,9 @@ void MidiProvider::SendPitchBend(int bend, uint8_t channel)
 
 void MidiProvider::SendControlChange(uint8_t controller, uint8_t value, uint8_t channel)
 {
-    if (!midiBle)
-    {
-        MIDI_USB.sendControlChange(controller, value, channel);
-    }
-    else
+
+    MIDI_USB.sendControlChange(controller, value, channel);
+    if (midiBle)
     {
         MIDI_BLE.sendControlChange(controller, value, channel);
     }
@@ -301,17 +270,20 @@ void MidiProvider::SetMidiTRSType(bool type)
     if (midiTRSType)
     {
         // Type B
-        Serial2.begin(11520000, SERIAL_8N1, pin_rx, pin_tx);
+        Serial2.begin(31250, SERIAL_8N1, -1, pin_tx);
         pinMode(pin_tx2, OUTPUT);
         digitalWrite(pin_tx2, HIGH);
     }
     else
     {
-        Serial2.begin(11520000, SERIAL_8N1, pin_rx, pin_tx2);
+        Serial2.begin(31250, SERIAL_8N1, -1, pin_tx2);
         pinMode(pin_tx, OUTPUT);
         digitalWrite(pin_tx, HIGH);
     }
-    MIDI_SERIAL.begin();
+    if (midiOut)
+    {
+        MIDI_SERIAL.begin();
+    }
 }
 
 void MidiProvider::ClearChordPool(uint8_t channel)

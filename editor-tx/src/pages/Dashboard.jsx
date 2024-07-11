@@ -1,83 +1,58 @@
 import {
-    Accordion,
-    AccordionButton,
-    AccordionIcon,
-    AccordionItem,
-    AccordionPanel,
     Box,
     Grid,
     GridItem,
+    Tabs,
+    TabList,
+    TabPanels,
+    Tab,
+    TabPanel,
 } from '@chakra-ui/react'
 import ControlChange from './ControlChange'
 import Keyboard from './Keyboard'
 import Scales from './Scales'
+import Settings from './Settings'
+import Footer from '../components/Footer'
 
 export default function Dashboard() {
     return (
-        <Grid templateColumns="repeat(4, 1fr)" p={5} px="5vw" mb={10}>
-            <GridItem colSpan={4}>
-                <Accordion defaultIndex={[0]} borderRadius="15px">
-                    <AccordionItem>
-                        <h2>
-                            <AccordionButton>
-                                <Box
-                                    as="span"
-                                    flex="1"
-                                    textAlign="left"
-                                    fontSize="xl"
-                                    letterSpacing={1}
-                                >
-                                    Keyboard
-                                </Box>
-                                <AccordionIcon />
-                            </AccordionButton>
-                        </h2>
-                        <AccordionPanel>
-                            <Keyboard />
-                        </AccordionPanel>
-                    </AccordionItem>
+        <>
+            <Grid templateColumns="repeat(4, 1fr)" p={5} px="5vw" mb={10}>
+                <GridItem colSpan={4}>
+                    <Tabs variant="enclosed" colorScheme="blue">
+                        <TabList>
+                            <Tab fontSize="md" letterSpacing={1}>
+                                Keyboard
+                            </Tab>
+                            <Tab fontSize="md" letterSpacing={1}>
+                                Custom Scales
+                            </Tab>
+                            <Tab fontSize="md" letterSpacing={1}>
+                                CC Mapping
+                            </Tab>
+                            <Tab fontSize="md" letterSpacing={1}>
+                                Global Settings
+                            </Tab>
+                        </TabList>
+                        <TabPanels>
+                            <TabPanel>
+                                <Keyboard />
+                            </TabPanel>
+                            <TabPanel>
+                                <Scales />
+                            </TabPanel>
+                            <TabPanel>
+                                <ControlChange />
+                            </TabPanel>
+                            <TabPanel>
+                                <Settings />
+                            </TabPanel>
+                        </TabPanels>
+                    </Tabs>
+                </GridItem>
+            </Grid>
 
-                    <AccordionItem>
-                        <h2>
-                            <AccordionButton>
-                                <Box
-                                    as="span"
-                                    flex="1"
-                                    textAlign="left"
-                                    fontSize="xl"
-                                    letterSpacing={1}
-                                >
-                                    Custom Scales
-                                </Box>
-                                <AccordionIcon />
-                            </AccordionButton>
-                        </h2>
-                        <AccordionPanel>
-                            <Scales />
-                        </AccordionPanel>
-                    </AccordionItem>
-
-                    <AccordionItem>
-                        <h2>
-                            <AccordionButton>
-                                <Box
-                                    as="span"
-                                    flex="1"
-                                    textAlign="left"
-                                    fontSize="xl"
-                                    letterSpacing={1}
-                                >
-                                    CC Mapping
-                                </Box>
-                                <AccordionIcon />
-                            </AccordionButton>
-                        </h2>
-                        <AccordionPanel>
-                            <ControlChange />
-                        </AccordionPanel>
-                    </AccordionItem>
-                </Accordion>
-            </GridItem>
-        </Grid>
+            <Footer />
+        </>
     )
 }

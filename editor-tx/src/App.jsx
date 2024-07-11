@@ -9,15 +9,16 @@ import {
 import RootLayout from './layouts/RootLayout'
 import Dashboard from './pages/Dashboard'
 import QuickStart from './pages/QuickStart'
+import Upload from './pages/Upload'
+
 // router and routes
 const router = createBrowserRouter(
     createRoutesFromElements(
-        <>
-            <Route path="/" element={<RootLayout />}>
-                <Route index element={<Dashboard />} />
-            </Route>
-            <Route path="quickstart" element={<QuickStart />} />
-        </>
+        <Route path="/" element={<RootLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="upload" element={<Upload />} />
+            <Route path="manual" element={<QuickStart />} />
+        </Route>
     )
 )
 

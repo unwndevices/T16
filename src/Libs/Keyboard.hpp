@@ -41,26 +41,30 @@ public:
     {
         value = adc->GetMux(0, mux_idx);
 
-        if (value > 0.10f && state == IDLE)
+        if (value > rel_threshold && state == IDLE)
         {
+            log_d("Key started");
             state = STARTED;
             pressStartTime = millis();
         }
         else if (state == STARTED && value > press_threshold)
         {
+            log_d("Key pressed");
             state = PRESSED;
             ulong pressTime = millis() - pressStartTime;
             velocity = fmap((float)pressTime, 55.0f, 4.0f, 0.18f, 1.0f);
 
             onStateChanged.Emit(idx, state);
         }
-        else if (value < 0.14f && (state == PRESSED || state == AFTERTOUCH))
+        else if (value < rel_threshold && (state == PRESSED || state == AFTERTOUCH))
         {
+            log_d("Key released");
             state = RELEASED;
             onStateChanged.Emit(idx, state);
         }
-        else if (value < 0.10f && (state == STARTED || state == RELEASED))
+        else if (value < rel_threshold && (state == STARTED || state == RELEASED))
         {
+            log_d("Key idle");
             state = IDLE;
         }
 
@@ -101,7 +105,13 @@ public:
 
     Signal<int, Key::State> onStateChanged;
 
-    void SetATThreshold(float threshold)
+    static void SetPressThreshold(float threshold)
+    {
+        press_threshold = threshold;
+        rel_threshold = min(max(threshold - 0.07f, 0.05f), 0.10f);
+    }
+
+    static void SetATThreshold(float threshold)
     {
         at_threshold = threshold;
     }
@@ -116,11 +126,15 @@ private:
     uint8_t debounceTime = 10;
     float pressure = 0.0f;
 
-    float press_threshold = 0.2f;
-    float at_threshold = 0.58f;
+    static float press_threshold;
+    static float rel_threshold;
+    static float at_threshold;
     static uint8_t instances;
 };
 
+float Key::press_threshold = 0.18f;
+float Key::rel_threshold = 0.06f;
+float Key::at_threshold = 0.78f;
 uint8_t Key::instances = 0;
 
 class KeyboardConfig
@@ -214,6 +228,11 @@ public:
     {
         return _config._keys[chn].value;
     };
+
+    Key::State GetKeyState(uint8_t chn)
+    {
+        return _config._keys[chn].GetState();
+    }
 
     uint8_t GetVelocity(uint8_t chn)
     {
@@ -315,6 +334,16 @@ public:
     {
         aftertouchLut = lut;
     };
+
+    void SetPressThreshold(float threshold)
+    {
+        Key::SetPressThreshold(threshold);
+    }
+
+    void SetATThreshold(float threshold)
+    {
+        Key::SetATThreshold(threshold);
+    }
 
     void PlotLuts()
     {

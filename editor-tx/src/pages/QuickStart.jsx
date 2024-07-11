@@ -14,10 +14,6 @@ import {
     Tr,
     Tbody,
     Td,
-    Flex,
-    HStack,
-    Button,
-    Spacer,
     VStack,
     Link,
 } from '@chakra-ui/react'
@@ -29,7 +25,7 @@ import JoystickLayout from '../assets/joystick.webp'
 import FadersLayout from '../assets/faders.webp'
 import StrumLayout from '../assets/strum_layout.webp'
 import QuickSettingsLayout from '../assets/quicksettings_layout.webp'
-import { MdCircle, MdModeEdit } from 'react-icons/md'
+import { MdCircle } from 'react-icons/md'
 import React, { useEffect, useRef, useState } from 'react'
 
 const content = [
@@ -47,7 +43,7 @@ const content = [
                         parameters, like pitch bend, octave. The T16 is designed
                         to be used with a computer via the
                         <strong> USB C</strong> port, any hardware Midi device,
-                        using the <strong>MIDI trs</strong> port, or using{' '}
+                        using the <strong>MIDI trs</strong> port, or using
                         <strong>BLE</strong> to wirelessly connect to Android
                         and iOS devices. Topo can do way more than just sending
                         MIDI notes and can be configured to your needs using the
@@ -64,12 +60,12 @@ const content = [
                 subtitle: 'The Web Editor',
                 content: (
                     <>
-                        The Web Editor allows you to customize many of Topo's
-                        feature, like the keyboard layout or the CC and Channel
-                        mappings. Simply go to topo.unwn.dev and connect your
-                        device. Note: the editor uses WebMidi to talk with your
-                        device, so you'll need a compatible browser, like Chrome
-                        or Firefox(
+                        The Web Editor allows you to customize many of
+                        Topo&apos;s feature, like the keyboard layout or the CC
+                        and Channel mappings. Simply go to topo.unwn.dev and
+                        connect your device. Note: the editor uses WebMidi to
+                        talk with your device, so you&apos;ll need a compatible
+                        browser, like Chrome or Firefox(
                         <Link
                             color="blue.400"
                             textDecoration="underline"
@@ -323,33 +319,6 @@ export default function QuickStart() {
 
     return (
         <>
-            <Flex
-                as="nav"
-                p={2}
-                px={6}
-                alignItems="center"
-                position="sticky"
-                top={0}
-                zIndex={100}
-                bg="#ffffffcf"
-            >
-                <HStack spacing={4}>
-                    <Heading as="h1" size="lg" letterSpacing={1}>
-                        Topo T16 Manual
-                    </Heading>
-                    <Button
-                        as="a"
-                        href="/"
-                        rightIcon={<MdModeEdit />}
-                        colorScheme="primary"
-                        variant="outline"
-                        target="_blank"
-                    >
-                        Editor
-                    </Button>
-                </HStack>
-                <Spacer />
-            </Flex>
             <Grid templateColumns="repeat(5, 1fr)" p={5} px="5vw">
                 <GridItem colSpan={1} pr={3}>
                     <Box

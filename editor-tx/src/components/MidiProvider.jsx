@@ -16,11 +16,12 @@ export const MidiProvider = ({ children }) => {
     const [config, setConfig] = useState({
         version: 0,
         mode: 0,
+        sensitivity: 1,
         midi_trs: 0,
         trs_type: 0,
         passthrough: 0,
         midi_ble: 0,
-        brightness: 0,
+        brightness: 1,
         banks: [
             {
                 ch: 1,
@@ -309,6 +310,19 @@ export const MidiProvider = ({ children }) => {
         }
     }
 
+    const startFullCalibration = () => {
+        if (output) {
+            output.sendSysex(0x7e, [127, 7, 6])
+        }
+        toast({
+            title: 'Full Calibration Started',
+            description: 'Continue on the device.',
+            status: 'info',
+            duration: 3000,
+            isClosable: true,
+        })
+    }
+
     const downloadConfig = () => {
         const serializedData = JSON.stringify(config, null, 2)
         const date = new Date().toISOString().slice(0, 10).replace(/-/g, '')
@@ -376,6 +390,7 @@ export const MidiProvider = ({ children }) => {
         setDemo,
         downloadConfig,
         uploadConfig,
+        startFullCalibration,
     }
 
     return (

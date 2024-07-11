@@ -8,7 +8,7 @@ class QuickSettings : public Pattern
 public:
     QuickSettings()
     {
-        currentPalette = topo_gp;
+        currentPalette = acid_gp;
     }
     bool RunPattern() override;
 
@@ -29,10 +29,7 @@ public:
     }
 
 private:
-    uint8_t selectedOption = 0;
-    uint8_t optionAmount = 1;
-    uint8_t selectedValue = 0;
-    uint8_t valueAmount = 1;
+
     uint8_t colorIndex = 255;
 };
 

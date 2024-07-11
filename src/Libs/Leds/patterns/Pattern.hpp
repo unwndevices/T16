@@ -73,8 +73,16 @@ public:
 
     virtual void SetColor(uint8_t color) {};
     virtual void SetSpeed(uint8_t speed) {};
-    virtual void SetOption(uint8_t option, uint8_t amount) {};
-    virtual void SetValue(uint8_t value, uint8_t amount) {};
+    virtual void SetOption(uint8_t option, uint8_t amount)
+    {
+        selectedOption = option;
+        optionAmount = amount;
+    };
+    virtual void SetValue(uint8_t value, uint8_t amount)
+    {
+        selectedValue = value;
+        valueAmount = amount;
+    };
 
     virtual void SetStrip(uint8_t strip, float value) {};
 
@@ -93,10 +101,21 @@ protected:
     float amount = 0.0f;
     bool state = false;
 
+    // for quick settings
+    static uint8_t selectedOption;
+    static uint8_t optionAmount;
+    static uint8_t selectedValue;
+    static uint8_t valueAmount;
+
     static CRGBPalette16 targetPalette;
 };
 
 CRGBPalette16 Pattern::currentPalette(CRGB::Black);
 CRGBPalette16 Pattern::targetPalette(CRGB::Black);
+
+uint8_t Pattern::selectedOption = 0;
+uint8_t Pattern::optionAmount = 1;
+uint8_t Pattern::selectedValue = 0;
+uint8_t Pattern::valueAmount = 1;
 
 #endif // PATTERN_HPP

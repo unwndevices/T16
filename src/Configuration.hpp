@@ -19,8 +19,8 @@ struct KeyModeData
     uint8_t palette = 0;
     uint8_t channel = 1;
     uint8_t scale = 0;
-    uint8_t base_octave = 0;
-    uint8_t base_note = 24;
+    uint8_t base_octave = 2;
+    uint8_t base_note = 0;
     uint8_t velocity_curve = 1;
     uint8_t aftertouch_curve = 1;
     uint8_t flip_x = 0;
@@ -30,8 +30,8 @@ struct KeyModeData
 
 struct ControlChangeData
 {
-    uint8_t channel[CC_AMT];
-    uint8_t id[CC_AMT];
+    uint8_t channel[CC_AMT] = {1, 1, 1, 1, 1, 1, 1, 1};
+    uint8_t id[CC_AMT] = {13, 14, 15, 1, 16, 17, 18, 19};
     bool hasChanged = false;
 };
 
@@ -39,6 +39,7 @@ struct ConfigurationData
 {
     uint8_t version = 1;
     uint8_t mode = 0;
+    uint8_t sensitivity = 1;
     uint8_t brightness = 6;
     uint8_t palette = 0;
     uint8_t midi_trs = 0;
@@ -46,8 +47,8 @@ struct ConfigurationData
     uint8_t passthrough = 0;
     uint8_t midi_ble = 0;
 
-    int8_t custom_scale1[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int8_t custom_scale2[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int8_t custom_scale1[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    int8_t custom_scale2[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
     bool hasChanged = false;
 };
 
@@ -55,7 +56,7 @@ struct Parameters
 {
     float slew = 0.0f;
     uint8_t bank = 0;
-    uint8_t mod = 0;
+    float mod = 0.0f;
     float bend = 0.0f;
     uint8_t current_chord = 0;
     bool isBending = false;
@@ -98,13 +99,13 @@ struct QuickSettingsData
 extern CalibrationData calibration_data;
 extern ConfigurationData cfg;
 extern KeyModeData kb_cfg[BANK_AMT];
-extern ControlChangeData cc_cfg[CC_AMT];
+extern ControlChangeData cc_cfg[BANK_AMT];
 extern Parameters parameters;
 extern QuickSettingsData qs;
 
 void SaveConfiguration(DataManager &config, bool overwrite = false);
 void LoadQuickSettings(uint8_t bank);
 void SaveQuickSettings(uint8_t bank);
-void LoadConfiguration(DataManager &config);
+void LoadConfiguration(DataManager &config, bool partial = false);
 
 #endif // CONFIGURATION_HPP

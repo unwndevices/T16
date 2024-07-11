@@ -119,6 +119,11 @@ void Adc::Start()
     xTaskCreatePinnedToCore(Update, "adc", 4048, this, 1, &_task, 1);
 }
 
+void Adc::Stop()
+{
+    vTaskDelete(_task);
+}
+
 ulong Adc::microseconds = 0;
 ulong Adc::previousMicroseconds = 0;
 void Adc::Update(void *parameter)

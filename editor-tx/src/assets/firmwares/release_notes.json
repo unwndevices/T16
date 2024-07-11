@@ -1,0 +1,28 @@
+{
+    "v1.0.1": {
+        "fileName": "t16_v1.0.1.bin",
+        "releaseDate": "11/07/2024",
+        "releaseNotes": {
+            "Highlights": "squashed bugs and improved reliability",
+            "Bugfixes": [
+                "lowered max brightness (to avoid power-starvation on old usb adapters)",
+                "fixed mod-wheel to correctly output 0-127 values",
+                "fixed quick-setting out of bounds bug",
+                "corrected default cc channels and ids to non-zero"
+            ],
+            "Improvements": [
+                "added a key sensitivity setting to the web editor",
+                "added option to start the sensor calibration routine from editor",
+                "added a brand new firmware update tool to Topo's website ",
+                "changed layout of the web editor to be more compact and easier to use"
+            ]
+        }
+    },
+    "v1.0.0": {
+        "fileName": "t16_v1.0.0.bin",
+        "releaseDate": "03/06/2024",
+        "releaseNotes": {
+            "Highlights": "initial release"
+        }
+    }
+}

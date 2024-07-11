@@ -48,6 +48,7 @@ public:
 
     void GetCalibration(uint16_t *min, uint16_t *max, uint8_t channels); // method to get the calibration values
     void Start();                                                        // method to start the task (and ADC
+    void Stop();                                                         // method to stop the task (and ADC)
     static void Update(void *parameter);                                 // method to update
     void ReadValues();                                                   // method to read the values from the ADC
     void ReadValuesDMA();                                                // method to read the values from the ADC using DMA
@@ -101,4 +102,4 @@ private:
     uint8_t iterator = 0;
     uint8_t avg_iterator = 0;
 };
-#endif // ADC_HPP
+#endif// ADC_HPP
