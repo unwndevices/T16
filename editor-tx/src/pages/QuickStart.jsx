@@ -16,6 +16,7 @@ import {
     Td,
     VStack,
     Link,
+    Icon,
 } from '@chakra-ui/react'
 
 import { Image } from '@chakra-ui/react'
@@ -25,7 +26,7 @@ import JoystickLayout from '../assets/joystick.webp'
 import FadersLayout from '../assets/faders.webp'
 import StrumLayout from '../assets/strum_layout.webp'
 import QuickSettingsLayout from '../assets/quicksettings_layout.webp'
-import { MdCircle } from 'react-icons/md'
+import { MdCircle, MdOutlineSystemUpdateAlt } from 'react-icons/md'
 import React, { useEffect, useRef, useState } from 'react'
 
 const content = [
@@ -64,17 +65,9 @@ const content = [
                         Topo&apos;s feature, like the keyboard layout or the CC
                         and Channel mappings. Simply go to topo.unwn.dev and
                         connect your device. Note: the editor uses WebMidi to
-                        talk with your device, so you&apos;ll need a compatible
-                        browser, like Chrome or Firefox(
-                        <Link
-                            color="blue.400"
-                            textDecoration="underline"
-                            href="https://addons.mozilla.org/en-US/firefox/addon/web-midi-api/"
-                            isExternal
-                        >
-                            using the WebMidi extension
-                        </Link>
-                        )
+                        talk with your device, so you&apos;ll need to use Chrome
+                        or Chrome-based browsers (there is a WebMidi extension
+                        for Firefox, but it is not reliable enough).
                     </>
                 ),
             },
@@ -134,6 +127,10 @@ const content = [
                 caption:
                     'The keyboard leds highlight each root note for the selected scale',
             },
+            {
+                content:
+                    'NoteOn/Off sensitivity (threshold) can be configured in the Web Editor, under general settings.',
+            },
         ],
     },
     {
@@ -156,8 +153,7 @@ const content = [
                           slew rate of the cursor. By pressing a key the cursor will move towards it, the harder
                           you press the faster it will move in regard to the set Slew rate. Pushing on more than
                           one key will move the cursor to the average position of the pressed keys. The pressure
-                          is sent as the Z value. It can be configured to snap to the center to simulate a
-                          spring-loaded joystick.`,
+                          is sent as the Z value.`,
                 image: JoystickLayout,
             },
         ],
@@ -281,6 +277,33 @@ const content = [
                     </TableContainer>
                 ),
                 image: QuickSettingsLayout,
+            },
+        ],
+    },
+    {
+        title: 'Reset, Backup and Update',
+        sections: [
+            {
+                subtitle: 'Reset',
+                content:
+                    'To reset the configuration to the factory settings, hold the SLIDER MODE button while plugging the device in. the key grid will flash in a sequence. note that the current configuration is lost, remember to backup your settings.',
+            },
+            {
+                subtitle: 'Backup and Restore',
+                content:
+                    'The web editor can backup and restore configuration files (with *.topo extension, json format). Use the buttons in the footer to backup and restore your configuration. the configuration file is human-readable and can be also edited manually.',
+            },
+            {
+                subtitle: 'Update',
+                content: (
+                    <>
+                        To update the firmware of the device you can use
+                        Topo&apos;s update tool (accessible on the header, look
+                        for this icon: <Icon as={MdOutlineSystemUpdateAlt} />
+                        ), simply select the firmware version from the dropdown
+                        menu and follow the on-screen instructions.
+                    </>
+                ),
             },
         ],
     },

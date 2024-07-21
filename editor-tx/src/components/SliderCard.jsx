@@ -6,13 +6,26 @@ import {
     SliderThumb,
     Text,
     Input,
+    HStack,
+    Circle,
 } from '@chakra-ui/react'
 import { PropTypes } from 'prop-types'
 import SkeletonLoader from './SkeletonLoader'
 
-export function SliderCard({ name, value, min = 0, max = 127, onChange }) {
+export function SliderCard({
+    name,
+    value,
+    min = 0,
+    max = 127,
+    onChange,
+    isSynced,
+}) {
     const handleSliderChange = (newValue) => {
         onChange(newValue)
+    }
+
+    const getDotColor = () => {
+        return isSynced ? 'green.500' : 'red.500'
     }
 
     const handleInputChange = (event) => {
@@ -25,19 +38,15 @@ export function SliderCard({ name, value, min = 0, max = 127, onChange }) {
     return (
         <SkeletonLoader>
             <Flex justifyContent="space-between" alignItems="center">
-                <Text minW="150px">{name}</Text>
-                <Input
-                    type="number"
-                    value={value}
-                    maxW="75px"
-                    mr="20px"
-                    onChange={handleInputChange}
-                />
+                <HStack spacing={2}>
+                    <Circle size="10px" bg={getDotColor()} />
+                    <Text minW="150px">{name}</Text>
+                </HStack>
                 <Slider
                     aria-label={name}
                     min={min}
                     max={max}
-                    defaultValue={value}
+                    value={value}
                     colorScheme="primary"
                     onChange={handleSliderChange}
                 >
@@ -46,6 +55,13 @@ export function SliderCard({ name, value, min = 0, max = 127, onChange }) {
                     </SliderTrack>
                     <SliderThumb boxSize={5} backgroundColor={'primary.300'} />
                 </Slider>
+                <Input
+                    type="number"
+                    value={value}
+                    maxW="75px"
+                    ml="20px"
+                    onChange={handleInputChange}
+                />
             </Flex>
         </SkeletonLoader>
     )
@@ -57,4 +73,5 @@ SliderCard.propTypes = {
     max: PropTypes.number,
     min: PropTypes.number,
     onChange: PropTypes.func,
+    isSynced: PropTypes.bool,
 }

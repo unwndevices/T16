@@ -94,8 +94,6 @@ void LoadConfiguration(DataManager &config, bool partial)
     config.LoadArray(cfg.custom_scale1, "custom_scale1", 16);
     config.LoadArray(cfg.custom_scale2, "custom_scale2", 16);
 
-    log_d("base cfg loaded");
-
     JsonArray banksArray;
     JsonDocument doc = config.LoadJsonDocument();
     banksArray = doc["banks"].as<JsonArray>();

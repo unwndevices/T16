@@ -12,7 +12,7 @@ public:
     CapTouch(){};
     CapTouch(uint8_t pin) { _pin = pin; };
 
-    void Init(uint8_t pin);
+    bool Init(uint8_t pin);
     int GetValue();
     bool IsPressed() { return _pressed; };
     void SetThreshold(uint16_t threshold) { _threshold = threshold; };
@@ -45,7 +45,7 @@ public:
     TouchSlider(){};
 
     CapTouch t[NUM_SENSORS]; // Change this to match your slider
-    void Init(uint8_t *gpio);
+    bool Init(uint8_t *gpio);
     void SetPosition(float position) { lastPosition = position; };
     void SetPosition(uint8_t intPosition, uint8_t numPositions);
     float GetPosition() { return lastPosition; };

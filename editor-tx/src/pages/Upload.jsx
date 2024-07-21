@@ -300,6 +300,9 @@ export default function Upload() {
                             <strong> unplug</strong> the device to exit Update
                             mode
                         </Text>
+                        <Text>
+                            - Enter the Web configurator and sync the device (connect, then save) to update
+                        </Text>
                     </AlertDescription>
                 </Alert>
                 <VStack spacing={4} align="stretch">

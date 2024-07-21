@@ -93,7 +93,8 @@ const noteNames = [
 ]
 
 export default function Keyboard() {
-    const { config, setConfig, selectedBank } = useContext(MidiContext)
+    const { config, setConfig, selectedBank, syncStatus } =
+        useContext(MidiContext)
 
     // Create an array of scale objects including the custom scales
     const allScales = [
@@ -145,6 +146,7 @@ export default function Keyboard() {
                         entries={scaleNames}
                         value={config.banks[selectedBank].scale}
                         onChange={(value) => handleChange('scale', value)}
+                        isSynced={syncStatus.banks[selectedBank].scale}
                     />
                     <Divider />
                     <AliasNumberCard
@@ -152,6 +154,7 @@ export default function Keyboard() {
                         aliases={noteNames}
                         value={config.banks[selectedBank].note}
                         onChange={(value) => handleChange('note', value)}
+                        isSynced={syncStatus.banks[selectedBank].note}
                     />
                     <Divider />
                     <NumberCard
@@ -160,6 +163,7 @@ export default function Keyboard() {
                         max={5}
                         value={config.banks[selectedBank].oct}
                         onChange={(value) => handleChange('oct', value)}
+                        isSynced={syncStatus.banks[selectedBank].oct}
                     />
                     <Divider />
                     <HStack justifyContent="space-between">
@@ -168,12 +172,14 @@ export default function Keyboard() {
                             id="flip_x"
                             value={config.banks[selectedBank].flip_x}
                             onChange={(value) => handleChange('flip_x', value)}
+                            isSynced={syncStatus.banks[selectedBank].flip_x}
                         />
                         <ToggleCard
                             name="Flip Y"
                             id="flip_y"
                             value={config.banks[selectedBank].flip_y}
                             onChange={(value) => handleChange('flip_y', value)}
+                            isSynced={syncStatus.banks[selectedBank].flip_y}
                         />
                     </HStack>
                     <Divider />
@@ -183,6 +189,7 @@ export default function Keyboard() {
                         max={16}
                         value={config.banks[selectedBank].ch}
                         onChange={(value) => handleChange('ch', value)}
+                        isSynced={syncStatus.banks[selectedBank].ch}
                     />
                     <Divider />
                     <SelectCard
@@ -195,6 +202,7 @@ export default function Keyboard() {
                         ]}
                         value={config.banks[selectedBank].vel}
                         onChange={(value) => handleChange('vel', value)}
+                        isSynced={syncStatus.banks[selectedBank].vel}
                     />
                     <Divider />
                     <SelectCard
@@ -207,7 +215,9 @@ export default function Keyboard() {
                         ]}
                         value={config.banks[selectedBank].at}
                         onChange={(value) => handleChange('at', value)}
+                        isSynced={syncStatus.banks[selectedBank].at}
                     />
+                    <Divider />
                 </Stack>
             </GridItem>
             <GridItem colSpan={{ base: 5, lg: 2 }} pl={{ base: 0, lg: 10 }}>

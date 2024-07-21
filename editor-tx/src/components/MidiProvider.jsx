@@ -1,7 +1,9 @@
-import { createContext, useState, useEffect } from 'react'
-import { useToast } from '@chakra-ui/react'
+import { createContext, useState, useEffect, useCallback } from 'react'
+import { Link, useToast } from '@chakra-ui/react'
 import { WebMidi } from 'webmidi'
 import PropTypes from 'prop-types'
+
+import releaseNotes from '../assets/firmwares/release_notes.json'
 
 const MidiContext = createContext()
 
@@ -77,6 +79,51 @@ export const MidiProvider = ({ children }) => {
             0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45,
         ],
     })
+    const [currentConfig, setCurrentConfig] = useState({ ...config })
+
+    const [syncStatus, setSyncStatus] = useState(() => {
+        // Initialize syncStatus with the same structure as config, but all values set to false
+        const initSyncStatus = (obj) => {
+            if (Array.isArray(obj)) {
+                return obj.map((item) => initSyncStatus(item))
+            } else if (typeof obj === 'object' && obj !== null) {
+                const result = {}
+                for (const key in obj) {
+                    result[key] = initSyncStatus(obj[key])
+                }
+                return result
+            } else {
+                return false // Initialize all leaf nodes as false (not synced)
+            }
+        }
+        return initSyncStatus(config)
+    })
+
+    // Function to compare config and currentConfig and update syncStatus
+    const updateSyncStatus = useCallback(() => {
+        const compare = (desired, current) => {
+            if (Array.isArray(desired)) {
+                return desired.map((item, index) =>
+                    compare(item, current[index])
+                )
+            } else if (typeof desired === 'object' && desired !== null) {
+                const result = {}
+                for (const key in desired) {
+                    result[key] = compare(desired[key], current[key])
+                }
+                return result
+            } else {
+                return desired === current
+            }
+        }
+
+        setSyncStatus(compare(config, currentConfig))
+    }, [config, currentConfig])
+
+    // Update syncStatus whenever config or currentConfig changes
+    useEffect(() => {
+        updateSyncStatus()
+    }, [config, currentConfig, updateSyncStatus])
 
     useEffect(() => {
         console.log('Config updated:', config)
@@ -109,7 +156,7 @@ export const MidiProvider = ({ children }) => {
                 await WebMidi.enable({ sysex: true })
                 console.log('WebMidi with sysex enabled!')
                 onEnabled()
-
+                WebMidi.octaveOffset = -1
                 const access = await navigator.requestMIDIAccess()
                 access.addEventListener('statechange', (event) => {
                     console.log('MIDIAccess state changed:', event.port.state)
@@ -152,7 +199,6 @@ export const MidiProvider = ({ children }) => {
 
                         _input.addListener('sysex', onSysex)
                         _input.addListener('controlchange', (e) => {
-                            console.log(`Received 'controlchange' message.`, e)
                             setCcMessages((prevMessages) => {
                                 const newMessage = {
                                     index: e.controller.number,
@@ -257,7 +303,9 @@ export const MidiProvider = ({ children }) => {
             )
             if (deserializedData) {
                 setConfig(deserializedData)
+                setCurrentConfig(deserializedData)
                 console.log('Deserialized config:', deserializedData)
+                checkFirmwareUpdate(deserializedData.version)
             } else {
                 // If deserialization failed, ensure isConnected is set to false
                 setIsConnected(false)
@@ -287,6 +335,40 @@ export const MidiProvider = ({ children }) => {
         }
     }
 
+    const getLatestFirmwareVersion = () => {
+        const versions = Object.keys(releaseNotes)
+        const latestVersion = versions.reduce((latest, current) => {
+            return releaseNotes[current].version > releaseNotes[latest].version
+                ? current
+                : latest
+        })
+        return releaseNotes[latestVersion].version
+    }
+
+    const checkFirmwareUpdate = (currentVersion) => {
+        const latestVersion = getLatestFirmwareVersion()
+        if (currentVersion < latestVersion) {
+            toast({
+                title: 'Firmware Update Available',
+                description: (
+                    <>
+                        To update, go to the{' '}
+                        <Link
+                            href="/upload"
+                            style={{ textDecoration: 'underline' }}
+                        >
+                            <strong>Update</strong>
+                        </Link>{' '}
+                        page.
+                    </>
+                ),
+                status: 'info',
+                duration: 5000,
+                isClosable: true,
+            })
+        }
+    }
+
     const sendConfig = () => {
         if (output) {
             console.log('Sending config dump.')
@@ -297,6 +379,8 @@ export const MidiProvider = ({ children }) => {
                 .split('')
                 .map((char) => char.charCodeAt(0))
             output.sendSysex(0x7e, [...sysex, ...data])
+
+            setCurrentConfig(config)
 
             toast({
                 title: 'Configuration Sent',
@@ -348,6 +432,7 @@ export const MidiProvider = ({ children }) => {
                 try {
                     const parsedConfig = JSON.parse(fileContent)
                     setConfig(parsedConfig)
+                    setCurrentConfig(parsedConfig)
                     toast({
                         title: 'Configuration Loaded',
                         description:
@@ -391,6 +476,9 @@ export const MidiProvider = ({ children }) => {
         downloadConfig,
         uploadConfig,
         startFullCalibration,
+        currentConfig,
+        syncStatus,
+        updateSyncStatus,
     }
 
     return (

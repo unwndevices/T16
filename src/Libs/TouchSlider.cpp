@@ -1,21 +1,57 @@
 #include "TouchSlider.hpp"
 
-void CapTouch::Init(uint8_t pin)
+bool CapTouch::Init(uint8_t pin)
 {
     _pin = pin;
     pinMode(_pin, INPUT);
-    // Intialize history and smoothed value to an average of a few readings
-    for (int i = 0; i < 10; i++)
+
+    const int maxAttempts = 5;
+    const float maxThreshold = 50000.0f;
+    int attempts = 0;
+
+    do
     {
-        raw += touchRead(_pin);
-        delay(3);
+        // Reset raw value for each attempt
+        raw = 0;
+
+        // Initialize history and smoothed value to an average of a few readings
+        for (int i = 0; i < 10; i++)
+        {
+            raw += touchRead(_pin);
+            delay(1);
+        }
+        raw = raw / 10;
+
+        attempts++;
+
+        if (raw < maxThreshold)
+        {
+            // Valid reading, break the loop
+            break;
+        }
+        else
+        {
+            // Reading too high, log a warning and retry
+            log_w("Pin %d: Initial touch value too high (%.2f). Retrying... (Attempt %d/%d)",
+                  _pin, raw, attempts, maxAttempts);
+            delay(100); // Add a small delay before retrying
+        }
+    } while (attempts < maxAttempts);
+
+    if (attempts >= maxAttempts)
+    {
+        log_e("Pin %d: Failed to get a valid initial touch value after %d attempts. Using last reading: %.2f",
+              _pin, maxAttempts, raw);
+        return false;
     }
-    raw = raw / 10;
+
+    log_d("Pin: %d, Raw: %.2f", _pin, raw);
     p3 = raw;
     p2 = raw;
     p1 = raw;
     smoothed = raw;
     baseline = raw;
+    return true;
 }
 
 int CapTouch::GetValue()
@@ -55,16 +91,18 @@ int CapTouch::GetValue()
 }
 ////////////////////////////////////////////
 
-void TouchSlider::Init(uint8_t *gpio)
+bool TouchSlider::Init(uint8_t *gpio)
 {
-
     for (uint8_t i = 0; i < NUM_SENSORS; i++)
     {
-        t[i].Init(gpio[i]);
+        if (!t[i].Init(gpio[i]))
+        {
+            return false;
+        }
     }
     timer.Restart();
-
     log_d("TouchSlider initialized");
+    return true;
 };
 
 uint8_t TouchSlider::GetQuantizedPosition(uint8_t numPositions)

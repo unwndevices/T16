@@ -19,7 +19,8 @@ import { SliderCard } from '../components/SliderCard'
 import { ToggleCard } from '../components/ToggleCard'
 
 export default function Settings() {
-    const { config, setConfig, startFullCalibration } = useContext(MidiContext)
+    const { config, setConfig, startFullCalibration, syncStatus } =
+        useContext(MidiContext)
     const { isOpen, onOpen, onClose } = useDisclosure()
     const cancelRef = useRef()
 
@@ -37,9 +38,15 @@ export default function Settings() {
                     <ListItem>
                         <SelectCard
                             name="Default Mode"
-                            entries={['Keyboard', 'Joystick', 'Faders']}
+                            entries={[
+                                'Keyboard',
+                                'Strum',
+                                'Joystick',
+                                'Faders',
+                            ]}
                             value={config.mode}
                             onChange={(value) => handleChange('mode', value)}
+                            isSynced={syncStatus.mode}
                         />
                     </ListItem>
 
@@ -54,6 +61,7 @@ export default function Settings() {
                             onChange={(value) =>
                                 handleChange('brightness', value)
                             }
+                            isSynced={syncStatus.brightness}
                         />
                     </ListItem>
 
@@ -68,6 +76,7 @@ export default function Settings() {
                             onChange={(value) =>
                                 handleChange('sensitivity', value)
                             }
+                            isSynced={syncStatus.sensitivity}
                         />
                     </ListItem>
 
@@ -78,6 +87,7 @@ export default function Settings() {
                             onChange={(value) =>
                                 handleChange('midi_trs', value)
                             }
+                            isSynced={syncStatus.midi_trs}
                         />
                     </ListItem>
 
@@ -90,6 +100,7 @@ export default function Settings() {
                             onChange={(value) =>
                                 handleChange('trs_type', value)
                             }
+                            isSynced={syncStatus.trs_type}
                         />
                     </ListItem>
 
@@ -102,6 +113,7 @@ export default function Settings() {
                             onChange={(value) =>
                                 handleChange('passthrough', value)
                             }
+                            isSynced={syncStatus.passthrough}
                         />
                     </ListItem>
                     <ListItem>
@@ -111,6 +123,7 @@ export default function Settings() {
                             onChange={(value) =>
                                 handleChange('midi_ble', value)
                             }
+                            isSynced={syncStatus.midi_ble}
                         />
                     </ListItem>
                     <Divider my={6} />
@@ -135,18 +148,16 @@ export default function Settings() {
                                 This will start the keyboard magnetic sensors
                                 calibration process.
                                 <br />
-                                1. Make sure no keys are pressed before starting
-                                the calibration, then press the start button.
-                                The keys idle position will be automatically
-                                saved.
+                                1. Press the start button to commence the
+                                calibration routine.
                                 <br />
-                                2. The first key will light up, hold it down and
-                                press the MODE button to proceed to the next. Do
-                                not release the key until the next one lights
-                                up.
+                                2. The key to calibrate will light up, press it
+                                multiple times to set the min and max values and
+                                then click the PLAY MODE button to save and
+                                continue to the next key.
                                 <br />
-                                3. Repeat for all keys, the device will reboot
-                                once done.
+                                3. Repeat for all keys, then the device will
+                                reboot once done.
                             </AlertDialogBody>
                             <AlertDialogFooter>
                                 <Button

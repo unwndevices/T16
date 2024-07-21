@@ -1,17 +1,31 @@
-import { Box, HStack, Text } from '@chakra-ui/react'
+import { Box, Circle, HStack, Text } from '@chakra-ui/react'
 import { PropTypes } from 'prop-types'
 import { NumberInput, AliasNumberInput } from './CustomInputs'
 import SkeletonLoader from './SkeletonLoader'
 
-export function NumberCard({ name, min = 0, max = 127, value, onChange }) {
+export function NumberCard({
+    name,
+    min = 0,
+    max = 127,
+    value,
+    onChange,
+    isSynced,
+}) {
     const handleSelect = (value) => {
         onChange(value)
+    }
+
+    const getDotColor = () => {
+        return isSynced ? 'green.500' : 'red.500'
     }
 
     return (
         <HStack justifyContent="space-between" alignItems="center">
             <Box minW="8vw">
-                <Text>{name}</Text>
+                <HStack spacing={2}>
+                    <Circle size="10px" bg={getDotColor()} />
+                    <Text>{name}</Text>
+                </HStack>
             </Box>
             <SkeletonLoader>
                 <NumberInput
@@ -19,7 +33,6 @@ export function NumberCard({ name, min = 0, max = 127, value, onChange }) {
                     max={max}
                     value={value} // Pass the value prop here
                     onSelect={handleSelect}
-                    
                 />
             </SkeletonLoader>
         </HStack>
@@ -32,16 +45,24 @@ NumberCard.propTypes = {
     max: PropTypes.number,
     value: PropTypes.number,
     onChange: PropTypes.func,
+    isSynced: PropTypes.bool,
 }
 
-export function AliasNumberCard({ name, aliases, value, onChange }) {
+export function AliasNumberCard({ name, aliases, value, onChange, isSynced }) {
     const handleSelect = (index) => {
         onChange(index)
     }
 
+    const getDotColor = () => {
+        return isSynced ? 'green.500' : 'red.500'
+    }
+
     return (
         <HStack justifyContent="space-between" alignItems="baseline">
-            <Text>{name}</Text>
+            <HStack spacing={2}>
+                <Circle size="10px" bg={getDotColor()} />
+                <Text>{name}</Text>
+            </HStack>
             <SkeletonLoader>
                 <AliasNumberInput
                     aliases={aliases}
@@ -58,4 +79,5 @@ AliasNumberCard.propTypes = {
     aliases: PropTypes.array,
     value: PropTypes.number,
     onChange: PropTypes.func,
+    isSynced: PropTypes.bool,
 }

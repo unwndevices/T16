@@ -86,7 +86,7 @@ public:
     void SetLed(uint8_t idx, bool state)
     {
         if (state)
-            matrixleds[idx] = CHSV(HUE_ORANGE, 230, 70);
+            matrixleds[idx] = CHSV(HUE_ORANGE, 240, 70);
         else
             matrixleds[idx] = CRGB::Black;
     }
@@ -186,14 +186,14 @@ public:
             {
                 if (i <= numLedsToLight)
                 {
-                    sliderleds[6 - i] = CHSV(slider_color, 230, 100);
+                    sliderleds[6 - i] = CHSV(slider_color, 240, 140);
                 }
             }
             else
             {
                 if (i == numLedsToLight)
                 {
-                    sliderleds[6 - i] = CHSV(slider_color, 230, 100);
+                    sliderleds[6 - i] = CHSV(slider_color, 240, 140);
                 }
             }
         }
@@ -206,18 +206,18 @@ public:
         {
             for (uint8_t i = 0; i <= position; i++)
             {
-                sliderleds[6 - i] = CHSV(slider_color, 230, 100);
+                sliderleds[6 - i] = CHSV(slider_color, 240, 140);
             }
         }
         else
         {
-            sliderleds[6 - position] = CHSV(slider_color, 230, 100);
+            sliderleds[6 - position] = CHSV(slider_color, 240, 140);
         }
     }
 
     void SetSliderLed(uint8_t idx, uint8_t intensity, uint8_t steps = 1)
     {
-        sliderleds[6 - idx * steps] = CHSV(slider_color, 230, intensity);
+        sliderleds[min(6 - idx * steps, 6)] = CHSV(slider_color, 240, intensity);
     }
 
     void SetPattern(Pattern *pattern)
@@ -256,11 +256,11 @@ public:
         FastLED.show();
     }
 
-    void TestAll()
+    void TestAll(uint8_t color = HUE_BLUE)
     {
         for (uint8_t i = 0; i < NUM_LEDS; i++)
         {
-            leds_set[i] = CHSV(HUE_BLUE, 240, 255);
+            leds_set[i] = CHSV(color, 240, 255);
         }
         FastLED.show();
     }
@@ -288,7 +288,7 @@ private:
     {
         for (uint8_t i = 0; i < 16; i++)
         {
-            matrixleds[i] = CHSV(HUE_ORANGE, 230, 70);
+            matrixleds[i] = CHSV(HUE_ORANGE, 240, 70);
             FastLED.show();
             delay(10);
         }

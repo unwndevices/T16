@@ -41,6 +41,11 @@ public:
         log_d("Button %d initialized", id);
         this->id = id;
         pinMode(pin, INPUT_PULLUP);
+        state = IDLE;
+        prevState = IDLE;
+        pressStartTime = 0;
+        elapsedTime = 0;
+        longPressFlag = false;
     }
 
     void Init()

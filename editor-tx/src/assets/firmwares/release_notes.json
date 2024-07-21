@@ -1,6 +1,29 @@
 {
+    "v1.0.2": {
+        "fileName": "t16_v1.0.2.bin",
+        "version": 102,
+        "releaseDate": "20/07/2024",
+        "releaseNotes": {
+            "Highlights": "(Moar Bugs fixed + MIDI Monitor)",
+            "Bugfixes": [
+                "fixed crashes in strum mode",
+                "fixed slider leds not lighting up correctly",
+                "pressure in XY and Fader is now correctly calculated",
+                "fixed a bug where the default mode wouldn't apply.",
+                "fixed bug in the octave slider"
+            ],
+            "Improvements": [
+                "Added a Midi monitor to the web editor to check sent midi messages",
+                "In strum mode, key pressure is now sent as aftertouch.",
+                "Improved the Calibration routine to be more accurate and easier to use.",
+                "Improved the touch slider initialization.",
+                "Added per-parameter sync status indicators to the web editor."
+            ]
+        }
+    },
     "v1.0.1": {
         "fileName": "t16_v1.0.1.bin",
+        "version": 101,
         "releaseDate": "11/07/2024",
         "releaseNotes": {
             "Highlights": "squashed bugs and improved reliability",
@@ -20,6 +43,7 @@
     },
     "v1.0.0": {
         "fileName": "t16_v1.0.0.bin",
+        "version": 100,
         "releaseDate": "03/06/2024",
         "releaseNotes": {
             "Highlights": "initial release"

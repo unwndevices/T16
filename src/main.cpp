@@ -78,7 +78,7 @@ void SetMarkerCallback(uint8_t index, bool isRootNote)
 void OnBankChange()
 {
     led_manager.SetPalette(palette[kb_cfg[parameters.bank].palette]);
-    uint8_t base_note = kb_cfg[parameters.bank].base_note + (kb_cfg[parameters.bank].base_octave * 12) + 12;
+    uint8_t base_note = kb_cfg[parameters.bank].base_note;
     SetNoteMap(kb_cfg[parameters.bank].scale, base_note, kb_cfg[parameters.bank].flip_x, kb_cfg[parameters.bank].flip_y, SetMarkerCallback);
     SetChordMapping(kb_cfg[parameters.bank].scale);
     keyboard.SetBank(parameters.bank);
@@ -99,42 +99,23 @@ void ProcessStrum(int idx, Key::State state)
         if (idx < 12)
         {
             current_key_idx = idx;
-            current_base_note = note_map[idx] + (kb_cfg[parameters.bank].base_octave * 12) + 12;
+            current_base_note = note_map[idx] + (kb_cfg[parameters.bank].base_octave * 12);
             led_manager.SetNote(idx);
-            log_d("Pressed: idx=%d, base_note=%d, chord=%d", idx, current_base_note, current_chord);
             current_chord = current_chord_mapping[idx];
             led_manager.SetChord(current_chord);
         }
         else
         {
             current_chord = idx - 12;
-            current_chord_mapping[current_base_note] = current_chord;
+            current_chord_mapping[current_key_idx] = current_chord;
             led_manager.SetChord(current_chord);
         }
     }
 }
 
-void ProcessSliderStrum(uint8_t idx, bool state)
-{
-    if (cfg.mode == Mode::STRUM)
-        if (state)
-        {
-            uint8_t velocity = 126; // keyboard.GetPressure(current_key_idx);
-            log_d("velocity: %d", velocity);
-            midi_provider.SendChordNoteOn(idx, strum_chords[current_chord][idx] + current_base_note, velocity, kb_cfg[parameters.bank].channel);
-            led_manager.SetSliderLed(idx, 254);
-            FastLED.show();
-        }
-        else
-        {
-            midi_provider.SendChordNoteOff(idx, kb_cfg[parameters.bank].channel);
-            led_manager.SetSliderLed(idx, 25);
-        }
-}
-
 void ProcessKey(int idx, Key::State state)
 {
-    uint8_t note = note_map[idx] + (kb_cfg[parameters.bank].base_octave * 12);
+    uint8_t note = note_map[idx] + (kb_cfg[parameters.bank].base_octave * 12) + 24;
 
     if (state == Key::State::PRESSED)
     {
@@ -188,6 +169,7 @@ void ProcessSlider()
     switch (slider_mode)
     {
     case SliderMode::BEND:
+    {
         if (!slider.IsTouched())
         {
             led_manager.SetSlider(0.5f, false);
@@ -203,26 +185,36 @@ void ProcessSlider()
             // convert the float value to a 14 bit integer, with 0 being the float value 0.5
             value = (slider.GetPosition() - 0.5f) * 2.0f;
             parameters.bend = (value * 8191.0f);
-            log_d("bend: %d", (int)parameters.bend);
             midi_provider.SendPitchBend((int)parameters.bend, kb_cfg[parameters.bank].channel);
             led_manager.SetSlider(slider.GetPosition(), false);
             parameters.isBending = true;
         }
         break;
+    }
     case SliderMode::OCTAVE:
+    {
         kb_cfg[parameters.bank].base_octave = slider.GetQuantizedPosition(7);
         led_manager.SetSlider((uint8_t)slider.GetQuantizedPosition(7), false);
         break;
+    }
     case SliderMode::MOD:
-        parameters.mod = slider.GetPosition();
-        midi_provider.SendControlChange(cc_cfg[parameters.bank].id[3], (uint8_t)(parameters.mod * 127.0f), cc_cfg[parameters.bank].channel[3]);
+    {
+        float mod = slider.GetPosition();
+        if (parameters.mod != mod)
+        {
+            parameters.mod = mod;
+            midi_provider.SendControlChange(cc_cfg[parameters.bank].id[3], (uint8_t)(parameters.mod * 127.0f), cc_cfg[parameters.bank].channel[3]);
+        }
         led_manager.SetSlider(slider.GetPosition());
         break;
+    }
     case SliderMode::SLEW:
+    {
         parameters.slew = slider.GetPosition();
         led_manager.SetSlider(parameters.slew);
         keyboard.SetSlew(parameters.slew);
         break;
+    }
     case SliderMode::BANK:
     {
         uint8_t bank = slider.GetQuantizedPosition(4);
@@ -235,8 +227,42 @@ void ProcessSlider()
         break;
     }
     case SliderMode::STRUMMING:
+    {
+        for (int i = 0; i < 7; i++)
+        {
+            bool isTouched = slider.IsTouched(i, 19000U);
+            if (isTouched && !parameters.active_string[i])
+            {
+                parameters.active_string[i] = true;
+                uint8_t velocity = 126;
+                midi_provider.SendChordNoteOn(i, strum_chords[current_chord][i] + current_base_note, velocity, kb_cfg[parameters.bank].channel);
+                led_manager.SetSliderLed(i, 254);
+            }
+            else if (!isTouched && parameters.active_string[i])
+            {
+                parameters.active_string[i] = false;
+                midi_provider.SendChordNoteOff(i, kb_cfg[parameters.bank].channel);
+                led_manager.SetSliderLed(i, 70);
+            }
+
+            else if (isTouched && parameters.active_string[i])
+            {
+                uint8_t pressure = keyboard.GetPressure(current_key_idx);
+                if (parameters.at_strum != pressure)
+                {
+                    parameters.at_strum = pressure;
+                    midi_provider.SendAfterTouch(current_key_idx, pressure, kb_cfg[parameters.bank].channel);
+                }
+            }
+            else if (!parameters.active_string[i])
+            {
+                led_manager.SetSliderLed(i, 70);
+            }
+        }
         break;
+    }
     case SliderMode::QUICK:
+    {
         uint8_t page = slider.GetQuantizedPosition(3);
         if (parameters.quickSettingsPage != page)
         {
@@ -246,6 +272,7 @@ void ProcessSlider()
         }
         led_manager.SetSlider((uint8_t)(page * 3), false, 40);
         break;
+    }
     }
 }
 
@@ -260,7 +287,7 @@ void ProcessSliderButton()
     case SliderMode::OCTAVE:
         log_d("Slider mode: Octave");
         slider.SetPosition((float)kb_cfg[parameters.bank].base_octave / 7.0f);
-        led_manager.SetSliderHue(HSVHue::HUE_BLUE - 10);
+        led_manager.SetSliderHue(HSVHue::HUE_BLUE - 5);
         break;
     case SliderMode::MOD:
         log_d("Slider mode: Mod");
@@ -322,7 +349,6 @@ void ProcessModeButton()
         log_d("Mode: Strum");
         keyboard.RemoveOnStateChanged();
         keyboard.SetOnStateChanged(&ProcessStrum);
-        slider.onSensorTouched.Connect(ProcessSliderStrum);
         keyboard.SetMode(Mode::STRUM);
         led_manager.TransitionToPattern(&strum);
         slider_mode = SliderMode::STRUMMING;
@@ -517,122 +543,71 @@ void ApplyConfiguration()
     SetCustomScale(scales[CUSTOM1], cfg.custom_scale1, 16);
     SetCustomScale(scales[CUSTOM2], cfg.custom_scale2, 16);
 
-    log_d("current bank: %d", parameters.bank);
-
-    uint8_t base_note = kb_cfg[parameters.bank].base_note + (kb_cfg[parameters.bank].base_octave * 12) + 12;
+    uint8_t base_note = kb_cfg[parameters.bank].base_note;
     SetNoteMap(kb_cfg[parameters.bank].scale, base_note, kb_cfg[parameters.bank].flip_x, kb_cfg[parameters.bank].flip_y, SetMarkerCallback);
     SetChordMapping(kb_cfg[parameters.bank].scale);
     keyboard.SetVelocityLut((Keyboard::Lut)kb_cfg[parameters.bank].velocity_curve);
     keyboard.SetAftertouchLut((Keyboard::Lut)kb_cfg[parameters.bank].aftertouch_curve);
+    ProcessModeButton();
+
     led_manager.UpdateTransition();
-    cfg.mode = Mode::KEYBOARD;
 }
 
 void HardwareTest()
 {
-    led_manager.TestAll();
+    led_manager.TestAll(HUE_YELLOW);
 }
 
 void CalibrationRoutine()
 {
+    uint16_t calibration_offset = 40;
+    // Initialize calibration
     adc.Stop();
     m_btn.onStateChanged.DisconnectAll();
     t_btn.onStateChanged.DisconnectAll();
     keyboard.RemoveOnStateChanged();
     slider.onSensorTouched.DisconnectAll();
-    Serial.begin(115200);
-    Serial.setDebugOutput(true);
     HardwareTest();
     delay(1000);
-    for (int i = 0; i < 16; i++)
-    {
-        adc.CalibrateMax(i);
-    }
-    Serial.println("Min calibration done");
+    yield();
 
     for (int i = 0; i < 16; i++)
     {
         led_manager.SetLed(i, true);
-        // wait for the mode button to be pressed
+        FastLED.show();
+
         adc.SetMuxChannel(keys[i].mux_idx);
+        calibration_data.minVal[i] = UINT16_MAX;
+        calibration_data.maxVal[i] = 0;
+        uint16_t avgVal = 0;
+
         while (m_btn.GetState() != Button::State::CLICKED)
         {
-            Serial.printf("Getting raw value: %d\n", adc.GetRaw());
-            FastLED.show();
+            for (int j = 0; j < 8; j++)
+            {
+                delay(1);
+                uint16_t rawValue = adc.GetRaw();
+                avgVal += rawValue;
+            }
+            avgVal /= 8;
+            calibration_data.minVal[i] = min((uint16_t)(calibration_data.minVal[i] + calibration_offset), avgVal);
+            calibration_data.maxVal[i] = max((uint16_t)(calibration_data.maxVal[i] - calibration_offset), avgVal);
             m_btn.Update();
+            yield();
         }
+        led_manager.SetLed(i, false);
+        FastLED.show();
+
+        Serial.printf("Key %d calibrated. Min: %d, Max: %d\n", i, calibration_data.minVal[i], calibration_data.maxVal[i]);
+        delay(500); // Delay before moving to the next key
         m_btn.Update();
-        adc.CalibrateMin(keys[i].mux_idx);
-        delay(500);
     }
-    Serial.println("Max calibration done");
-    adc.GetCalibration(calibration_data.minVal, calibration_data.maxVal, 16);
+
     calibration.SaveArray(calibration_data.minVal, "minVal", 16);
     calibration.SaveArray(calibration_data.maxVal, "maxVal", 16);
+
+    Serial.println("Calibration complete. Restarting...");
     ESP.restart();
-}
-
-void SingleKeyCalibration()
-{
-    HardwareTest();
-
-    int selectedKey = -1;
-    bool maxCalibrated = false;
-    bool calibrationComplete = false;
-
-    // Step 1: Select the key to calibrate
-    while (selectedKey == -1)
-    {
-        for (int i = 0; i < 16; i++)
-        {
-            if (keyboard.GetKeyState(i) == Key::State::PRESSED)
-            {
-                selectedKey = i;
-                led_manager.SetLed(i, true);
-                FastLED.show();
-                log_d("Selected key %d for calibration", i);
-                delay(500); // Debounce
-                break;
-            }
-        }
-    }
-
-    // Step 2: Max and Min calibration
-    while (!calibrationComplete)
-    {
-        m_btn.Update();
-
-        if (m_btn.GetState() == Button::State::CLICKED)
-        {
-            if (!maxCalibrated)
-            {
-                // Perform max calibration
-                adc.SetMuxChannel(keys[selectedKey].mux_idx);
-                adc.CalibrateMax(keys[selectedKey].mux_idx);
-                log_d("Max calibration done for key %d", selectedKey);
-                maxCalibrated = true;
-                led_manager.SetLed(selectedKey, false);
-                delay(500);
-                led_manager.SetLed(selectedKey, true);
-            }
-            else
-            {
-                // Perform min calibration
-                adc.SetMuxChannel(keys[selectedKey].mux_idx);
-                adc.CalibrateMin(keys[selectedKey].mux_idx);
-                log_d("Min calibration done for key %d", selectedKey);
-                calibrationComplete = true;
-            }
-            delay(500); // Debounce
-        }
-    }
-
-    // Step 3: Save the calibration
-    uint16_t minVal[16], maxVal[16];
-    adc.GetCalibration(minVal, maxVal, 16);
-    calibration.SaveArray(minVal, "minVal", 16);
-    calibration.SaveArray(maxVal, "maxVal", 16);
-    log_d("Calibration saved for key %d", selectedKey);
 }
 
 void ProcessSysEx(byte *data, unsigned length)
@@ -671,17 +646,14 @@ void ProcessSysEx(byte *data, unsigned length)
         log_d("SysEx full calibration");
         CalibrationRoutine();
     }
-
-    if (data[2] == 127 && data[3] == 7 && data[4] == 7)
-    {
-        log_d("SysEx single key calibration");
-        SingleKeyCalibration();
-        ESP.restart();
-    }
 }
 
 void setup()
 {
+    // Serial.begin(115200);
+    // Serial.setDebugOutput(true);
+    // delay(2000);
+
     midi_provider.Init(PIN_RX, PIN_TX, PIN_TX2);
 
     delay(200);
@@ -697,7 +669,12 @@ void setup()
     ProcessModeButton();
 
     // slider initialization
-    slider.Init(slider_sensor);
+    if (!slider.Init(slider_sensor))
+    {
+        led_manager.TestAll(HUE_RED);
+        delay(3000);
+        ESP.restart();
+    }
 
     // ADC initialization
     AdcChannelConfig adc_config;
@@ -731,15 +708,16 @@ void setup()
         ApplyConfiguration();
     }
 
-    cfg.mode = Mode::KEYBOARD;
+    if (cfg.version != 102)
+    {
+        log_d("Configuration version mismatch");
+        cfg.version = 102;
+        SaveConfiguration(config);
+    }
 
     config.Print();
 
     parameters.bank = 0;
-
-    uint8_t base_note = kb_cfg[parameters.bank].base_note + (kb_cfg[parameters.bank].base_octave * 12) + 12;
-    SetNoteMap(kb_cfg[parameters.bank].scale, base_note, kb_cfg[parameters.bank].flip_x, kb_cfg[parameters.bank].flip_y, SetMarkerCallback);
-
     log_d("Configuration initialized");
 
     adc.SetCalibration(calibration_data.minVal, calibration_data.maxVal, 16);

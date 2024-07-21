@@ -37,7 +37,7 @@ struct ControlChangeData
 
 struct ConfigurationData
 {
-    uint8_t version = 1;
+    uint8_t version = 102;
     uint8_t mode = 0;
     uint8_t sensitivity = 1;
     uint8_t brightness = 6;
@@ -57,12 +57,14 @@ struct Parameters
     float slew = 0.0f;
     uint8_t bank = 0;
     float mod = 0.0f;
+    uint8_t at_strum = 0;
     float bend = 0.0f;
     uint8_t current_chord = 0;
     bool isBending = false;
     bool midiLearn = false;
     bool quickSettings = false;
     uint8_t quickSettingsPage = 0;
+    bool active_string[7] = {false, false, false, false, false, false, false};
 };
 
 struct SettingPair

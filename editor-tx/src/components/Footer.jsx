@@ -3,6 +3,7 @@ import BankSelector from './BankSelector'
 import MidiContext from './MidiProvider'
 import { useContext } from 'react'
 import { MdDownload, MdUpload } from 'react-icons/md'
+import MidiMonitor from './MidiMonitor'
 
 export default function Footer() {
     const { isConnected, downloadConfig, uploadConfig } =
@@ -21,7 +22,7 @@ export default function Footer() {
             spacing={6}
         >
             <BankSelector />
-
+            <MidiMonitor />
             <Box display="flex" justifyContent="center" alignItems="center">
                 <Text fontWeight="bold" mr={1}>
                     Download

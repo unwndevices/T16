@@ -1,22 +1,29 @@
-import { Box, HStack, Select, Text } from '@chakra-ui/react'
+import { Box, HStack, Select, Text, Circle } from '@chakra-ui/react'
 import { PropTypes } from 'prop-types'
 import SkeletonLoader from './SkeletonLoader'
 
-export function SelectCard({ name, value, entries, onChange }) {
+export function SelectCard({ name, value, entries, onChange, isSynced }) {
     const handleChange = (event) => {
         const index = entries.indexOf(event.target.value)
         onChange(index)
     }
 
+    const getDotColor = () => {
+        return isSynced ? 'green.500' : 'red.500'
+    }
+
     return (
         <HStack justifyContent="space-between" alignItems="center">
             <Box minW="8vw">
-                <Text>{name}</Text>
+                <HStack spacing={2}>
+                    <Circle size="10px" bg={getDotColor()} />
+                    <Text>{name}</Text>
+                </HStack>
             </Box>
             <SkeletonLoader>
                 <Select
                     backgroundColor="white"
-                    value={entries[value]} // Set the selected value based on the index
+                    value={entries[value]}
                     onChange={handleChange}
                 >
                     {entries.map((entry) => (
@@ -35,4 +42,5 @@ SelectCard.propTypes = {
     value: PropTypes.number,
     entries: PropTypes.array,
     onChange: PropTypes.func,
+    isSynced: PropTypes.bool,
 }

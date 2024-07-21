@@ -22,7 +22,6 @@ import React, { useContext } from 'react'
 import {
     MdOutlineMenuBook,
     MdOutlineDisplaySettings,
-    MdSettings,
     MdOutlineSystemUpdateAlt,
 } from 'react-icons/md'
 import Settings from '../pages/Settings'
