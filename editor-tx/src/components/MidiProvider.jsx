@@ -36,6 +36,7 @@ export const MidiProvider = ({ children }) => {
                 flip_y: 0,
                 chs: [1, 1, 1, 1, 1, 1, 1, 1],
                 ids: [13, 14, 15, 16, 17, 18, 19, 20],
+                koala_mode: false,
             },
             {
                 ch: 1,
@@ -48,6 +49,7 @@ export const MidiProvider = ({ children }) => {
                 flip_y: 0,
                 chs: [1, 1, 1, 1, 1, 1, 1, 1],
                 ids: [21, 22, 23, 24, 25, 26, 27, 28],
+                koala_mode: false,
             },
             {
                 ch: 1,
@@ -60,6 +62,7 @@ export const MidiProvider = ({ children }) => {
                 flip_y: 0,
                 chs: [1, 1, 1, 1, 1, 1, 1, 1],
                 ids: [21, 22, 23, 24, 25, 26, 27, 28],
+                koala_mode: false,
             },
             {
                 ch: 1,
@@ -72,6 +75,7 @@ export const MidiProvider = ({ children }) => {
                 flip_y: 0,
                 chs: [1, 1, 1, 1, 1, 1, 1, 1],
                 ids: [31, 32, 33, 34, 35, 36, 37, 38],
+                koala_mode: false,
             },
         ],
         custom_scale1: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],

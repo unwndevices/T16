@@ -58,7 +58,7 @@ CRGB patternleds[16];
 class LedManager
 {
 public:
-    LedManager(){};
+    LedManager() {};
     void Init()
     {
         FastLED.addLeds<WS2812B, PIN_LED, GRB>(leds, NUM_LEDS);
@@ -213,6 +213,11 @@ public:
         {
             sliderleds[6 - position] = CHSV(slider_color, 240, 140);
         }
+    }
+
+    void SetSliderOff()
+    {
+        sliderleds = CRGB::Black;
     }
 
     void SetSliderLed(uint8_t idx, uint8_t intensity, uint8_t steps = 1)

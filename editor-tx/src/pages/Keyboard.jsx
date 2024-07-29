@@ -2,7 +2,7 @@ import { Divider, Grid, GridItem, HStack, Stack } from '@chakra-ui/react'
 import { ToggleCard } from './../components/ToggleCard'
 import { AliasNumberCard, NumberCard } from '../components/NumberCard'
 import { SelectCard } from '../components/SelectCard'
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import MidiContext from '../components/MidiProvider'
 import ScaleDisplay from '../components/ScaleDisplay'
 
@@ -133,6 +133,13 @@ export default function Keyboard() {
     const flipX = config.banks[selectedBank].flip_x
     const flipY = config.banks[selectedBank].flip_y
 
+    useEffect(() => {
+        const currentBank = config.banks[selectedBank]
+        if (currentBank.scale !== 0 && currentBank.koala_mode !== 0) {
+            handleChange('koala_mode', 0)
+        }
+    })
+
     return (
         <Grid templateColumns="repeat(5, 1fr)" p={5} px="2vw">
             <GridItem colSpan={{ base: 5, lg: 3 }}>
@@ -218,6 +225,17 @@ export default function Keyboard() {
                         isSynced={syncStatus.banks[selectedBank].at}
                     />
                     <Divider />
+                    <ToggleCard
+                        name="Koala Mode"
+                        id="koala_mode"
+                        value={config.banks[selectedBank].koala_mode}
+                        onChange={(value) => handleChange('koala_mode', value)}
+                        isSynced={syncStatus.banks[selectedBank].koala_mode}
+                        isDisabled={config.banks[selectedBank].scale !== 0}
+                        tooltipText={
+                            'Koala mode is only available when using the Chromatic scale. Turns the octave slider into a "page" slider.'
+                        }
+                    />
                 </Stack>
             </GridItem>
             <GridItem colSpan={{ base: 5, lg: 2 }} pl={{ base: 0, lg: 10 }}>

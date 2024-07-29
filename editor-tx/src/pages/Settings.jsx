@@ -149,12 +149,16 @@ export default function Settings() {
                                 calibration process.
                                 <br />
                                 1. Press the start button to commence the
-                                calibration routine.
+                                calibration routine, calibrating the minimum
+                                values for the keys(do not touch the keys while
+                                doing this).
                                 <br />
                                 2. The key to calibrate will light up, press it
-                                multiple times to set the min and max values and
-                                then click the PLAY MODE button to save and
-                                continue to the next key.
+                                multiple times to set the maximum value for that
+                                key. The slider leds will gradually turn on to
+                                indicate the progress. once the calibration for
+                                the key is done it will automatically move to
+                                the next key.
                                 <br />
                                 3. Repeat for all keys, then the device will
                                 reboot once done.

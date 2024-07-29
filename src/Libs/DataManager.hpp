@@ -159,6 +159,13 @@ public:
         hasChanged = true;
     }
 
+    void Delete()
+    {
+        // save the json as an empty json
+        JsonDocument doc;
+        SaveJsonDocument(doc);
+    }
+
 private:
     const char *filename;
     bool hasChanged = false;

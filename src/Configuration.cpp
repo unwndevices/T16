@@ -32,6 +32,7 @@ void SaveConfiguration(DataManager &config, bool overwrite)
         bankObject["at"] = kb_cfg[bank].aftertouch_curve;
         bankObject["flip_x"] = kb_cfg[bank].flip_x;
         bankObject["flip_y"] = kb_cfg[bank].flip_y;
+        bankObject["koala_mode"] = kb_cfg[bank].koala_mode;
         JsonArray channelArray = bankObject["chs"].to<JsonArray>();
         JsonArray idArray = bankObject["ids"].to<JsonArray>();
         for (int i = 0; i < CC_AMT; i++)
@@ -111,6 +112,7 @@ void LoadConfiguration(DataManager &config, bool partial)
             kb_cfg[i].aftertouch_curve = bankObject["at"];
             kb_cfg[i].flip_x = bankObject["flip_x"];
             kb_cfg[i].flip_y = bankObject["flip_y"];
+            kb_cfg[i].koala_mode = bankObject["koala_mode"];
 
             JsonArray channelsArray = bankObject["chs"].as<JsonArray>(); // Convert to JsonArray
             JsonArray idArray = bankObject["ids"].as<JsonArray>();       // Convert to JsonArray

@@ -1,8 +1,24 @@
-import { Box, Circle, Flex, HStack, Switch, Text } from '@chakra-ui/react'
+import {
+    Box,
+    Circle,
+    Flex,
+    HStack,
+    Switch,
+    Text,
+    Tooltip,
+} from '@chakra-ui/react'
 import { PropTypes } from 'prop-types'
 import SkeletonLoader from './SkeletonLoader'
 
-export function ToggleCard({ name, id, value, onChange, isSynced }) {
+export function ToggleCard({
+    name,
+    id,
+    value,
+    onChange,
+    isSynced,
+    isDisabled = false,
+    tooltipText,
+}) {
     const handleToggle = () => {
         const newValue = value === 1 ? 0 : 1
         onChange(newValue)
@@ -17,7 +33,15 @@ export function ToggleCard({ name, id, value, onChange, isSynced }) {
             <Box minW="8vw">
                 <HStack spacing={2}>
                     <Circle size="10px" bg={getDotColor()} />
-                    <Text pr={4}>{name}</Text>
+                    <Tooltip
+                        hasArrow
+                        label={tooltipText}
+                        aria-label={`Tooltip for ${name}`}
+                        borderRadius="md"
+                        isDisabled={!tooltipText}
+                    >
+                        <Text pr={4}>{name}</Text>
+                    </Tooltip>
                 </HStack>
             </Box>
             <SkeletonLoader>
@@ -25,6 +49,7 @@ export function ToggleCard({ name, id, value, onChange, isSynced }) {
                     id={id}
                     size="lg"
                     colorScheme="primary"
+                    isDisabled={isDisabled}
                     isChecked={value === 1}
                     onChange={handleToggle}
                 />
@@ -39,4 +64,6 @@ ToggleCard.propTypes = {
     value: PropTypes.number.isRequired,
     onChange: PropTypes.func.isRequired,
     isSynced: PropTypes.bool,
+    isDisabled: PropTypes.bool,
+    tooltipText: PropTypes.string,
 }

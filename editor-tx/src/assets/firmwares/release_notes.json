@@ -1,4 +1,17 @@
 {
+    "v1.0.3": {
+        "fileName": "t16_v1.0.3.bin",
+        "version": 103,
+        "releaseDate": "29/07/2024",
+        "releaseNotes": {
+            "Highlights": "Koala Mode!",
+            "Bugfixes": ["fixed breaking bug in the calibration routine"],
+            "Improvements": [
+                "Added filters to the midi monitor, to make it easier to read the data",
+                "Added the \"Koala\" mode, which greatly improves usability with Koala Sampler"
+            ]
+        }
+    },
     "v1.0.2": {
         "fileName": "t16_v1.0.2.bin",
         "version": 102,

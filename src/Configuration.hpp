@@ -25,6 +25,7 @@ struct KeyModeData
     uint8_t aftertouch_curve = 1;
     uint8_t flip_x = 0;
     uint8_t flip_y = 0;
+    uint8_t koala_mode = 0;
     bool hasChanged = false;
 };
 

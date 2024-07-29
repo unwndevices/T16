@@ -100,7 +100,7 @@ int8_t scale_chord_map[SCALE_AMOUNT][8] = {
 uint8_t note_map[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 uint8_t current_chord_mapping[12]; // Stores the current chord mapping for each of the 12 note keys
 
-void SetNoteMap(uint8_t scale, uint8_t root_note, bool flip_x, bool flip_y, std::function<void(uint8_t, bool)> markerCallback)
+void SetNoteMap(uint8_t scale, uint8_t root_note, bool flip_x, bool flip_y, std::function<void(uint8_t, bool)> markerCallback, uint8_t page = 0)
 {
     int8_t *scale_notes = scales[scale];
     uint8_t note_index = 0;
@@ -108,10 +108,25 @@ void SetNoteMap(uint8_t scale, uint8_t root_note, bool flip_x, bool flip_y, std:
     uint8_t x, y, index;
     bool isRootNote;
 
+    // calculate the offset based on the current page and wrap around based on the scale length (that needs to be found by looking at the first -1 element of the scale)
+    uint8_t scale_length = 16;
     for (int i = 0; i < 16; i++)
     {
+        if (scale_notes[i] == -1)
+        {
+            scale_length = i;
+            break;
+        }
+    }
+
+    uint8_t offset = (page * 16) % scale_length;
+    note_index = note_index + offset;
+
+    for (int i = 0; i < 16; i++)
+    {
+
         // If we've reached the end of the scale (-1), wrap around to the next octave
-        if (scale_notes[note_index] == -1 || note_index == 12)
+        if (scale_notes[note_index] == -1 || note_index == 16)
         {
             note_index = 0;
             octave++;
