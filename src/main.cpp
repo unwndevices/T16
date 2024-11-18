@@ -584,14 +584,34 @@ void ApplyConfiguration()
 
 void HardwareTest()
 {
+    bool test_passed = true;
     led_manager.TestAll(HUE_YELLOW);
+    delay(1500);
+    led_manager.OffAll();
+
+    // test keys, if value is > 4000 then the key is not working, show led in that case
+    for (int i = 0; i < 16; i++)
+    {
+        adc.SetMuxChannel(keys[i].mux_idx);
+        uint16_t value = adc.GetRaw();
+        if (value > 4000 || value < 50)
+        {
+            led_manager.SetLed(i, true);
+            test_passed = false;
+        }
+        FastLED.show();
+    }
+    while (!test_passed)
+    {
+        delay(100);
+    }
 }
 
 void CalibrationRoutine()
 {
     const uint16_t CALIBRATION_DELAY = 5;
     const uint8_t PRESSES_REQUIRED = 4;
-    const uint16_t PRESS_THRESHOLD_OFFSET = 1700; // Adjust based on your hardware
+    const uint16_t PRESS_THRESHOLD_OFFSET = 1520; // Adjust based on your hardware
 
     // Initialize calibration
     m_btn.onStateChanged.DisconnectAll();
@@ -728,6 +748,7 @@ void setup()
     {
         led_manager.TestAll(HUE_RED);
         delay(3000);
+        led_manager.OffAll();
         ESP.restart();
     }
 
@@ -739,6 +760,7 @@ void setup()
     calibration.Init();
     if (!calibration.LoadArray(calibration_data.minVal, "minVal", 16))
     {
+        HardwareTest();
         Serial.println("Calibration data not found, starting calibration routine");
         CalibrationRoutine();
     }

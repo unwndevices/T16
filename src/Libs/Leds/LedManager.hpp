@@ -270,6 +270,12 @@ public:
         FastLED.show();
     }
 
+    void OffAll()
+    {
+        fill_solid(leds, NUM_LEDS, CRGB::Black);
+        FastLED.show();
+    }
+
 private:
     uint8_t pos_x = 0;
     uint8_t pos_y = 0;
