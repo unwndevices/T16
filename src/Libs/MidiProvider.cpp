@@ -2,7 +2,7 @@
 
 MidiProvider::MidiProvider() : serialMIDI_USB(usb_midi),
                                MIDI_USB(serialMIDI_USB),
-                               serialMIDI_SERIAL(Serial2),
+                               serialMIDI_SERIAL(Serial1),
                                MIDI_SERIAL(serialMIDI_SERIAL),
                                BLEMIDI("Topo T16"),
                                MIDI_BLE((bleMidi::BLEMIDI_Transport<bleMidi::BLEMIDI_ESP32_NimBLE> &)BLEMIDI),
@@ -20,6 +20,11 @@ MidiProvider::MidiProvider() : serialMIDI_USB(usb_midi),
 }
 void MidiProvider::Init(int pin_rx, int pin_tx, int pin_tx2)
 {
+    this->pin_rx = pin_rx;
+    this->pin_tx = pin_tx;
+    this->pin_tx2 = pin_tx2;
+    usb_midi.setStringDescriptor("Topo T16");
+
     MIDI_USB.turnThruOff();
     MIDI_SERIAL.turnThruOff();
     MIDI_BLE.turnThruOff();
@@ -33,7 +38,6 @@ void MidiProvider::Init(int pin_rx, int pin_tx, int pin_tx2)
 
 void MidiProvider::Read()
 {
-
     MIDI_USB.read();
 
     if (midiBle)
@@ -270,13 +274,13 @@ void MidiProvider::SetMidiTRSType(bool type)
     if (midiTRSType)
     {
         // Type B
-        Serial2.begin(31250, SERIAL_8N1, -1, pin_tx);
+        Serial1.begin(31250, SERIAL_8N1, -1, pin_tx);
         pinMode(pin_tx2, OUTPUT);
         digitalWrite(pin_tx2, HIGH);
     }
     else
     {
-        Serial2.begin(31250, SERIAL_8N1, -1, pin_tx2);
+        Serial1.begin(31250, SERIAL_8N1, -1, pin_tx2);
         pinMode(pin_tx, OUTPUT);
         digitalWrite(pin_tx, HIGH);
     }
