@@ -45,7 +45,7 @@ private:
         // blur, then store luma values inside the luma array for each led
         for (int j = 0; j < 10; j++)
         {
-            blur2d(lumaleds, 4, 4, 2 + j * 4);
+            blur2d(lumaleds, 4, 4, 2 + j * 4, xy_map);
             lumaleds[0] = CRGB::White;
             for (int i = 0; i < 16; i++)
             {
@@ -63,7 +63,7 @@ bool NoBlur::RunPattern()
 {
     EVERY_N_MILLIS(20)
     {
-        blur2d(patternleds, 4, 4, 40);
+        blur2d(patternleds, 4, 4, 40, xy_map);
     }
     // based on the current position, get the luma value from the lookup table and use it to set the color brightness for the LED
     // the luma array has its center on 0,0, so we need to treat it as the center (pos_x, pos_y) and then mirror it in every direction.

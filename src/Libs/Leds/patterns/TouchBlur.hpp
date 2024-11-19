@@ -49,7 +49,7 @@ private:
         // blur, then store luma values inside the luma array for each led
         for (int j = 0; j < 10; j++)
         {
-            blur2d(lumaleds, 4, 4, 2 + j * 4);
+            blur2d(lumaleds, 4, 4, 2 + j * 4, xy_map);
             lumaleds[0] = CRGB::White;
             for (int i = 0; i < 16; i++)
             {

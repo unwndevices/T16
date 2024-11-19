@@ -43,6 +43,8 @@ CRGBSet stateled(leds_set(0, 0));
 CRGBSet sliderleds(leds_set(1, 7));
 CRGBSet matrixleds(leds_set(8, 16));
 CRGB patternleds[16];
+uint16_t xy_lut[kMatrixHeight * kMatrixWidth]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+XYMap xy_map = XYMap::constructWithLookUpTable(kMatrixWidth, kMatrixHeight, xy_lut);
 #endif // LEDMANAGER_HPP
 
 #include "patterns/Droplet.hpp"

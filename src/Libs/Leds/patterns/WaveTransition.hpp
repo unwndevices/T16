@@ -32,7 +32,7 @@ private:
 
 bool WaveTransition::RunPattern()
 {
-    blur2d(patternleds, 4, 4, 200);
+    blur2d(patternleds, 4, 4, 200, xy_map);
 
     int8_t xStep = 0, yStep = 0;
     switch (direction)

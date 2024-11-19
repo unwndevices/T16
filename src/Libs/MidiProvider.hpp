@@ -49,8 +49,8 @@ private:
     midi::MidiInterface<midi::SerialMIDI<Adafruit_USBD_MIDI, CustomSettings>> MIDI_USB;
     midi::SerialMIDI<HardwareSerial, CustomSettings> serialMIDI_SERIAL;
     midi::MidiInterface<midi::SerialMIDI<HardwareSerial, CustomSettings>> MIDI_SERIAL;
-    midi::MidiInterface<bleMidi::BLEMIDI_Transport<bleMidi::BLEMIDI_ESP32_NimBLE>, CustomSettings> MIDI_BLE;
-    bleMidi::BLEMIDI_Transport<bleMidi::BLEMIDI_ESP32_NimBLE, CustomSettings> BLEMIDI;
+    bleMidi::BLEMIDI_Transport<bleMidi::BLEMIDI_ESP32_NimBLE> BLEMIDI;
+    midi::MidiInterface<bleMidi::BLEMIDI_Transport<bleMidi::BLEMIDI_ESP32_NimBLE>, bleMidi::MySettings> MIDI_BLE;
 
     bool midiBle;
     bool midiThru;
@@ -64,4 +64,4 @@ private:
     int8_t pin_rx, pin_tx, pin_tx2;
 };
 
-#endif// MIDIPROVIDER_HPP
+#endif // MIDIPROVIDER_HPP

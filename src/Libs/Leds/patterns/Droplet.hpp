@@ -101,14 +101,14 @@ void Drops::DrawCircle(int16_t x0, int16_t y0, int16_t r, CRGB color)
         ddF_x += 2;
         f += ddF_x;
 
-        patternleds[x0 + x, y0 + y] = color;
-        patternleds[x0 - x, y0 + y] = color;
-        patternleds[x0 + x, y0 - y] = color;
-        leds[x0 - x, y0 - y] = color;
-        leds[x0 + y, y0 + x] = color;
-        leds[x0 - y, y0 + x] = color;
-        leds[x0 + y, y0 - x] = color;
-        leds[x0 - y, y0 - x] = color;
+        patternleds[XY(x0 + x, y0 + y)] = color;
+        patternleds[XY(x0 - x, y0 + y)] = color;
+        patternleds[XY(x0 + x, y0 - y)] = color;
+        leds[XY(x0 - x, y0 - y)] = color;
+        leds[XY(x0 + y, y0 + x)] = color;
+        leds[XY(x0 - y, y0 + x)] = color;
+        leds[XY(x0 + y, y0 - x)] = color;
+        leds[XY(x0 - y, y0 - x)] = color;
     }
 }
 

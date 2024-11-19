@@ -29,11 +29,11 @@ void MidiProvider::Init(int pin_rx, int pin_tx, int pin_tx2)
     MIDI_SERIAL.turnThruOff();
     MIDI_BLE.turnThruOff();
 
+    MIDI_USB.begin();
     if (midiBle)
     {
         MIDI_BLE.begin();
     }
-    MIDI_USB.begin();
 }
 
 void MidiProvider::Read()
