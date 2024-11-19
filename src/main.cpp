@@ -558,7 +558,7 @@ void ApplyConfiguration()
     midi_provider.SetMidiOut((bool)cfg.midi_trs);
     midi_provider.SetMidiTRSType((bool)cfg.trs_type);
     midi_provider.SetMidiThru((bool)cfg.passthrough);
-    uint8_t brightness = (cfg.brightness - 1) * 24 + 10;
+    uint8_t brightness = (cfg.brightness - 1) * 20 + 10;
     led_manager.SetBrightness(brightness);
     log_d("Brightness: %d", brightness);
 
@@ -727,7 +727,6 @@ void setup()
 {
     // Serial.begin(115200);
     // Serial.setDebugOutput(true);
-    // delay(2000);
 
     midi_provider.Init(PIN_RX, PIN_TX, PIN_TX2);
 
