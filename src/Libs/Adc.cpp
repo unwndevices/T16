@@ -3,6 +3,8 @@
 #define ADC_BUFFER 512
 #define ADC_NUM_BYTES 64 // 256 samples of 16 bits
 
+uint8_t AdcChannelConfig::_mux_pin[MUX_SEL_LAST] = {0};
+
 AdcChannelConfig::AdcChannelConfig()
 {
     _pin = 0;
@@ -19,11 +21,16 @@ void AdcChannelConfig::InitSingle(uint8_t pin)
     pinMode(_pin, INPUT);
 }
 
-void AdcChannelConfig::InitMux(uint8_t pin, uint8_t mux_pin_0, uint8_t mux_pin_1, uint8_t mux_pin_2, uint8_t mux_pin_3)
+void AdcChannelConfig::InitMux(uint8_t pin, uint8_t mux_pin_0, uint8_t mux_pin_1, uint8_t mux_pin_2, uint8_t mux_pin_3, uint8_t pin2)
 {
     analogSetAttenuation(ADC_6db);
     _pin = pin;
     pinMode(_pin, INPUT);
+    _pin2 = pin2;
+    if (_pin2 != 0)
+    {
+        pinMode(_pin2, INPUT);
+    }
     _mux_pin[MUX_SEL_0] = mux_pin_0;
     _mux_pin[MUX_SEL_1] = mux_pin_1;
     _mux_pin[MUX_SEL_2] = mux_pin_2;
@@ -61,7 +68,7 @@ void Adc::Init(AdcChannelConfig *cfg, uint8_t channels)
         {
             _mux_pin[i] = _config._mux_pin[i];
         }
-        for (uint8_t i = 0; i < 16; i++)
+        for (uint8_t i = 0; i < NUM_KEYS; i++)
         {
             _channels.push_back(AdcChannel());
         }
@@ -79,32 +86,44 @@ void Adc::SetCalibration(uint16_t *min, uint16_t *max, uint8_t channels)
 
 uint16_t Adc::CalibrateMin(uint8_t chn)
 {
+    delay(100);
+    uint8_t pin = (chn < 16) ? _config._pin : _config._pin2;
     SetMuxChannel(chn);
+    delay(5);
     uint i_v = 0;
     for (uint8_t j = 0; j < 16; j++)
     {
-        i_v += analogRead(_config._pin);
+        i_v += analogRead(pin);
         delay(5);
     }
     i_v /= 16;
 
-    _channels[chn].minVal = constrain(i_v, 0, 4095);
+    _channels[chn].minVal = min((uint16_t)constrain(i_v, 0, 4095), _channels[chn].minVal);
     return _channels[chn].minVal;
 }
 
 uint16_t Adc::CalibrateMax(uint8_t chn)
 {
+    uint8_t pin = (chn < 16) ? _config._pin : _config._pin2;
+
     SetMuxChannel(chn);
+    delay(5);
     uint i_v = 0;
     for (uint8_t j = 0; j < 16; j++)
     {
-        i_v += analogRead(_config._pin);
+        i_v += analogRead(pin);
         delay(5);
     }
     i_v /= 16;
 
     _channels[chn].maxVal = max((uint16_t)constrain(i_v, 0, 4095), _channels[chn].maxVal);
     return _channels[chn].maxVal;
+}
+
+void Adc::SetCalibration(uint8_t chn, uint16_t min, uint16_t max)
+{
+    _channels[chn].minVal = min;
+    _channels[chn].maxVal = max;
 }
 
 void Adc::GetCalibration(uint16_t *min, uint16_t *max, uint8_t channels)
@@ -141,13 +160,12 @@ void Adc::Update(void *parameter)
 
 void Adc::SetMuxChannel(uint8_t chn) const
 {
-    if (chn < 16)
-    {
-        digitalWrite(_mux_pin[0], (chn & 0x01) ? HIGH : LOW);
-        digitalWrite(_mux_pin[1], (chn & 0x02) ? HIGH : LOW);
-        digitalWrite(_mux_pin[2], (chn & 0x04) ? HIGH : LOW);
-        digitalWrite(_mux_pin[3], (chn & 0x08) ? HIGH : LOW);
-    }
+    chn = chn % 16;
+
+    digitalWrite(_mux_pin[0], (chn & 0x01) ? HIGH : LOW);
+    digitalWrite(_mux_pin[1], (chn & 0x02) ? HIGH : LOW);
+    digitalWrite(_mux_pin[2], (chn & 0x04) ? HIGH : LOW);
+    digitalWrite(_mux_pin[3], (chn & 0x08) ? HIGH : LOW);
 }
 
 float Adc::Get(uint8_t chn) const
@@ -155,14 +173,16 @@ float Adc::Get(uint8_t chn) const
     return _channels[chn].value;
 }
 
-uint16_t Adc::GetRaw() const
+uint16_t Adc::GetRaw(uint8_t mux) const
 {
-    return analogRead(_config._pin);
-}
-
-uint16_t Adc::GetRaw(uint8_t chn) const
-{
-    return _channels[chn].raw;
+    if (mux == 0)
+    {
+        return analogRead(_config._pin);
+    }
+    else
+    {
+        return analogRead(_config._pin2);
+    }
 }
 
 uint16_t Adc::GetFiltered(uint8_t chn) const
@@ -170,9 +190,14 @@ uint16_t Adc::GetFiltered(uint8_t chn) const
     return _channels[chn].filtered;
 }
 
-float Adc::GetMux(uint8_t chn, uint8_t index) const
+float Adc::GetMux(uint8_t index) const
 {
-    return _channels[chn + index].value;
+    return _channels[index].value;
+}
+
+uint16_t Adc::GetMuxRaw(uint8_t index) const
+{
+    return _channels[index].raw;
 }
 
 uint16_t Adc::AverageValue(uint8_t chn)
@@ -217,8 +242,15 @@ void Adc::ReadValues()
     _channels[iterator].filtered = filteredValue;
     _channels[iterator].value = max(min(map(filteredValue, _channels[iterator].minVal, _channels[iterator].maxVal, 0, 4095) / 4095.0f, 1.0f), 0.0f);
 
+    if (_config._pin2 != 0)
+    {
+        _channels[iterator + 16].raw = analogRead(_config._pin2);
+        _channels[iterator + 16].filtered = ApplyFilter(_channels[iterator + 16].raw, iterator + 16);
+        _channels[iterator + 16].value = max(min(map(_channels[iterator + 16].filtered, _channels[iterator + 16].minVal, _channels[iterator + 16].maxVal, 0, 4095) / 4095.0f, 1.0f), 0.0f);
+    }
+
     iterator++;
-    if (iterator >= _channels.size())
+    if (iterator >= _channels.size() / 2)
     {
         iterator = 0;
     }

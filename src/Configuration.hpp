@@ -5,13 +5,35 @@
 #include "Libs/DataManager.hpp"
 
 #define configTICK_RATE_HZ 4000
+
+//#define T32
+
+#ifdef T32
+#define ROWS 4
+#define COLS 8
+#define NUM_KEYS 32
+#else
+#define ROWS 4
+#define COLS 4
+#define NUM_KEYS 16
+#endif
+
 const uint8_t CC_AMT = 8;
 const uint8_t BANK_AMT = 4;
 
 struct CalibrationData
 {
-    uint16_t minVal[16] = {0};
-    uint16_t maxVal[16] = {0};
+    uint16_t minVal[NUM_KEYS];
+    uint16_t maxVal[NUM_KEYS];
+
+    CalibrationData()
+    {
+        for (size_t i = 0; i < NUM_KEYS; ++i)
+        {
+            minVal[i] = 4095;
+            maxVal[i] = 0;
+        }
+    }
 };
 
 struct KeyModeData
@@ -59,7 +81,7 @@ struct Parameters
     uint8_t bank = 0;
     float mod = 0.0f;
     uint8_t at_strum = 0;
-    float bend = 0.0f;
+    uint16_t bend = 0;
     uint8_t current_chord = 0;
     bool isBending = false;
     bool midiLearn = false;

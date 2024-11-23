@@ -35,17 +35,19 @@ private:
     uint8_t colorIndex = 255;
     uint8_t step = 0;
 
+    XYMap map = XYMap::constructRectangularGrid(4, 4);
+
     void GenerateLut()
     {
         // generate brightness lookup table for the blur (using blur2d), in a 4x4 grid.
-        CRGB lumaleds[16];
+        CRGB lumaleds[NUM_KEYS];
         fill_solid(lumaleds, 16, CRGB::Black);
         lumaleds[0] = CRGB::White;
 
         // blur, then store luma values inside the luma array for each led
-        for (int j = 0; j < 10; j++)
+        for (int j = 0; j < 16; j++)
         {
-            blur2d(lumaleds, 4, 4, 2 + j * 4, xy_map);
+            blur2d(lumaleds, 4, 4, 2 + (j + j / 2) * 5, map);
             lumaleds[0] = CRGB::White;
             for (int i = 0; i < 16; i++)
             {
@@ -54,8 +56,8 @@ private:
         }
     };
 
-    uint8_t luma[10][16] = {0};
-    uint8_t speed = 10;
+    uint8_t luma[16][16] = {0};
+    uint8_t speed = 18;
     ulong lastMillis = 0;
 };
 
@@ -63,25 +65,28 @@ bool NoBlur::RunPattern()
 {
     EVERY_N_MILLIS(20)
     {
-        blur2d(patternleds, 4, 4, 40, xy_map);
+        blur2d(patternleds, kMatrixWidth, kMatrixHeight, 40, xy_map);
     }
     // based on the current position, get the luma value from the lookup table and use it to set the color brightness for the LED
     // the luma array has its center on 0,0, so we need to treat it as the center (pos_x, pos_y) and then mirror it in every direction.
     if (state)
     {
-        if (step == 10)
+        if (step == 16)
         {
             step = 0;
             state = false;
         }
         else
         {
-            for (int x = 0; x < 4; x++)
+            for (int x = 0; x < kMatrixWidth; x++)
             {
-                for (int y = 0; y < 4; y++)
+                for (int y = 0; y < kMatrixHeight; y++)
                 {
-                    uint8_t luma_value = luma[step][abs(x - (uint8_t)pos_x) + abs(y - (uint8_t)pos_y) * 4];
-                    patternleds[XY(x, y)] |= ColorFromPalette(currentPalette, colorIndex, luma_value, LINEARBLEND_NOWRAP);
+                    if (abs(x - (uint8_t)pos_x) < 4 && abs(y - (uint8_t)pos_y) < 4)
+                    {
+                        uint8_t luma_value = luma[step][abs((uint8_t)pos_y - y) * 4 + abs((uint8_t)pos_x - x)];
+                        patternleds[XY(x, y)] |= ColorFromPalette(currentPalette, colorIndex, luma_value, LINEARBLEND_NOWRAP);
+                    }
                 }
             }
 

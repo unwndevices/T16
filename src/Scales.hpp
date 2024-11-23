@@ -119,10 +119,10 @@ void SetNoteMap(uint8_t scale, uint8_t root_note, bool flip_x, bool flip_y, std:
         }
     }
 
-    uint8_t offset = (page * 16) % scale_length;
+    uint8_t offset = (page * NUM_KEYS) % scale_length;
     note_index = note_index + offset;
 
-    for (int i = 0; i < 16; i++)
+    for (int i = 0; i < NUM_KEYS; i++)
     {
 
         // If we've reached the end of the scale (-1), wrap around to the next octave
@@ -133,14 +133,14 @@ void SetNoteMap(uint8_t scale, uint8_t root_note, bool flip_x, bool flip_y, std:
         }
 
         // Calculate the x and y coordinates for the current index
-        x = i % 4;
-        y = i / 4;
+        x = i % COLS;
+        y = i / COLS;
         // Calculate the correct index based on flip_x and flip_y
         if (flip_x)
-            x = 3 - x;
+            x = COLS - 1 - x;
         if (flip_y)
-            y = 3 - y;
-        index = y * 4 + x;
+            y = ROWS - 1 - y;
+        index = y * COLS + x;
 
         // Calculate the note value by adding the scale step to the root note
         // and accounting for the octave wrap-around

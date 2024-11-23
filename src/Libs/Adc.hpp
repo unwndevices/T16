@@ -2,6 +2,8 @@
 #define ADC_HPP
 
 #include <Arduino.h>
+#include "Configuration.hpp"
+
 #include <vector>
 
 struct AdcChannelConfig
@@ -18,10 +20,11 @@ struct AdcChannelConfig
     AdcChannelConfig();
 
     void InitSingle(uint8_t pin);
-    void InitMux(uint8_t pin, uint8_t mux_pin_0, uint8_t mux_pin_1 = 0, uint8_t mux_pin_2 = 0, uint8_t mux_pin_3 = 0);
+    void InitMux(uint8_t pin, uint8_t mux_pin_0, uint8_t mux_pin_1 = 0, uint8_t mux_pin_2 = 0, uint8_t mux_pin_3 = 0, uint8_t pin2 = 0);
 
     uint8_t _pin;
-    uint8_t _mux_pin[MUX_SEL_LAST];
+    uint8_t _pin2 = 0;
+    static uint8_t _mux_pin[MUX_SEL_LAST];
 };
 
 class Adc
@@ -32,8 +35,8 @@ public:
         float value = 0.0f;
         uint16_t raw = 0;
         uint16_t filtered = 0;
-        uint16_t minVal = 2000;
-        uint16_t maxVal = 1000;
+        uint16_t minVal = 4096;
+        uint16_t maxVal = 0;
         uint16_t buffer[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         uint8_t bufferIndex = 0;
     };
@@ -45,9 +48,10 @@ public:
 
     void SetCalibration(uint16_t *min, uint16_t *max, uint8_t channels);
 
-    void CalibrationRoutine();          // method to calibrate the ADC
-    uint16_t CalibrateMin(uint8_t chn); // method to calibrate the ADC
-    uint16_t CalibrateMax(uint8_t chn); // method to calibrate the ADC
+    void CalibrationRoutine();                                    // method to calibrate the ADC
+    uint16_t CalibrateMin(uint8_t chn);                           // method to calibrate the ADC
+    uint16_t CalibrateMax(uint8_t chn);                           // method to calibrate the ADC
+    void SetCalibration(uint8_t chn, uint16_t min, uint16_t max); // method to set the calibration values
 
     void GetCalibration(uint16_t *min, uint16_t *max, uint8_t channels); // method to get the calibration values
     void Start();                                                        // method to start the task (and ADC
@@ -56,9 +60,9 @@ public:
     void ReadValues();                                                   // method to read the values from the ADC
     void ReadValuesDMA();                                                // method to read the values from the ADC using DMA
     float Get(uint8_t chn) const;                                        // method to get the value of a channel as a float
-    float GetMux(uint8_t chn, uint8_t index) const;                      // method to get the value of a mux channel as a float
-    uint16_t GetRaw() const;
-    uint16_t GetRaw(uint8_t chn) const;      // method to get the raw value of a channel
+    float GetMux(uint8_t index) const;                                   // method to get the value of a mux channel as a float
+    uint16_t GetRaw(uint8_t mux = 0) const;
+    uint16_t GetMuxRaw(uint8_t index) const;
     uint16_t GetFiltered(uint8_t chn) const; // method to get the filtered value of a channel
     inline static void fonepole(float &out, float in, float coeff)
     {

@@ -26,18 +26,16 @@ public:
 
 private:
     uint8_t colorIndex = 255;
-    float strips[4] = {0.0f};
+    float strips[kMatrixWidth] = {0.0f};
 };
 
 bool Strips::RunPattern()
 {
-    fill_solid(patternleds, 16, CRGB::Black);
+    fill_solid(patternleds, NUM_KEYS, CRGB::Black);
     if (state)
     {
-
         CRGB color = ColorFromPalette(currentPalette, colorIndex, 255, LINEARBLEND_NOWRAP);
-
-        for (uint8_t i = 0; i < 4; i++)
+        for (uint8_t i = 0; i < kMatrixWidth; i++)
         {
             wu_pixel_1d(i, static_cast<uint32_t>(strips[i] * (1 << 8)), &color);
         }
@@ -46,4 +44,4 @@ bool Strips::RunPattern()
     return true;
 }
 
-#endif // STRIPS_HPP
+#endif// STRIPS_HPP

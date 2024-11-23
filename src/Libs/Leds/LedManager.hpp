@@ -4,24 +4,35 @@
 #include <Arduino.h>
 #include <FastLED.h>
 #include "pinout.h"
+#include "Configuration.hpp"
 
-#define kMatrixWidth 4  // Matrix width [4]
-#define kMatrixHeight 4 // Matrix height [4]
+#define kMatrixWidth COLS  // Matrix width [4]
+#define kMatrixHeight ROWS // Matrix height [4]
 #define sliderLength 7
 #define NUM_LEDS (kMatrixWidth * kMatrixHeight + sliderLength + 1)
 
-uint16_t XY(uint8_t x, uint8_t y)
+#ifdef T32
+uint16_t xy_lut[NUM_KEYS]{0, 1, 2, 3, 16, 17, 18, 19, 4, 5, 6, 7, 20, 21, 22, 23, 8, 9, 10, 11, 24, 25, 26, 27, 12, 13, 14, 15, 28, 29, 30, 31};
+#else
+uint16_t xy_lut[kMatrixHeight * kMatrixWidth]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+#endif// LEDMANAGER_HPP
+
+int16_t remap(int16_t id)
 {
-    if (x >= kMatrixWidth)
+    return xy_lut[id];
+}
+
+int16_t XY(uint8_t x, uint8_t y)
+{
+    if (x < kMatrixWidth && y < kMatrixHeight)
+    {
+        return xy_lut[y * kMatrixWidth + x];
+    }
+    else
+    {
+        // Return an invalid ID if out of bounds
         return -1;
-    if (y >= kMatrixHeight)
-        return -1;
-
-    uint16_t i;
-
-    i = (y * kMatrixWidth) + x;
-
-    return i;
+    }
 }
 
 #ifndef REV_B
@@ -33,7 +44,7 @@ CRGBSet stateled(leds_set(0, 0));
 CRGBSet matrixleds(leds_set(1, 16));
 CRGB patternleds[16];
 CRGBSet sliderleds(leds_set(17, 23));
-#endif // LEDMANAGER_HPP
+#endif// LEDMANAGER_HPP
 
 #ifdef REV_B
 CRGB leds_plus_safety_pixel[NUM_LEDS + 1];
@@ -41,11 +52,11 @@ CRGB *const leds(leds_plus_safety_pixel + 1);
 CRGBSet leds_set(leds, NUM_LEDS);
 CRGBSet stateled(leds_set(0, 0));
 CRGBSet sliderleds(leds_set(1, 7));
-CRGBSet matrixleds(leds_set(8, 16));
-CRGB patternleds[16];
-uint16_t xy_lut[kMatrixHeight * kMatrixWidth]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+CRGBSet matrixleds(leds_set(8, NUM_KEYS));
+CRGB patternleds[NUM_KEYS];
+#endif// LEDMANAGER_HPP
+
 XYMap xy_map = XYMap::constructWithLookUpTable(kMatrixWidth, kMatrixHeight, xy_lut);
-#endif // LEDMANAGER_HPP
 
 #include "patterns/Droplet.hpp"
 #include "patterns/Sea.hpp"
@@ -56,6 +67,7 @@ XYMap xy_map = XYMap::constructWithLookUpTable(kMatrixWidth, kMatrixHeight, xy_l
 #include "patterns/Strips.hpp"
 #include "patterns/Strum.hpp"
 #include "patterns/QuickSettings.hpp"
+#include "patterns/Calibration.hpp"
 
 class LedManager
 {
@@ -88,23 +100,24 @@ public:
     void SetLed(uint8_t idx, bool state)
     {
         if (state)
-            matrixleds[idx] = CHSV(HUE_ORANGE, 240, 70);
+            matrixleds[remap(idx)] = CHSV(HUE_ORANGE, 240, 70);
         else
-            matrixleds[idx] = CRGB::Black;
+            matrixleds[remap(idx)] = CRGB::Black;
     }
 
     void DrawMarkers()
     {
-        for (uint8_t i = 0; i < 16; i++)
+        for (uint8_t i = 0; i < NUM_KEYS; i++)
         {
             if (is_marker[i])
             {
-                matrixleds[i] = ColorFromPalette(Pattern::currentPalette, 0, 64);
+
+                matrixleds[remap(i)] = ColorFromPalette(Pattern::currentPalette, 0, 64);
             }
 
             else
             {
-                matrixleds[i] = CRGB::Black;
+                matrixleds[remap(i)] = CRGB::Black;
             }
         }
     }
@@ -278,6 +291,14 @@ public:
         FastLED.show();
     }
 
+    void CombineBuffers()
+    {
+        for (uint8_t i = 0; i < NUM_KEYS; i++)
+        {
+            matrixleds[i] |= patternleds[i];
+        }
+    }
+
 private:
     uint8_t pos_x = 0;
     uint8_t pos_y = 0;
@@ -289,17 +310,9 @@ private:
     Pattern *currentPattern;
     Pattern *nextPattern;
 
-    void CombineBuffers()
-    {
-        for (uint8_t i = 0; i < 16; i++)
-        {
-            matrixleds[i] |= patternleds[i];
-        }
-    }
-
     void StartupAnimation()
     {
-        for (uint8_t i = 0; i < 16; i++)
+        for (uint8_t i = 0; i < NUM_KEYS; i++)
         {
             matrixleds[i] = CHSV(HUE_ORANGE, 240, 70);
             FastLED.show();
@@ -308,7 +321,7 @@ private:
     }
 
     uint8_t slider_color = HUE_ORANGE;
-    bool is_marker[16] = {false};
+    bool is_marker[NUM_KEYS] = {false};
 };
 
-#endif // LEDMANAGER_HPP
+#endif// LEDMANAGER_HPP

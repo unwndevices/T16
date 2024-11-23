@@ -4,6 +4,13 @@
 #include "Performance.hpp"
 
 #include "Configuration.hpp"
+#include "Libs/Keyboard.hpp"
+
+#ifdef T32
+Key keys[] = {14, 15, 13, 12, 30, 31, 29, 28, 10, 11, 8, 9, 26, 27, 24, 25, 1, 0, 3, 2, 17, 16, 19, 18, 5, 4, 7, 6, 21, 20, 23, 22};
+#else
+Key keys[] = {14, 15, 13, 12, 10, 11, 8, 9, 1, 0, 3, 2, 5, 4, 7, 6};
+#endif
 
 #include "Libs/MidiProvider.hpp"
 MidiProvider midi_provider;
@@ -33,12 +40,6 @@ QuickSettings quick;
 #include "Libs/Adc.hpp"
 Adc adc;
 
-#include "Libs/Keyboard.hpp"
-#ifdef REV_B
-Key keys[] = {14, 15, 13, 12, 10, 11, 8, 9, 1, 0, 3, 2, 5, 4, 7, 6};
-#else
-Key keys[] = {6, 7, 15, 11, 5, 2, 14, 9, 4, 1, 13, 8, 3, 0, 12, 10};
-#endif
 Keyboard keyboard;
 
 #include "Libs/TouchSlider.hpp"
@@ -135,8 +136,9 @@ void ProcessKey(int idx, Key::State state)
     {
         uint8_t velocity = keyboard.GetVelocity(idx);
         midi_provider.SendNoteOn(idx, note, velocity, kb_cfg[parameters.bank].channel);
-        led_manager.SetPosition((uint8_t)(idx % 4), (uint8_t)(idx / 4));
-        led_manager.SetColor(255 - velocity * 2);
+        led_manager.SetPosition((uint8_t)(idx % COLS), (uint8_t)(idx / COLS));
+        log_d("Id: pos: %d %d, note: %d", idx % COLS, idx / COLS, note);
+        led_manager.SetColor(velocity * 2);
         led_manager.SetSpeed((127 - velocity) / 2);
     }
     else if (state == Key::State::RELEASED)
@@ -177,6 +179,7 @@ void ProcessQuickSettings(int idx, Key::State state)
     }
 }
 
+float bend_pos = 0.5f;
 void ProcessSlider()
 {
     float value = 0.0f;
@@ -186,19 +189,31 @@ void ProcessSlider()
     {
         if (!slider.IsTouched())
         {
-            led_manager.SetSlider(0.5f, false);
             if (parameters.isBending)
             {
-                parameters.bend = 0.0f;
+                bend_pos *= 0.96f;
+                parameters.bend = (bend_pos * 8191);
                 midi_provider.SendPitchBend(parameters.bend, kb_cfg[parameters.bank].channel);
-                parameters.isBending = false;
+                if (bend_pos < 0.01f && bend_pos > -0.01f)
+                {
+                    parameters.bend = 0;
+                    bend_pos = 0.0f;
+                    midi_provider.SendPitchBend(parameters.bend, kb_cfg[parameters.bank].channel);
+                    parameters.isBending = false;
+                }
+                led_manager.SetSlider(bend_pos * 0.5f + 0.5f, false);
+            }
+
+            else
+            {
+                led_manager.SetSlider(0.5f, false);
             }
         }
         else if (slider.IsTouched())
         {
             // convert the float value to a 14 bit integer, with 0 being the float value 0.5
-            value = (slider.GetPosition() - 0.5f) * 2.0f;
-            parameters.bend = (value * 8191.0f);
+            bend_pos = (slider.GetPosition() - 0.5f) * 2.0f;
+            parameters.bend = (bend_pos * 8191);
             midi_provider.SendPitchBend((int)parameters.bend, kb_cfg[parameters.bank].channel);
             led_manager.SetSlider(slider.GetPosition(), false);
             parameters.isBending = true;
@@ -305,6 +320,9 @@ void ProcessSliderButton()
     case SliderMode::BEND:
         log_d("Slider mode: Bend");
         led_manager.SetSliderHue(HSVHue::HUE_PINK);
+        slider.SetPosition(0.5f);
+        bend_pos = 0.5f;
+        led_manager.SetSlider(0.5f, false);
         break;
     case SliderMode::OCTAVE:
         log_d("Slider mode: Octave");
@@ -522,7 +540,7 @@ void ProcessButton(int idx, Button::State state)
             {
                 log_d("Mode button long pressed");
                 log_d("MIDI panic!");
-                for (uint8_t i = 0; i < 16; i++)
+                for (uint8_t i = 0; i < NUM_KEYS; i++)
                 {
                     midi_provider.SendNoteOff(i, kb_cfg[parameters.bank].channel);
                 }
@@ -586,19 +604,20 @@ void HardwareTest()
 {
     bool test_passed = true;
     led_manager.TestAll(HUE_YELLOW);
-    delay(1500);
+    delay(1000);
     led_manager.OffAll();
 
     // test keys, if value is > 4000 then the key is not working, show led in that case
-    for (int i = 0; i < 16; i++)
+    for (int i = 0; i < NUM_KEYS; i++)
     {
         adc.SetMuxChannel(keys[i].mux_idx);
-        uint16_t value = adc.GetRaw();
+        uint16_t value = (i < 16) ? adc.GetRaw(0) : adc.GetRaw(1);
         if (value > 4000 || value < 50)
         {
             led_manager.SetLed(i, true);
             test_passed = false;
         }
+
         FastLED.show();
     }
     while (!test_passed)
@@ -609,20 +628,21 @@ void HardwareTest()
 
 void CalibrationRoutine()
 {
-    const uint16_t CALIBRATION_DELAY = 5;
-    const uint8_t PRESSES_REQUIRED = 4;
-    const uint16_t PRESS_THRESHOLD_OFFSET = 1520; // Adjust based on your hardware
-
+    const uint16_t CALIBRATION_DELAY = 10;
+    const uint8_t PRESSES_REQUIRED = 2;
+    const uint16_t PRESS_THRESHOLD_OFFSET = 500; // Adjust based on your hardware
+    delay(500);
     // Initialize calibration
     m_btn.onStateChanged.DisconnectAll();
     t_btn.onStateChanged.DisconnectAll();
     keyboard.RemoveOnStateChanged();
     slider.onSensorTouched.DisconnectAll();
-    uint16_t minVal[16], maxVal[16];
+    uint16_t minVal[NUM_KEYS], maxVal[NUM_KEYS];
     // Calibrate minimum values for all keys
-    for (int i = 0; i < 16; i++)
+    for (int i = 0; i < NUM_KEYS; i++)
     {
-        minVal[i] = adc.CalibrateMin(i);
+        minVal[keys[i].mux_idx] = adc.CalibrateMin(keys[i].mux_idx);
+        log_d("sensor %d, min: %d", i, minVal[keys[i].mux_idx]);
     }
 
     // led_manager.TestAll(HUE_GREEN - 10);
@@ -630,10 +650,11 @@ void CalibrationRoutine()
     delay(500);
 
     // Calibrate maximum values
-    for (int i = 0; i < 16; i++)
+    for (int i = 0; i < NUM_KEYS; i++)
     {
         led_manager.SetLed(i, true);
         led_manager.SetSliderOff();
+
         FastLED.show();
 
         uint16_t press_threshold = minVal[keys[i].mux_idx] + PRESS_THRESHOLD_OFFSET;
@@ -642,12 +663,12 @@ void CalibrationRoutine()
         adc.SetMuxChannel(keys[i].mux_idx);
         while (press_count < PRESSES_REQUIRED)
         {
-            uint16_t filteredValue = adc.GetRaw();
+            uint16_t filteredValue = (keys[i].mux_idx < 16) ? adc.GetRaw(0) : adc.GetRaw(1);
 
             if (filteredValue > press_threshold)
             {
                 was_pressed = true;
-                maxVal[keys[i].mux_idx] = adc.CalibrateMax(keys[i].mux_idx);
+                maxVal[keys[i].idx] = adc.CalibrateMax(keys[i].mux_idx);
                 led_manager.SetSliderLed(press_count, 255, 2);
                 FastLED.show();
             }
@@ -658,24 +679,25 @@ void CalibrationRoutine()
                 // We're not calling adc.CalibrateMin(i) here anymore
             }
 
-            adc.GetCalibration(minVal, maxVal, 16);
-            Serial.printf("Key %d. Current: %d, Min: %d, Max: %d, Threshold: %d, Presses: %d\n",
-                          i, filteredValue, minVal[keys[i].mux_idx], maxVal[keys[i].mux_idx], press_threshold, press_count);
+            adc.GetCalibration(minVal, maxVal, NUM_KEYS);
+            log_d("Key %d. Current: %d, Min: %d, Max: %d, Threshold: %d, Presses: %d\n",
+                  i, filteredValue, minVal[keys[i].mux_idx], maxVal[keys[i].mux_idx], press_threshold, press_count);
 
             delay(CALIBRATION_DELAY);
             yield();
         }
 
-        adc.GetCalibration(minVal, maxVal, 16);
-        Serial.printf("Key %d calibrated. Min: %d, Max: %d\n", i, minVal[keys[i].mux_idx], maxVal[keys[i].mux_idx]);
+        adc.GetCalibration(minVal, maxVal, NUM_KEYS);
+        log_d("Key %d calibrated. Min: %d, Max: %d\n", i, minVal[keys[i].mux_idx], maxVal[keys[i].mux_idx]);
+        led_manager.SetLed(i, false);
         delay(500); // Delay before moving to the next key
     }
 
     // Save calibration data
-    uint16_t minVals[16], maxVals[16];
-    adc.GetCalibration(minVals, maxVals, 16);
-    calibration.SaveArray(minVals, "minVal", 16);
-    calibration.SaveArray(maxVals, "maxVal", 16);
+    uint16_t minVals[NUM_KEYS], maxVals[NUM_KEYS];
+    adc.GetCalibration(minVals, maxVals, NUM_KEYS);
+    calibration.SaveArray(minVals, "minVal", NUM_KEYS);
+    calibration.SaveArray(maxVals, "maxVal", NUM_KEYS);
 
     // Reset filter window size to default
     adc.SetFilterWindowSize(16);
@@ -725,8 +747,10 @@ void ProcessSysEx(byte *data, unsigned length)
 
 void setup()
 {
-    // Serial.begin(115200);
-    // Serial.setDebugOutput(true);
+#ifdef DEBUG
+    Serial.begin(115200);
+    Serial.setDebugOutput(true);
+#endif
 
     midi_provider.Init(PIN_RX, PIN_TX, PIN_TX2);
 
@@ -753,17 +777,21 @@ void setup()
 
     // ADC initialization
     AdcChannelConfig adc_config;
+#ifdef T32
+    adc_config.InitMux(PIN_COM, PIN_S0, PIN_S1, PIN_S2, PIN_S3, 2);
+#else
     adc_config.InitMux(PIN_COM, PIN_S0, PIN_S1, PIN_S2, PIN_S3);
-    adc.Init(&adc_config, 16);
+#endif
+    adc.Init(&adc_config, NUM_KEYS);
 
     calibration.Init();
-    if (!calibration.LoadArray(calibration_data.minVal, "minVal", 16))
+    if (!calibration.LoadArray(calibration_data.minVal, "minVal", NUM_KEYS))
     {
         HardwareTest();
         Serial.println("Calibration data not found, starting calibration routine");
         CalibrationRoutine();
     }
-    calibration.LoadArray(calibration_data.maxVal, "maxVal", 16);
+    calibration.LoadArray(calibration_data.maxVal, "maxVal", NUM_KEYS);
 
     t_btn.Update();
     config.Init();
@@ -795,12 +823,12 @@ void setup()
     parameters.bank = 0;
     log_d("Configuration initialized");
 
-    adc.SetCalibration(calibration_data.minVal, calibration_data.maxVal, 16);
+    adc.SetCalibration(calibration_data.minVal, calibration_data.maxVal, NUM_KEYS);
     adc.Start();
     // keyboard initialization
     KeyboardConfig keyboard_config;
 
-    keyboard_config.Init(keys, 16);
+    keyboard_config.Init(keys, NUM_KEYS);
     keyboard.Init(&keyboard_config, &adc);
     keyboard.SetVelocityLut((Keyboard::Lut)kb_cfg[parameters.bank].velocity_curve);
     keyboard.SetAftertouchLut((Keyboard::Lut)kb_cfg[parameters.bank].aftertouch_curve);
@@ -817,36 +845,38 @@ void loop()
     slider.Update();
 
     keyboard.Update();
-    fill_solid(matrixleds, 16, CRGB::Black);
+    fill_solid(matrixleds, NUM_KEYS, CRGB::Black);
 
     if (cfg.mode == Mode::XY_PAD)
     {
-        Vec2 xy;
-        xy.x = keyboard.GetX();
-        xy.y = keyboard.GetY();
-
-        if (keyboard.XChanged())
+        for (uint8_t i = 0; i < MODULE_COUNT; i++)
         {
-            midi_provider.SendControlChange((int)cc_cfg[parameters.bank].id[0], (uint8_t)(xy.x * 0.33333f * 127.0f), cc_cfg[parameters.bank].channel[0]);
-        }
-
-        if (keyboard.YChanged())
-        {
-            midi_provider.SendControlChange((int)cc_cfg[parameters.bank].id[1], (uint8_t)(xy.y * 0.33333f * 127.0f), cc_cfg[parameters.bank].channel[1]);
-        }
-        led_manager.SetPosition(xy.x, xy.y);
-
-        float pressure = keyboard.GetPressure();
-        if (pressure >= 0.00f)
-        {
-
-            if (!parameters.midiLearn)
+            Vec2 xy;
+            xy.x = keyboard.GetX(i);
+            xy.y = keyboard.GetY(i);
+            if (keyboard.XChanged(i))
             {
-                midi_provider.SendControlChange(cc_cfg[parameters.bank].id[2], (uint8_t)(pressure * 127.0f), cc_cfg[parameters.bank].channel[2]);
+                midi_provider.SendControlChange((int)cc_cfg[parameters.bank + i].id[0], (uint8_t)(xy.x * 0.33333f * 127.0f), cc_cfg[parameters.bank + i].channel[0]);
             }
-            led_manager.SetAmount(1.0f - pressure);
-            led_manager.SetColor((uint8_t)(pressure * 255.0f));
-            led_manager.SetState(true);
+
+            if (keyboard.YChanged(i))
+            {
+                midi_provider.SendControlChange((int)cc_cfg[parameters.bank + i].id[1], (uint8_t)(xy.y * 0.33333f * 127.0f), cc_cfg[parameters.bank + i].channel[1]);
+            }
+            touch_blur.SetPosition(i, xy.x, xy.y);
+
+            float pressure = keyboard.GetXYPressure(i);
+            if (pressure >= 0.00f)
+            {
+
+                if (!parameters.midiLearn)
+                {
+                    midi_provider.SendControlChange(cc_cfg[parameters.bank + i].id[2], (uint8_t)(pressure * 127.0f), cc_cfg[parameters.bank + i].channel[2]);
+                }
+                touch_blur.SetAmount(i, 1.0f - pressure);
+                touch_blur.SetColor(i, (uint8_t)(pressure * 255.0f));
+                touch_blur.SetState(true);
+            }
         }
     }
 
@@ -857,19 +887,15 @@ void loop()
 
     else if (cfg.mode == Mode::STRIPS)
     {
-        for (int i = 0; i < 4; i++)
+        for (uint8_t j = 0; j < MODULE_COUNT; j++)
         {
-            led_manager.SetStrip(i, keyboard.GetStrip(i));
-            if (keyboard.StripChanged(i))
+            for (int i = 0; i < 4; i++)
             {
-                midi_provider.SendControlChange(cc_cfg[parameters.bank].id[i + 4], (uint8_t)(127.0f - keyboard.GetStrip(i) * 0.33333f * 127.0f), cc_cfg[parameters.bank].channel[i + 3]);
+                led_manager.SetStrip(i + j * 4, keyboard.GetStrip(i + j * 4));
+                if (keyboard.StripChanged(i + j * 4))
+                    midi_provider.SendControlChange(cc_cfg[parameters.bank + j].id[i + 3], (uint8_t)(127.0f - keyboard.GetStrip(i + j * 4) * 0.33333f * 127.0f), cc_cfg[parameters.bank].channel[i + 3 + j * 4]);
             }
         }
-    }
-
-    else if (cfg.mode == Mode::XY_PAD)
-    {
-        led_manager.SetPosition(keyboard.GetX(), keyboard.GetY());
     }
 
     else if (cfg.mode == Mode::STRUM)

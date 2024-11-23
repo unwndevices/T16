@@ -15,7 +15,8 @@
             "istream": "cpp",
             "sstream": "cpp",
             "streambuf": "cpp",
-            "typeinfo": "cpp"
+            "typeinfo": "cpp",
+            "new": "cpp"
         },
         "svg.preview.background": "transparent"
     }

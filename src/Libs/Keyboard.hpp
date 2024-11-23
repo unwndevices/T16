@@ -1,9 +1,15 @@
 #ifndef KEYBOARD_HPP
 #define KEYBOARD_HPP
-
+#include "Configuration.hpp"
 #include <stdint.h>
 #include "adc.hpp"
 #include "Signal.hpp"
+
+#ifdef T32
+#define MODULE_COUNT 2
+#else
+#define MODULE_COUNT 1
+#endif
 
 enum Mode
 {
@@ -12,14 +18,11 @@ enum Mode
     XY_PAD,
     STRIPS,
     QUICK_SETTINGS,
+    CALIBRATION,
     MODE_AMOUNT
 };
 
-float fmap(float x, float in_min, float in_max, float out_min, float out_max)
-{
-    return max(min((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min, out_max), out_min);
-};
-
+float fmap(float x, float in_min, float in_max, float out_min, float out_max);
 class Key
 {
 public:
@@ -37,55 +40,7 @@ public:
         idx = instances++;
     };
 
-    void Update(Adc *adc)
-    {
-        value = adc->GetMux(0, mux_idx);
-
-        if (value > rel_threshold && state == IDLE)
-        {
-            log_d("Key started");
-            state = STARTED;
-            pressStartTime = millis();
-        }
-        else if (state == STARTED && value > press_threshold)
-        {
-            log_d("Key pressed");
-            state = PRESSED;
-            ulong pressTime = millis() - pressStartTime;
-            velocity = fmap((float)pressTime, 55.0f, 4.0f, 0.18f, 1.0f);
-
-            onStateChanged.Emit(idx, state);
-        }
-        else if (value < rel_threshold && (state == PRESSED || state == AFTERTOUCH))
-        {
-            log_d("Key released");
-            state = RELEASED;
-            onStateChanged.Emit(idx, state);
-        }
-        else if (value < rel_threshold && (state == STARTED || state == RELEASED))
-        {
-            log_d("Key idle");
-            state = IDLE;
-        }
-
-        else if (value > at_threshold)
-        {
-            if (state != AFTERTOUCH)
-            {
-                state = AFTERTOUCH;
-            }
-            onStateChanged.Emit(idx, state);
-        }
-
-        if (value > 0.10f)
-        {
-            pressure = fmap(value, 0.10f, at_threshold, 0.1f, 1.0f);
-        }
-        else
-        {
-            pressure = 0.1f;
-        }
-    }
+    void Update(Adc *adc);
 
     State GetState() const
     {
@@ -121,10 +76,16 @@ public:
         return pressure;
     }
 
+    uint16_t GetRaw()
+    {
+        return raw;
+    }
+
 private:
     ulong pressStartTime = 0;
     uint8_t debounceTime = 10;
     float pressure = 0.0f;
+    uint16_t raw = 0;
 
     static float press_threshold;
     static float rel_threshold;
@@ -132,15 +93,10 @@ private:
     static uint8_t instances;
 };
 
-float Key::press_threshold = 0.18f;
-float Key::rel_threshold = 0.06f;
-float Key::at_threshold = 0.78f;
-uint8_t Key::instances = 0;
-
 class KeyboardConfig
 {
 public:
-    KeyboardConfig(){};
+    KeyboardConfig() {};
 
     void Init(Key *keys, uint8_t key_amount)
     {
@@ -158,6 +114,264 @@ typedef struct Vec2
     float y;
 } Vec2;
 
+class Strip4
+{
+public:
+    // amount represents how many concurrent sets of 4 faders we want to handle
+    Strip4(uint8_t amount)
+    {
+        fader_sets = amount;
+    }
+
+    void Init(KeyboardConfig *cfg)
+    {
+        _config = cfg;
+        for (uint8_t bank = 0; bank < BANK_AMT; bank++)
+        {
+            for (uint8_t strip = 0; strip < 4; strip++)
+            {
+                strip_position[bank][strip] = 0.0f;
+                strip_last_position[bank][strip] = 0.0f;
+            }
+        }
+    }
+
+    void SetBank(uint8_t bank)
+    {
+        _bank = bank;
+    }
+
+    float GetStrip(uint8_t bank, uint8_t chn)
+    {
+        return strip_position[bank][chn];
+    }
+
+    bool StripChanged(uint8_t bank, uint8_t chn)
+    {
+        if (strip_position[bank][chn] != strip_last_position[bank][chn])
+        {
+            strip_last_position[bank][chn] = strip_position[bank][chn];
+            return true;
+        }
+        return false;
+    }
+
+    void Update(uint16_t deltaTime, float slew)
+    {
+        // Update each set of faders
+        for (uint8_t set = 0; set < fader_sets; set++)
+        {
+            // Calculate which bank this set maps to (with wrapping)
+            uint8_t bank = (_bank + set) % BANK_AMT;
+
+            // Update each strip in the current set
+            for (uint8_t strip = 0; strip < 4; strip++)
+            {
+                log_d("set %d, strip %d", set, strip);
+                float y = 0.0f;
+                float total = 0.0f;
+                uint8_t pressed_keys = 0;
+                float weight = 0.0f;
+
+                // Process the 4 keys for this strip
+                for (uint8_t key = 0; key < 4; key++)
+                {
+                    // Calculate the key index in the 8x4 matrix
+                    // strip represents the column (0-3 for first set, 4-7 for second set, etc)
+                    // key represents the row (0-3)
+                    uint8_t key_index = (strip + (set * 4)) + (key * 8); // 8 columns total
+
+                    log_d("key %d", key_index);
+                    float value = _config->_keys[key_index].value;
+
+                    if (value < touch_threshold)
+                    {
+                        value = 0.0f;
+                    }
+                    else
+                    {
+                        pressed_keys++;
+                    }
+                    y += key * value;
+                    total += value;
+                }
+
+                if (pressed_keys > 0)
+                {
+                    weight = total / pressed_keys;
+                }
+                weight = max(weight * weight, 0.03f);
+
+                if (total > threshold)
+                {
+                    strip_position[bank][strip] = Adc::slew_limiter(
+                        y / total,
+                        strip_position[bank][strip],
+                        slew * weight,
+                        deltaTime);
+                }
+            }
+        }
+    }
+
+    float strip_position[BANK_AMT][4];
+
+private:
+    KeyboardConfig *_config;
+    uint8_t fader_sets; // Number of concurrent 4-fader sets to handle
+    uint8_t _bank = 0;
+
+    // Keep positions stored per bank so they persist
+    float strip_last_position[BANK_AMT][4];
+
+    static constexpr float threshold = 0.15f;
+    static constexpr float touch_threshold = 0.3f;
+};
+
+class XYPad
+{
+public:
+    XYPad(uint8_t num_sets) : pad_sets(num_sets)
+    {
+        // Initialize all values
+        for (uint8_t i = 0; i < BANK_AMT; i++)
+        {
+            position[i] = Vec2{0.0f, 0.0f};
+            last_position[i] = Vec2{0.0f, 0.0f};
+            max_pressure[i] = 0.0f;
+        }
+    }
+
+    void Init(KeyboardConfig *cfg)
+    {
+        _config = cfg;
+    }
+
+    void SetBank(uint8_t bank)
+    {
+        if (_bank == bank || bank > 3)
+        {
+            return;
+        }
+        _bank = bank;
+    }
+
+    void Update(uint16_t deltaTime, float slew)
+    {
+        // Update each set of XY pads
+        for (uint8_t set = 0; set < pad_sets; set++)
+        {
+            // Calculate which bank index this set maps to
+            uint8_t bank = (_bank + set) % BANK_AMT;
+
+            float x = 0.0f;
+            float y = 0.0f;
+            float total = 0.0f;
+            uint8_t pressed_keys = 0;
+            float weight = 0.0f;
+
+            max_pressure[bank] = 0.0f;
+
+            // Process the 4x4 grid for this set
+            for (uint8_t row = 0; row < 4; row++)
+            {
+                for (uint8_t col = 0; col < 4; col++)
+                {
+                    // Calculate the key index in the 8x4 matrix
+                    // For first set: use cols 0-3, for second set: use cols 4-7
+                    uint8_t key_index = (col + (set * ROWS)) + (row * COLS);
+
+                    float value = _config->_keys[key_index].value;
+                    if (value < touch_threshold)
+                    {
+                        value = 0.0f;
+                    }
+                    else
+                    {
+                        pressed_keys++;
+                    }
+
+                    if (value > max_pressure[bank])
+                    {
+                        max_pressure[bank] = fmap(value, touch_threshold, 1.0f, 0.0f, 1.0f);
+                    }
+
+                    x += (col % 4) * value; 
+                    y += (row % 4) * value;
+                    total += value;
+                }
+            }
+
+            // Calculate the weight (average of pressed keys)
+            if (pressed_keys > 0)
+            {
+                weight = total / pressed_keys;
+            }
+
+            // Ensure weight doesn't go below a certain threshold
+            weight = max(weight * weight, 0.03f);
+
+            if (total > threshold)
+            {
+                position[bank].x = Adc::slew_limiter(x / total, position[bank].x, slew * weight, deltaTime);
+                position[bank].y = Adc::slew_limiter(y / total, position[bank].y, slew * weight, deltaTime);
+            }
+        }
+    }
+
+    float GetX(uint8_t set) const
+    {
+        uint8_t bank = (_bank + set) % pad_sets;
+        return position[bank].x;
+    }
+
+    float GetY(uint8_t set) const
+    {
+        uint8_t bank = (_bank + set) % pad_sets;
+        return position[bank].y;
+    }
+
+    float GetPressure(uint8_t set) const
+    {
+        uint8_t bank = (_bank + set) % pad_sets;
+        return max_pressure[bank];
+    }
+
+    bool XChanged(uint8_t set)
+    {
+        uint8_t bank = (_bank + set) % pad_sets;
+        if (position[bank].x != last_position[bank].x)
+        {
+            last_position[bank].x = position[bank].x;
+            return true;
+        }
+        return false;
+    }
+
+    bool YChanged(uint8_t set)
+    {
+        uint8_t bank = (_bank + set) % pad_sets;
+        if (position[bank].y != last_position[bank].y)
+        {
+            last_position[bank].y = position[bank].y;
+            return true;
+        }
+        return false;
+    }
+
+private:
+    KeyboardConfig *_config;
+    uint8_t _bank = 0;
+    uint8_t pad_sets; // Number of XY pad sets to handle
+
+    Vec2 position[BANK_AMT];      // Array of positions for each bank and set
+    Vec2 last_position[BANK_AMT]; // Array of last positions for each bank and set
+    float max_pressure[BANK_AMT]; // Array of max pressures for each bank and set
+
+    static constexpr float threshold = 0.3f;
+    static constexpr float touch_threshold = 0.15f;
+};
+
 class Keyboard
 {
 public:
@@ -170,16 +384,10 @@ public:
         LUT_AMOUNT
     };
 
-    Keyboard(){};
-    ~Keyboard(){};
+    Keyboard() : strips(MODULE_COUNT), xypad(MODULE_COUNT) {};
+    ~Keyboard() {};
 
-    void Init(KeyboardConfig *cfg, Adc *adc)
-    {
-        _config = *cfg;
-        _adc = adc;
-        GenerateLUTs();
-        log_d("Keyboard initialized");
-    };
+    void Init(KeyboardConfig *cfg, Adc *adc);
 
     void SetOnStateChanged(std::function<void(int, Key::State)> handler)
     {
@@ -197,32 +405,7 @@ public:
         }
     };
 
-    void Update()
-    {
-        // Record the current time before the update loop
-        unsigned long currentTime = millis();
-
-        for (uint8_t i = 0; i < _config._key_amount; i++)
-        {
-            // TODO make it for multiple muxes
-            _config._keys[i].Update(_adc);
-        }
-
-        // Calculate deltaTime
-        deltaTime = currentTime - previousTime;
-
-        // Update previousTime for the next iteration
-        previousTime = currentTime;
-
-        if (mode == XY_PAD)
-        {
-            CalcXY();
-        }
-        else if (mode == STRIPS)
-        {
-            CalcStrip();
-        }
-    }
+    void Update();
 
     float GetKey(uint8_t chn)
     {
@@ -246,45 +429,41 @@ public:
         return output_lut[aftertouchLut][aftertouch];
     }
 
-    float GetX()
+    float GetX(uint8_t set = 0)
     {
-        return position[_bank].x;
-    };
+        return xypad.GetX(set);
+    }
 
-    float GetY()
+    float GetY(uint8_t set = 0)
     {
-        return position[_bank].y;
-    };
-    float GetPressure()
+        return xypad.GetY(set);
+    }
+
+    bool XChanged(uint8_t set = 0)
     {
-        return max_pressure;
-    };
+        return xypad.XChanged(set);
+    }
+
+    bool YChanged(uint8_t set = 0)
+    {
+        return xypad.YChanged(set);
+    }
+
+    float GetKeyRaw(uint8_t chn)
+    {
+        return _config._keys[chn].GetRaw();
+    }
+
+    float GetXYPressure(uint8_t set = 0)
+    {
+        return xypad.GetPressure(set);
+    }
 
     uint8_t GetPressure(uint8_t chn)
     {
         uint8_t pressure = (uint8_t)(_config._keys[chn].GetPressure() * 127.0f);
         return output_lut[velocityLut][pressure];
     }
-
-    bool XChanged()
-    {
-        if (position[_bank].x != last_position[_bank].x)
-        {
-            last_position[_bank].x = position[_bank].x;
-            return true;
-        }
-        return false;
-    };
-
-    bool YChanged()
-    {
-        if (position[_bank].y != last_position[_bank].y)
-        {
-            last_position[_bank].y = position[_bank].y;
-            return true;
-        }
-        return false;
-    };
 
     void SetSlew(float slew_lim)
     {
@@ -301,19 +480,12 @@ public:
 
     float GetStrip(uint8_t chn)
     {
-        return strip_position[chn + (_bank * 4)];
+        uint8_t group = chn / 4;
+        uint8_t strip = chn % 4;
+        return strips.strip_position[_bank + group][strip];
     };
 
-    bool StripChanged(uint8_t chn)
-    {
-        chn = chn + (_bank * 4);
-        if (strip_position[chn] != strip_last_position[chn])
-        {
-            strip_last_position[chn] = strip_position[chn];
-            return true;
-        }
-        return false;
-    };
+    bool StripChanged(uint8_t chn);
 
     void SetBank(uint8_t bank)
     {
@@ -322,6 +494,7 @@ public:
             return;
         }
         _bank = bank;
+        strips.SetBank(_bank);
         bank_changed = true;
     };
 
@@ -344,17 +517,6 @@ public:
     {
         Key::SetATThreshold(threshold);
     }
-
-    void PlotLuts()
-    {
-        for (uint8_t i = 0; i < Lut::LUT_AMOUNT; i++)
-        {
-            for (uint8_t j = 0; j < 128; j++)
-            {
-                Serial.println(">" + String(i) + ":" + String(output_lut[i][j]) + ":" + String(j) + "|xy");
-            }
-        }
-    };
 
     void SetMode(Mode mode)
     {
@@ -379,21 +541,17 @@ public:
         }
     }
 
+    Strip4 strips; // Pointer to array of Strip4 instances
+    XYPad xypad;
+
 private:
     KeyboardConfig _config;
     Adc *_adc;
-    Vec2 position[4];
-    Vec2 last_position[4];
-    float max_pressure = 0.0f;
-    float threshold = 0.3f;
-    float touch_threshold = 0.15f;
+
     float slew = 0.4f;
 
-    Mode mode = KEYBOARD;
+    Mode mode = Mode::KEYBOARD;
 
-    // STRIP MODE
-    float strip_position[16] = {3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f};
-    float strip_last_position[16] = {0.0f};
     uint8_t _bank = 0;
     bool bank_changed = false;
 
@@ -405,109 +563,7 @@ private:
 
     uint8_t output_lut[Lut::LUT_AMOUNT][128] = {0};
 
-    void GenerateLUTs()
-    {
-        for (uint8_t i = 0; i < 128; i++)
-        {
-            output_lut[LINEAR][i] = i;
-            output_lut[EXPONENTIAL][i] = (i * i) >> 7;
-            output_lut[LOGARITHMIC][i] = (uint8_t)(128.0f * log2f(1.0f + (float)i / 127.0f));
-            output_lut[QUADRATIC][i] = (i * i) >> 8;
-        }
-    }
-
-    void CalcXY()
-    {
-        float x = 0.0f;
-        float y = 0.0f;
-        float total = 0.0f;
-        uint8_t pressed_keys = 0;
-        float weight = 0.0f;
-
-        max_pressure = 0.0f;
-        for (uint8_t i = 0; i < _config._key_amount; i++)
-        {
-            float value = _config._keys[i].value;
-            if (value < touch_threshold)
-            {
-                value = 0.0f;
-            }
-            else
-            {
-                pressed_keys++;
-            }
-            if (value > max_pressure)
-            {
-                max_pressure = fmap(value, touch_threshold, 1.0f, 0.0f, 1.0f);
-            }
-            x += (i % 4) * value;
-            y += (i / 4) * value;
-            total += value;
-        }
-        // Calculate the weight (average of pressed keys)
-        if (pressed_keys > 0)
-        {
-            weight = total / pressed_keys;
-        }
-
-        // Ensure weight doesn't go below a certain threshold (0.1f min)
-        weight = max(weight * weight, 0.03f);
-
-        if (total < threshold)
-        {
-            return;
-        }
-        else
-        {
-            position[_bank].x = Adc::slew_limiter(x / total, position[_bank].x, slew * weight, deltaTime);
-            position[_bank].y = Adc::slew_limiter(y / total, position[_bank].y, slew * weight, deltaTime);
-        }
-    };
-
-    void CalcStrip()
-    {
-        uint8_t _min = 4 * _bank;
-        uint8_t _max = _min + 4;
-        for (uint8_t i = _min; i < _max; i++)
-        {
-            float y = 0.0f;
-            float total = 0.0f;
-            uint8_t pressed_keys = 0;
-            float weight = 0.0f;
-
-            // Calculate the total value and count pressed keys
-
-            for (uint8_t j = 0; j < 4; j++)
-            {
-                float value = _config._keys[i - _min + j * 4].value;
-                if (value < touch_threshold)
-                {
-                    value = 0.0f;
-                }
-                else
-                {
-                    pressed_keys++;
-                }
-                y += j * value;
-                total += value;
-            }
-
-            // Calculate the weight (average of pressed keys)
-            if (pressed_keys > 0)
-            {
-                weight = total / pressed_keys;
-            }
-
-            // Ensure weight doesn't go below a certain threshold (0.1f min)
-            weight = max(weight * weight, 0.03f);
-
-            // Apply slew limiting with adjusted speed based on weight
-            if (total > threshold)
-            {
-                strip_position[i] = Adc::slew_limiter(y / total, strip_position[i], slew * weight, deltaTime);
-            }
-        }
-    }
+    void GenerateLUTs();
 };
 
 #endif // KEYBOARD_HPP

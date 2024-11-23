@@ -23,6 +23,29 @@ void wu_pixel(uint32_t x, uint32_t y, CRGB *col)
     }
 }
 
+void wu_pixel_multipad(uint32_t x, uint32_t y, const CRGB *col, uint8_t pad_id, uint8_t pad_size)
+{
+    // Extract fractional parts and their inverses
+    uint8_t xx = x & 0xff, yy = y & 0xff, ix = 255 - xx, iy = 255 - yy;
+    uint8_t wu[4] = {WEIGHT(ix, iy), WEIGHT(xx, iy), WEIGHT(ix, yy), WEIGHT(xx, yy)};
+
+    // Calculate the base offset for the current pad
+    uint16_t pad_offset = pad_id * pad_size;
+
+    // Apply Wu's pixel algorithm within the specified pad
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        uint16_t pixel_x = (x >> 8) + (i & 1) + pad_offset; // Adjust x-coordinate by pad offset
+        uint16_t pixel_y = (y >> 8) + ((i >> 1) & 1);
+
+        // Map the 2D coordinates to a 1D index within the pattern buffer
+        uint16_t pixel_index = XY(pixel_x, pixel_y); // Ensure XY accounts for the pad layout
+        patternleds[pixel_index].r = qadd8(patternleds[pixel_index].r, (col->r * wu[i]) >> 8);
+        patternleds[pixel_index].g = qadd8(patternleds[pixel_index].g, (col->g * wu[i]) >> 8);
+        patternleds[pixel_index].b = qadd8(patternleds[pixel_index].b, (col->b * wu[i]) >> 8);
+    }
+}
+
 void wu_pixel_1d(uint8_t x, uint32_t y, CRGB *col)
 {
     // Extract the integer and fractional parts of y
@@ -48,7 +71,7 @@ void wu_pixel_1d(uint8_t x, uint32_t y, CRGB *col)
 class Pattern
 {
 public:
-    Pattern(){};
+    Pattern() {};
 
     virtual bool RunPattern() = 0;
     virtual void SetPosition(uint8_t x, uint8_t y)
