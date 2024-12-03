@@ -274,13 +274,13 @@ void MidiProvider::SetMidiTRSType(bool type)
     if (midiTRSType)
     {
         // Type B
-        Serial1.begin(31250, SERIAL_8N1, -1, pin_tx);
+        Serial1.begin(31250, SERIAL_8N1, pin_rx, pin_tx);
         pinMode(pin_tx2, OUTPUT);
         digitalWrite(pin_tx2, HIGH);
     }
     else
     {
-        Serial1.begin(31250, SERIAL_8N1, -1, pin_tx2);
+        Serial1.begin(31250, SERIAL_8N1, pin_rx, pin_tx2);
         pinMode(pin_tx, OUTPUT);
         digitalWrite(pin_tx, HIGH);
     }
