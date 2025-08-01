@@ -2,7 +2,7 @@
 #define KEYBOARD_HPP
 
 #include <stdint.h>
-#include "adc.hpp"
+#include "Adc.hpp"
 #include "Signal.hpp"
 
 enum Mode

@@ -1,6 +1,22 @@
 #ifndef PINOUT_H
 #define PINOUT_H
 
+#include "hardware_config.hpp"
+
+#if defined(T16_VARIANT)
+    #include "pinout_t16.h"
+    using CurrentPinout = HardwarePinout<HardwareVariant::T16>;
+#elif defined(T32_VARIANT)
+    #include "pinout_t32.h"
+    using CurrentPinout = HardwarePinout<HardwareVariant::T32>;
+#elif defined(T64_VARIANT)
+    #include "pinout_t64.h"
+    using CurrentPinout = HardwarePinout<HardwareVariant::T64>;
+#else
+    #include "pinout_t16.h"
+    using CurrentPinout = HardwarePinout<HardwareVariant::T16>;
+#endif
+
 #ifdef REV_A
 
 #define PIN_S0 5
