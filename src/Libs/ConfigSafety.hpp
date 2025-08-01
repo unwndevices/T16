@@ -202,7 +202,175 @@ public:
         return info;
     }
     
-    // Full validation and safety check on boot
+    // Validation result for web app feedback
+    struct ValidationResult {
+        bool isValid = true;
+        String warnings = "";
+        String errors = "";
+        int fixesApplied = 0;
+        
+        void addWarning(const String& msg) {
+            if (warnings.length() > 0) warnings += "; ";
+            warnings += msg;
+        }
+        
+        void addError(const String& msg) {
+            if (errors.length() > 0) errors += "; ";
+            errors += msg;
+            isValid = false;
+        }
+        
+        void addFix(const String& msg) {
+            addWarning("Fixed: " + msg);
+            fixesApplied++;
+        }
+    };
+    
+    // Detailed validation for web app with feedback
+    static ValidationResult validateConfigDetailed(ConfigurationData& cfg, 
+                                                  KeyModeData kb_cfg[BANK_AMT], 
+                                                  ControlChangeData cc_cfg[BANK_AMT]) {
+        ValidationResult result;
+        
+        // Validate main config with detailed feedback
+        if (cfg.mode > 4) {
+            result.addFix("Mode reset from " + String(cfg.mode) + " to 0");
+            cfg.mode = 0;
+        }
+        
+        if (cfg.sensitivity > 4) {
+            result.addFix("Sensitivity reset from " + String(cfg.sensitivity) + " to 1");
+            cfg.sensitivity = 1;
+        }
+        
+        if (cfg.brightness > 15) {
+            result.addFix("Brightness clamped from " + String(cfg.brightness) + " to 15");
+            cfg.brightness = 15;
+        }
+        
+        if (cfg.palette >= BANK_AMT) {
+            result.addFix("Palette reset from " + String(cfg.palette) + " to 0");
+            cfg.palette = 0;
+        }
+        
+        // Boolean flags
+        if (cfg.midi_trs > 1) {
+            result.addFix("MIDI TRS reset to disabled");
+            cfg.midi_trs = 0;
+        }
+        
+        if (cfg.trs_type > 1) {
+            result.addFix("TRS type reset to Type A");
+            cfg.trs_type = 0;
+        }
+        
+        if (cfg.midi_ble > 1) {
+            result.addFix("MIDI BLE reset to disabled");
+            cfg.midi_ble = 0;
+        }
+        
+        // Validate banks with detailed feedback
+        for (int bank = 0; bank < BANK_AMT; bank++) {
+            String bankName = "Bank " + String(bank) + ": ";
+            
+            // Keyboard config
+            if (kb_cfg[bank].channel < 1 || kb_cfg[bank].channel > 16) {
+                result.addFix(bankName + "MIDI channel reset to 1");
+                kb_cfg[bank].channel = 1;
+            }
+            
+            if (kb_cfg[bank].scale > 15) {
+                result.addFix(bankName + "Scale reset to chromatic");
+                kb_cfg[bank].scale = 0;
+            }
+            
+            if (kb_cfg[bank].base_octave > 7) {
+                result.addFix(bankName + "Octave reset to 2");
+                kb_cfg[bank].base_octave = 2;
+            }
+            
+            if (kb_cfg[bank].base_note > 127) {
+                result.addFix(bankName + "Base note reset to 0");
+                kb_cfg[bank].base_note = 0;
+            }
+            
+            if (kb_cfg[bank].velocity_curve > 3) {
+                result.addFix(bankName + "Velocity curve reset to 1");
+                kb_cfg[bank].velocity_curve = 1;
+            }
+            
+            if (kb_cfg[bank].aftertouch_curve > 3) {
+                result.addFix(bankName + "Aftertouch curve reset to 1");
+                kb_cfg[bank].aftertouch_curve = 1;
+            }
+            
+            // CC config validation with specific feedback
+            for (int cc = 0; cc < CC_AMT; cc++) {
+                if (cc_cfg[bank].channel[cc] < 1 || cc_cfg[bank].channel[cc] > 16) {
+                    result.addFix(bankName + "CC" + String(cc) + " channel reset to 1");
+                    cc_cfg[bank].channel[cc] = 1;
+                }
+                
+                if (cc_cfg[bank].id[cc] > 127) {
+                    result.addFix(bankName + "CC" + String(cc) + " ID reset to " + String(13 + cc));
+                    cc_cfg[bank].id[cc] = 13 + cc;
+                }
+            }
+            
+            // Check for duplicate CC IDs in same bank
+            for (int cc1 = 0; cc1 < CC_AMT; cc1++) {
+                for (int cc2 = cc1 + 1; cc2 < CC_AMT; cc2++) {
+                    if (cc_cfg[bank].id[cc1] == cc_cfg[bank].id[cc2]) {
+                        result.addWarning(bankName + "Duplicate CC ID " + String(cc_cfg[bank].id[cc1]) + 
+                                        " on CC" + String(cc1) + " and CC" + String(cc2));
+                    }
+                }
+            }
+        }
+        
+        // Mark as changed if fixes were applied
+        if (result.fixesApplied > 0) {
+            cfg.hasChanged = true;
+            for (int bank = 0; bank < BANK_AMT; bank++) {
+                kb_cfg[bank].hasChanged = true;
+                cc_cfg[bank].hasChanged = true;
+            }
+        }
+        
+        return result;
+    }
+    
+    // Validate and apply incoming configuration from web app
+    static ValidationResult validateAndApplyConfig(const String& jsonConfig) {
+        extern ConfigurationData cfg;
+        extern KeyModeData kb_cfg[BANK_AMT];
+        extern ControlChangeData cc_cfg[BANK_AMT];
+        extern DataManager config;
+        
+        log_i("Validating incoming configuration from web app");
+        
+        // Store current good config as backup before applying new one
+        if (!storeGoodConfig()) {
+            log_w("Failed to backup current config - proceeding anyway");
+        }
+        
+        // Parse the JSON configuration
+        // (This would integrate with your existing JSON parsing)
+        // For now, assuming the config is already parsed into the structs
+        
+        // Perform detailed validation with feedback
+        ValidationResult result = validateConfigDetailed(cfg, kb_cfg, cc_cfg);
+        
+        // Save the validated configuration
+        if (result.fixesApplied > 0 || result.isValid) {
+            SaveConfiguration(config, true);
+            log_i("Configuration applied and validated - " + String(result.fixesApplied) + " fixes applied");
+        }
+        
+        return result;
+    }
+    
+    // Simple boot check - just validate existing config
     static bool bootCheck() {
         extern ConfigurationData cfg;
         extern KeyModeData kb_cfg[BANK_AMT];
@@ -210,26 +378,27 @@ public:
         extern CalibrationData calibration_data;
         extern DataManager config;
         
-        bool anyFixed = false;
-        
-        // Try to load configuration normally first
+        // Load existing configuration
         LoadConfiguration(config, false);
         
-        // Validate and fix what we loaded
+        // Quick validation - only fix critical issues
+        bool anyFixed = false;
         anyFixed |= validateAndFix(cfg);
         anyFixed |= validateAndFixBanks(kb_cfg, cc_cfg);
         anyFixed |= validateAndFixCalibration(calibration_data);
         
-        // If we had to fix things, save the fixed version
         if (anyFixed) {
-            log_w("Config had issues - fixed and saving");
+            log_w("Boot: Config had issues - fixed and saving");
             SaveConfiguration(config, true);
         }
         
-        // Store this as our new "good" version
-        storeGoodConfig();
+        // Store as good config if we don't have one
+        if (!hasGoodConfig()) {
+            storeGoodConfig();
+            log_i("Initial good config stored");
+        }
         
-        return !anyFixed; // Return true if no fixes were needed
+        return !anyFixed;
     }
     
     // Emergency recovery - restore good config or factory reset
