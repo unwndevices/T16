@@ -4,7 +4,9 @@
 #include <ArduinoJson.h>
 #include "Libs/DataManager.hpp"
 
+#ifndef configTICK_RATE_HZ
 #define configTICK_RATE_HZ 4000
+#endif
 const uint8_t CC_AMT = 8;
 const uint8_t BANK_AMT = 4;
 
