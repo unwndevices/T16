@@ -1,4 +1,4 @@
-#include "adc.hpp"
+#include "Adc.hpp"
 
 #define ADC_BUFFER 512
 #define ADC_NUM_BYTES 64 // 256 samples of 16 bits
