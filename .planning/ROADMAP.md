@@ -69,8 +69,16 @@ Plans:
   3. MidiProvider god-context is replaced by ConnectionContext (WebMIDI lifecycle) and ConfigContext (device state + sync)
   4. Codebase is organized by feature domain (contexts/, hooks/, services/, components/, types/)
   5. All configurator pages have consistent spacing, transitions, and responsive layout
-**Plans**: TBD
+**Plans:** 6 plans
 **UI hint**: yes
+
+Plans:
+- [ ] 03-01-PLAN.md — Toolchain scaffold (React 19, Vite, TypeScript strict, ESLint 9, Vitest, directory structure)
+- [ ] 03-02-PLAN.md — Design system tokens and primitive components (Radix + CSS Modules)
+- [ ] 03-03-PLAN.md — Context split (ConnectionContext, ConfigContext, ToastContext) + services + hooks
+- [ ] 03-04-PLAN.md — Layout shell (NavBar, Footer) + Dashboard page with 4 config tabs
+- [ ] 03-05-PLAN.md — Upload page, Manual page, App router, main entry point
+- [ ] 03-06-PLAN.md — Cleanup old JSX files + component/service tests
 
 ### Phase 4: Integration & CI
 **Goal**: Per-parameter config changes reach the device in under 100ms, firmware updates work without holding the bootloader button, and CI validates every push
@@ -105,6 +113,6 @@ Note: Phases 2 and 3 both depend on Phase 1. Phase 4 depends on both 2 and 3.
 |-------|----------------|--------|-----------|
 | 1. Protocol & Data Foundation | 0/5 | Executing (gap closure) | - |
 | 2. Firmware Service Extraction | 0/6 | Planned | - |
-| 3. Web Rewrite | 0/0 | Not started | - |
+| 3. Web Rewrite | 0/6 | Planned | - |
 | 4. Integration & CI | 0/0 | Not started | - |
 | 5. Feature Polish | 0/0 | Not started | - |
