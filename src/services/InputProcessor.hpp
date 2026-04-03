@@ -26,6 +26,11 @@ public:
     void applyConfiguration();
     void onBankChange();
 
+    // Strum state accessors (used by SliderProcessor for STRUMMING mode)
+    uint8_t getCurrentChord() const { return currentChord_; }
+    uint8_t getCurrentBaseNote() const { return currentBaseNote_; }
+    uint8_t getCurrentKeyIdx() const { return currentKeyIdx_; }
+
 private:
     ConfigManager& configManager_;
     MidiProvider& midiProvider_;
