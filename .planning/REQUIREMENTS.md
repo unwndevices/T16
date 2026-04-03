@@ -101,47 +101,47 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PROTO-01 | TBD | Pending |
-| PROTO-02 | TBD | Pending |
-| PROTO-03 | TBD | Pending |
-| PROTO-04 | TBD | Pending |
-| PROTO-05 | TBD | Pending |
-| FWARCH-01 | TBD | Pending |
-| FWARCH-02 | TBD | Pending |
-| FWARCH-03 | TBD | Pending |
-| FWARCH-04 | TBD | Pending |
-| FWARCH-05 | TBD | Pending |
-| FWARCH-06 | TBD | Pending |
-| FWARCH-07 | TBD | Pending |
-| FWBUG-01 | TBD | Pending |
-| FWBUG-02 | TBD | Pending |
-| FWBUG-03 | TBD | Pending |
-| FWBUG-04 | TBD | Pending |
-| FWFEAT-01 | TBD | Pending |
-| FWFEAT-02 | TBD | Pending |
-| FWFEAT-03 | TBD | Pending |
-| WEBARCH-01 | TBD | Pending |
-| WEBARCH-02 | TBD | Pending |
-| WEBARCH-03 | TBD | Pending |
-| WEBARCH-04 | TBD | Pending |
-| WEBARCH-05 | TBD | Pending |
-| WEBARCH-06 | TBD | Pending |
-| WEBFEAT-01 | TBD | Pending |
-| WEBFEAT-02 | TBD | Pending |
-| WEBFEAT-03 | TBD | Pending |
-| WEBFEAT-04 | TBD | Pending |
-| WEBFEAT-05 | TBD | Pending |
-| WEBFEAT-06 | TBD | Pending |
-| TEST-01 | TBD | Pending |
-| TEST-02 | TBD | Pending |
-| TEST-03 | TBD | Pending |
-| TEST-04 | TBD | Pending |
+| PROTO-01 | Phase 1 | Pending |
+| PROTO-02 | Phase 1 | Pending |
+| PROTO-03 | Phase 1 | Pending |
+| PROTO-04 | Phase 1 | Pending |
+| PROTO-05 | Phase 1 | Pending |
+| FWARCH-01 | Phase 2 | Pending |
+| FWARCH-02 | Phase 2 | Pending |
+| FWARCH-03 | Phase 2 | Pending |
+| FWARCH-04 | Phase 2 | Pending |
+| FWARCH-05 | Phase 2 | Pending |
+| FWARCH-06 | Phase 1 | Pending |
+| FWARCH-07 | Phase 2 | Pending |
+| FWBUG-01 | Phase 2 | Pending |
+| FWBUG-02 | Phase 2 | Pending |
+| FWBUG-03 | Phase 2 | Pending |
+| FWBUG-04 | Phase 2 | Pending |
+| FWFEAT-01 | Phase 2 | Pending |
+| FWFEAT-02 | Phase 4 | Pending |
+| FWFEAT-03 | Phase 1 | Pending |
+| WEBARCH-01 | Phase 3 | Pending |
+| WEBARCH-02 | Phase 3 | Pending |
+| WEBARCH-03 | Phase 3 | Pending |
+| WEBARCH-04 | Phase 3 | Pending |
+| WEBARCH-05 | Phase 1 | Pending |
+| WEBARCH-06 | Phase 3 | Pending |
+| WEBFEAT-01 | Phase 5 | Pending |
+| WEBFEAT-02 | Phase 5 | Pending |
+| WEBFEAT-03 | Phase 4 | Pending |
+| WEBFEAT-04 | Phase 4 | Pending |
+| WEBFEAT-05 | Phase 5 | Pending |
+| WEBFEAT-06 | Phase 3 | Pending |
+| TEST-01 | Phase 2 | Pending |
+| TEST-02 | Phase 3 | Pending |
+| TEST-03 | Phase 4 | Pending |
+| TEST-04 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 35 total
-- Mapped to phases: 0
-- Unmapped: 35
+- Mapped to phases: 35
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-03*
-*Last updated: 2026-04-03 after initial definition*
+*Last updated: 2026-04-03 after roadmap creation*

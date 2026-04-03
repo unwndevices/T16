@@ -1,0 +1,95 @@
+# Roadmap: T16 Refactor
+
+## Overview
+
+The T16 refactor treats firmware and web configurator as a single system with a protocol boundary in the middle. The SysEx protocol must be defined first because both sides depend on it. From there, firmware services are extracted from the monolithic main.cpp, the web editor is rewritten in TypeScript with a modern design system, both halves are wired together for per-parameter sync, and finally differentiator features are polished on top of the stable foundation.
+
+## Phases
+
+**Phase Numbering:**
+- Integer phases (1, 2, 3): Planned milestone work
+- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
+
+Decimal phases appear between their surrounding integers in numeric order.
+
+- [ ] **Phase 1: Protocol & Data Foundation** - Define the shared SysEx contract, rewrite DataManager, establish canonical config types
+- [ ] **Phase 2: Firmware Service Extraction** - Extract monolithic main.cpp into service classes, fix known bugs, add firmware tests
+- [ ] **Phase 3: Web Rewrite** - Full TypeScript rewrite with custom design system, split god-context, feature-domain organization
+- [ ] **Phase 4: Integration & CI** - Wire per-parameter sync end-to-end, firmware update flow, CI pipeline, linting
+- [ ] **Phase 5: Feature Polish** - Note grid visualizer, PWA support, MIDI monitor
+
+## Phase Details
+
+### Phase 1: Protocol & Data Foundation
+**Goal**: Firmware and web share a verified protocol contract, config persists efficiently, and the canonical config schema exists as a single source of truth
+**Depends on**: Nothing (first phase)
+**Requirements**: PROTO-01, PROTO-02, PROTO-03, PROTO-04, PROTO-05, FWARCH-06, WEBARCH-05, FWFEAT-03
+**Success Criteria** (what must be TRUE):
+  1. Firmware accepts structured SysEx commands with manufacturer ID prefix and command byte framing
+  2. Firmware handles per-parameter SysEx updates and full config dump requests without filesystem thrashing (single write per save cycle)
+  3. Firmware validates incoming SysEx payload length and structure before acting on it
+  4. Firmware and web share a TypeScript config type definition that matches the actual firmware JSON keys (round-trip verified)
+  5. Existing config (v103) migrates non-destructively to the new format on first boot
+**Plans**: TBD
+
+### Phase 2: Firmware Service Extraction
+**Goal**: All application logic lives in testable service classes, main.cpp is a slim orchestrator, and all known firmware bugs are fixed
+**Depends on**: Phase 1
+**Requirements**: FWARCH-01, FWARCH-02, FWARCH-03, FWARCH-04, FWARCH-05, FWARCH-07, FWBUG-01, FWBUG-02, FWBUG-03, FWBUG-04, FWFEAT-01, TEST-01
+**Success Criteria** (what must be TRUE):
+  1. main.cpp is under 150 lines -- init + loop calling services, no business logic
+  2. MIDI output works identically across USB, BLE, and TRS with transport abstraction (no stuck notes, no velocity regressions)
+  3. LED pattern transitions do not leak memory, touch slider position updates work, XY_PAD dead branch is gone, and hardware test times out on broken keys instead of hanging
+  4. Serial command interface provides diagnostic output following eisei command pattern
+  5. Firmware unit tests run on host (PlatformIO native env) covering config parsing, SysEx encoding, and state machine logic
+**Plans**: TBD
+
+### Phase 3: Web Rewrite
+**Goal**: The web configurator is a fully typed TypeScript application with a modern design system, clean context separation, and feature-domain organization
+**Depends on**: Phase 1
+**Requirements**: WEBARCH-01, WEBARCH-02, WEBARCH-03, WEBARCH-04, WEBARCH-06, WEBFEAT-06, TEST-02
+**Success Criteria** (what must be TRUE):
+  1. Every source file is TypeScript (no .js/.jsx, no PropTypes) with strict mode enabled
+  2. Design system uses Radix primitives and CSS custom properties -- Chakra v2 is fully removed
+  3. MidiProvider god-context is replaced by ConnectionContext (WebMIDI lifecycle) and ConfigContext (device state + sync)
+  4. Codebase is organized by feature domain (contexts/, hooks/, services/, components/, types/)
+  5. All configurator pages have consistent spacing, transitions, and responsive layout
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 4: Integration & CI
+**Goal**: Per-parameter config changes reach the device in under 100ms, firmware updates work without holding the bootloader button, and CI validates every push
+**Depends on**: Phase 2, Phase 3
+**Requirements**: FWFEAT-02, WEBFEAT-03, WEBFEAT-04, TEST-03, TEST-04
+**Success Criteria** (what must be TRUE):
+  1. Changing a single parameter in the web editor reflects on the device within 100ms round-trip (measured, not estimated)
+  2. Clicking "Update Firmware" in the editor triggers bootloader mode via SysEx -- no physical button hold required
+  3. Importing a config backup validates against the schema and rejects malformed files with a clear error message
+  4. GitHub Actions CI builds firmware, builds web, runs all tests, and runs linters on every push
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 5: Feature Polish
+**Goal**: Differentiator features that make the configurator feel complete -- visual note mapping, mobile access, and real-time MIDI feedback
+**Depends on**: Phase 3
+**Requirements**: WEBFEAT-01, WEBFEAT-02, WEBFEAT-05
+**Success Criteria** (what must be TRUE):
+  1. Note grid visualizer displays 4x4 key mapping with scale degree colors for the active bank, updating when bank or scale changes
+  2. Configurator works as a PWA on mobile -- installable, offline-capable, and can configure the device over BLE
+  3. MIDI monitor displays incoming messages in real-time with CC value visualization
+**Plans**: TBD
+**UI hint**: yes
+
+## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
+Note: Phases 2 and 3 both depend on Phase 1. Phase 4 depends on both 2 and 3.
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 1. Protocol & Data Foundation | 0/0 | Not started | - |
+| 2. Firmware Service Extraction | 0/0 | Not started | - |
+| 3. Web Rewrite | 0/0 | Not started | - |
+| 4. Integration & CI | 0/0 | Not started | - |
+| 5. Feature Polish | 0/0 | Not started | - |
