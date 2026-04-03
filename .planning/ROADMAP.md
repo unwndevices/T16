@@ -30,7 +30,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Firmware validates incoming SysEx payload length and structure before acting on it
   4. Firmware and web share a TypeScript config type definition that matches the actual firmware JSON keys (round-trip verified)
   5. Existing config (v103) migrates non-destructively to the new format on first boot
-**Plans**: TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — JSON Schema, TypeScript type generation, SysEx protocol constants
+- [ ] 01-02-PLAN.md — ConfigManager with load-once/save-once persistence and v103 migration
+- [ ] 01-03-PLAN.md — SysEx command handler with validated dispatch
+- [ ] 01-04-PLAN.md — PlatformIO native test environment and unit tests
 
 ### Phase 2: Firmware Service Extraction
 **Goal**: All application logic lives in testable service classes, main.cpp is a slim orchestrator, and all known firmware bugs are fixed
@@ -88,7 +94,7 @@ Note: Phases 2 and 3 both depend on Phase 1. Phase 4 depends on both 2 and 3.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Protocol & Data Foundation | 0/0 | Not started | - |
+| 1. Protocol & Data Foundation | 0/4 | Planning complete | - |
 | 2. Firmware Service Extraction | 0/0 | Not started | - |
 | 3. Web Rewrite | 0/0 | Not started | - |
 | 4. Integration & CI | 0/0 | Not started | - |
