@@ -29,7 +29,7 @@ export interface ConfigContextValue extends ConfigState {
 
 export type ConfigAction =
   | { type: 'SET_CONFIG'; payload: T16Configuration }
-  | { type: 'SET_DEVICE_CONFIG'; payload: T16Configuration }
+  | { type: 'SET_DEVICE_CONFIG'; payload: T16Configuration | null }
   | { type: 'UPDATE_PARAM'; domain: number; bank: number; field: number; value: number }
   | { type: 'SET_BANK'; payload: number }
   | { type: 'SYNC_CONFIRMED' }
