@@ -41,7 +41,7 @@ Requirements for the full refactor. Each maps to roadmap phases.
 ### Web Architecture
 
 - [x] **WEBARCH-01**: Full rewrite in TypeScript (no JavaScript, no PropTypes)
-- [ ] **WEBARCH-02**: Custom design system with Radix primitives and CSS custom properties (matching DROP)
+- [x] **WEBARCH-02**: Custom design system with Radix primitives and CSS custom properties (matching DROP)
 - [ ] **WEBARCH-03**: MidiProvider god-context split into ConnectionContext and ConfigContext
 - [x] **WEBARCH-04**: Codebase organized by feature domain: contexts/, hooks/, services/, components/, types/
 - [x] **WEBARCH-05**: Shared TypeScript types for config schema (single source of truth for firmware JSON keys)
@@ -54,7 +54,7 @@ Requirements for the full refactor. Each maps to roadmap phases.
 - [ ] **WEBFEAT-03**: Firmware update without bootloader button — click "Update" triggers auto-bootloader via SysEx
 - [ ] **WEBFEAT-04**: Config backup import validates against schema before applying
 - [ ] **WEBFEAT-05**: Live MIDI monitor with CC value visualization (real-time message display)
-- [ ] **WEBFEAT-06**: Consistent, polished UI/UX across all configurator pages (spacing, transitions, responsive)
+- [x] **WEBFEAT-06**: Consistent, polished UI/UX across all configurator pages (spacing, transitions, responsive)
 
 ### Testing & CI
 
@@ -121,7 +121,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | FWFEAT-02 | Phase 4 | Pending |
 | FWFEAT-03 | Phase 1 | Complete |
 | WEBARCH-01 | Phase 3 | Complete |
-| WEBARCH-02 | Phase 3 | Pending |
+| WEBARCH-02 | Phase 3 | Complete |
 | WEBARCH-03 | Phase 3 | Pending |
 | WEBARCH-04 | Phase 3 | Complete |
 | WEBARCH-05 | Phase 1 | Complete |
@@ -131,7 +131,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | WEBFEAT-03 | Phase 4 | Pending |
 | WEBFEAT-04 | Phase 4 | Pending |
 | WEBFEAT-05 | Phase 5 | Pending |
-| WEBFEAT-06 | Phase 3 | Pending |
+| WEBFEAT-06 | Phase 3 | Complete |
 | TEST-01 | Phase 2 | Complete |
 | TEST-02 | Phase 3 | Complete |
 | TEST-03 | Phase 4 | Pending |
