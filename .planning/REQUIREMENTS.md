@@ -17,17 +17,17 @@ Requirements for the full refactor. Each maps to roadmap phases.
 
 ### Firmware Architecture
 
-- [ ] **FWARCH-01**: Application logic extracted from main.cpp into service classes (CommandRouter, ConfigManager, ModeManager, InputProcessor)
+- [x] **FWARCH-01**: Application logic extracted from main.cpp into service classes (CommandRouter, ConfigManager, ModeManager, InputProcessor)
 - [ ] **FWARCH-02**: main.cpp is slim — init + loop calling services, under 150 lines
 - [x] **FWARCH-03**: All header-only implementations moved to .cpp files (proper compilation units)
-- [ ] **FWARCH-04**: Global mutable state encapsulated into service classes with explicit ownership
+- [x] **FWARCH-04**: Global mutable state encapsulated into service classes with explicit ownership
 - [x] **FWARCH-05**: MIDI transport abstracted into a list of interfaces (loop over active transports, not if/if/if)
 - [x] **FWARCH-06**: DataManager rewritten — load once, modify in-memory, write once (not 11 filesystem round-trips per save)
 - [ ] **FWARCH-07**: Task scheduler replaces tight loop() for timing-controlled execution of subsystems
 
 ### Firmware Bugs
 
-- [x] **FWBUG-01**: Memory leak in LedManager pattern transitions fixed (proper cleanup of previous pattern)
+- [ ] **FWBUG-01**: Memory leak in LedManager pattern transitions fixed (proper cleanup of previous pattern)
 - [x] **FWBUG-02**: TouchSlider::SetPosition(uint8_t, uint8_t) no-op fixed (assigns to lastPosition)
 - [ ] **FWBUG-03**: Unreachable XY_PAD branch in loop() removed
 - [ ] **FWBUG-04**: HardwareTest infinite loop on broken key fixed (timeout + error indication instead)
@@ -106,14 +106,14 @@ Deferred to future release. Tracked but not in current roadmap.
 | PROTO-03 | Phase 1 | Complete |
 | PROTO-04 | Phase 1 | Complete |
 | PROTO-05 | Phase 1 | Complete |
-| FWARCH-01 | Phase 2 | Pending |
+| FWARCH-01 | Phase 2 | Complete |
 | FWARCH-02 | Phase 2 | Pending |
 | FWARCH-03 | Phase 2 | Complete |
-| FWARCH-04 | Phase 2 | Pending |
+| FWARCH-04 | Phase 2 | Complete |
 | FWARCH-05 | Phase 2 | Complete |
 | FWARCH-06 | Phase 1 | Complete |
 | FWARCH-07 | Phase 2 | Pending |
-| FWBUG-01 | Phase 2 | Complete |
+| FWBUG-01 | Phase 2 | Pending |
 | FWBUG-02 | Phase 2 | Complete |
 | FWBUG-03 | Phase 2 | Pending |
 | FWBUG-04 | Phase 2 | Pending |

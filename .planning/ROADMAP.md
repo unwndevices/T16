@@ -53,7 +53,7 @@ Plans:
 
 Plans:
 - [ ] 02-01-PLAN.md — Shared types, ModeManager service, Scales.hpp split
-- [x] 02-02-PLAN.md — MidiProvider transport abstraction, TouchSlider bug fix
+- [ ] 02-02-PLAN.md — MidiProvider transport abstraction, TouchSlider bug fix
 - [ ] 02-03-PLAN.md — Header splits (Keyboard, Button, LedManager, Pattern) + LedManager unique_ptr
 - [ ] 02-04-PLAN.md — InputProcessor, SliderProcessor, ButtonHandler, CalibrationService extraction
 - [ ] 02-05-PLAN.md — AppEngine orchestrator, slim main.cpp, SerialCommandManager
