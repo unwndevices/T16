@@ -74,10 +74,10 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md — Toolchain scaffold (React 19, Vite, TypeScript strict, ESLint 9, Vitest, directory structure)
-- [ ] 03-02-PLAN.md — Design system tokens and primitive components (Radix + CSS Modules)
+- [x] 03-02-PLAN.md — Design system tokens and primitive components (Radix + CSS Modules)
 - [x] 03-03-PLAN.md — Context split (ConnectionContext, ConfigContext, ToastContext) + services + hooks
 - [ ] 03-04-PLAN.md — Layout shell (NavBar, Footer) + Dashboard page with 4 config tabs
-- [ ] 03-05-PLAN.md — Upload page, Manual page, App router, main entry point
+- [x] 03-05-PLAN.md — Upload page, Manual page, App router, main entry point
 - [ ] 03-06-PLAN.md — Cleanup old JSX files + component/service tests
 
 ### Phase 4: Integration & CI
