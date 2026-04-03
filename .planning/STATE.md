@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-02-PLAN.md
-last_updated: "2026-04-03T20:50:11.274Z"
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-04-03T20:55:45.875Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 11
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 ## Current Position
 
 Phase: 02 (firmware-service-extraction) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-04-03
 
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P04 | 8min | 2 tasks | 15 files |
 | Phase 01 P05 | 1min | 2 tasks | 2 files |
 | Phase 02 P02 | 5min | 2 tasks | 4 files |
+| Phase 02 P03 | 11min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,9 @@ Recent decisions affecting current work:
 - [Phase 01]: test_deserialize_missing_global_key asserts TRUE -- v103 flat-format fallback is correct behavior
 - [Phase 02]: Concrete transport classes as nested private classes in MidiProvider.cpp, not in header
 - [Phase 02]: SysEx dispatch kept separate from transport loop (USB+BLE only, not serial)
+- [Phase 02]: Used extern declarations for LED globals instead of private members -- 9 pattern files reference them directly
+- [Phase 02]: Extracted gradient palettes to shared Palettes.hpp header for multi-TU access
+- [Phase 02]: Added virtual destructor to Pattern base for correct unique_ptr polymorphic deletion
 
 ### Pending Todos
 
@@ -89,6 +93,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T20:50:11.271Z
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-04-03T20:55:45.873Z
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None
