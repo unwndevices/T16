@@ -125,8 +125,8 @@ uint8_t TouchSlider::GetQuantizedPosition(uint8_t numPositions)
 
 void TouchSlider::SetPosition(uint8_t intPosition, uint8_t numPositions)
 {
-    float interval = 1.0f / numPositions;
-    uint8_t quantized_position = static_cast<uint8_t>(intPosition / interval);
+    if (numPositions == 0) return;
+    lastPosition = static_cast<float>(intPosition) / static_cast<float>(numPositions);
 }
 
 bool TouchSlider::ReadValues()
