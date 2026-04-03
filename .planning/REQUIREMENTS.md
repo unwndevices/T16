@@ -42,7 +42,7 @@ Requirements for the full refactor. Each maps to roadmap phases.
 
 - [x] **WEBARCH-01**: Full rewrite in TypeScript (no JavaScript, no PropTypes)
 - [ ] **WEBARCH-02**: Custom design system with Radix primitives and CSS custom properties (matching DROP)
-- [ ] **WEBARCH-03**: MidiProvider god-context split into ConnectionContext and ConfigContext
+- [x] **WEBARCH-03**: MidiProvider god-context split into ConnectionContext and ConfigContext
 - [x] **WEBARCH-04**: Codebase organized by feature domain: contexts/, hooks/, services/, components/, types/
 - [x] **WEBARCH-05**: Shared TypeScript types for config schema (single source of truth for firmware JSON keys)
 - [x] **WEBARCH-06**: React 19 + Vite 7 + ESLint 9 flat config (matching DROP toolchain)
@@ -122,7 +122,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | FWFEAT-03 | Phase 1 | Complete |
 | WEBARCH-01 | Phase 3 | Complete |
 | WEBARCH-02 | Phase 3 | Pending |
-| WEBARCH-03 | Phase 3 | Pending |
+| WEBARCH-03 | Phase 3 | Complete |
 | WEBARCH-04 | Phase 3 | Complete |
 | WEBARCH-05 | Phase 1 | Complete |
 | WEBARCH-06 | Phase 3 | Complete |
