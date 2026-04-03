@@ -27,7 +27,8 @@ class Pattern;
 class LedManager
 {
 public:
-    LedManager() {};
+    LedManager();
+    ~LedManager();
 
     void Init();
 

@@ -54,6 +54,9 @@ uint16_t XY(uint8_t x, uint8_t y)
 
 // --- LedManager implementation ---
 
+LedManager::LedManager() = default;
+LedManager::~LedManager() = default;
+
 void LedManager::Init()
 {
     FastLED.addLeds<WS2812B, PIN_LED, GRB>(leds, NUM_LEDS);
