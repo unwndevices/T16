@@ -9,6 +9,7 @@
 
 #include <unity.h>
 #include "ConfigManager.hpp"
+#include "../../src/SysExProtocol.hpp"
 
 static ConfigManager cm;
 
@@ -159,9 +160,10 @@ void test_deserialize_invalid_json(void)
 void test_deserialize_missing_global_key(void)
 {
     cm.Init();
+    // Valid JSON without "global" key falls through to v103 flat-format defaults
     const char* json = "{\"banks\":[]}";
     bool result = cm.DeserializeFromBuffer(json, strlen(json));
-    TEST_ASSERT_FALSE(result);
+    TEST_ASSERT_TRUE(result);
 }
 
 // --- CheckIdleFlush ---
