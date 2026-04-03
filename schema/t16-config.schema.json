@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://unwn.dev/t16/config.schema.json",
+  "title": "T16 Configuration",
+  "type": "object",
+  "properties": {
+    "version": { "type": "integer", "const": 200 },
+    "global": {
+      "type": "object",
+      "properties": {
+        "mode": { "type": "integer", "minimum": 0, "maximum": 4 },
+        "sensitivity": { "type": "integer", "minimum": 0, "maximum": 3 },
+        "brightness": { "type": "integer", "minimum": 0, "maximum": 8 },
+        "midi_trs": { "type": "integer", "minimum": 0, "maximum": 1 },
+        "trs_type": { "type": "integer", "minimum": 0, "maximum": 1 },
+        "passthrough": { "type": "integer", "minimum": 0, "maximum": 1 },
+        "midi_ble": { "type": "integer", "minimum": 0, "maximum": 1 },
+        "custom_scale1": {
+          "type": "array",
+          "items": { "type": "integer" },
+          "minItems": 16,
+          "maxItems": 16
+        },
+        "custom_scale2": {
+          "type": "array",
+          "items": { "type": "integer" },
+          "minItems": 16,
+          "maxItems": 16
+        }
+      },
+      "required": ["mode", "sensitivity", "brightness", "midi_trs", "trs_type", "passthrough", "midi_ble", "custom_scale1", "custom_scale2"],
+      "additionalProperties": false
+    },
+    "banks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ch": { "type": "integer", "minimum": 1, "maximum": 16 },
+          "scale": { "type": "integer", "minimum": 0 },
+          "oct": { "type": "integer", "minimum": 0, "maximum": 10 },
+          "note": { "type": "integer", "minimum": 0, "maximum": 127 },
+          "vel": { "type": "integer", "minimum": 0 },
+          "at": { "type": "integer", "minimum": 0 },
+          "flip_x": { "type": "integer", "minimum": 0, "maximum": 1 },
+          "flip_y": { "type": "integer", "minimum": 0, "maximum": 1 },
+          "koala_mode": { "type": "integer", "minimum": 0, "maximum": 1 },
+          "chs": {
+            "type": "array",
+            "items": { "type": "integer", "minimum": 1, "maximum": 16 },
+            "minItems": 8,
+            "maxItems": 8
+          },
+          "ids": {
+            "type": "array",
+            "items": { "type": "integer", "minimum": 0, "maximum": 127 },
+            "minItems": 8,
+            "maxItems": 8
+          }
+        },
+        "required": ["ch", "scale", "oct", "note", "vel", "at", "flip_x", "flip_y", "koala_mode", "chs", "ids"],
+        "additionalProperties": false
+      },
+      "minItems": 4,
+      "maxItems": 4
+    }
+  },
+  "required": ["version", "global", "banks"],
+  "additionalProperties": false
+}
