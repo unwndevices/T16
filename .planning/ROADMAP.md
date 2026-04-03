@@ -49,7 +49,15 @@ Plans:
   3. LED pattern transitions do not leak memory, touch slider position updates work, XY_PAD dead branch is gone, and hardware test times out on broken keys instead of hanging
   4. Serial command interface provides diagnostic output following eisei command pattern
   5. Firmware unit tests run on host (PlatformIO native env) covering config parsing, SysEx encoding, and state machine logic
-**Plans**: TBD
+**Plans:** 6 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Shared types, ModeManager service, Scales.hpp split
+- [ ] 02-02-PLAN.md — MidiProvider transport abstraction, TouchSlider bug fix
+- [ ] 02-03-PLAN.md — Header splits (Keyboard, Button, LedManager, Pattern) + LedManager unique_ptr
+- [ ] 02-04-PLAN.md — InputProcessor, SliderProcessor, ButtonHandler, CalibrationService extraction
+- [ ] 02-05-PLAN.md — AppEngine orchestrator, slim main.cpp, SerialCommandManager
+- [ ] 02-06-PLAN.md — Unit tests for ModeManager, transport, InputProcessor
 
 ### Phase 3: Web Rewrite
 **Goal**: The web configurator is a fully typed TypeScript application with a modern design system, clean context separation, and feature-domain organization
@@ -96,7 +104,7 @@ Note: Phases 2 and 3 both depend on Phase 1. Phase 4 depends on both 2 and 3.
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Protocol & Data Foundation | 0/5 | Executing (gap closure) | - |
-| 2. Firmware Service Extraction | 0/0 | Not started | - |
+| 2. Firmware Service Extraction | 0/6 | Planned | - |
 | 3. Web Rewrite | 0/0 | Not started | - |
 | 4. Integration & CI | 0/0 | Not started | - |
 | 5. Feature Polish | 0/0 | Not started | - |
