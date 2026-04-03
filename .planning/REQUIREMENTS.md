@@ -29,8 +29,8 @@ Requirements for the full refactor. Each maps to roadmap phases.
 
 - [ ] **FWBUG-01**: Memory leak in LedManager pattern transitions fixed (proper cleanup of previous pattern)
 - [x] **FWBUG-02**: TouchSlider::SetPosition(uint8_t, uint8_t) no-op fixed (assigns to lastPosition)
-- [ ] **FWBUG-03**: Unreachable XY_PAD branch in loop() removed
-- [ ] **FWBUG-04**: HardwareTest infinite loop on broken key fixed (timeout + error indication instead)
+- [x] **FWBUG-03**: Unreachable XY_PAD branch in loop() removed
+- [x] **FWBUG-04**: HardwareTest infinite loop on broken key fixed (timeout + error indication instead)
 
 ### Firmware Features
 
@@ -115,8 +115,8 @@ Deferred to future release. Tracked but not in current roadmap.
 | FWARCH-07 | Phase 2 | Pending |
 | FWBUG-01 | Phase 2 | Pending |
 | FWBUG-02 | Phase 2 | Complete |
-| FWBUG-03 | Phase 2 | Pending |
-| FWBUG-04 | Phase 2 | Pending |
+| FWBUG-03 | Phase 2 | Complete |
+| FWBUG-04 | Phase 2 | Complete |
 | FWFEAT-01 | Phase 2 | Pending |
 | FWFEAT-02 | Phase 4 | Pending |
 | FWFEAT-03 | Phase 1 | Complete |
