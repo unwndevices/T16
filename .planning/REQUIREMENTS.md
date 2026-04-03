@@ -10,10 +10,10 @@ Requirements for the full refactor. Each maps to roadmap phases.
 ### Protocol
 
 - [ ] **PROTO-01**: Device uses structured SysEx with unwn manufacturer ID prefix and command byte framing
-- [ ] **PROTO-02**: Editor can send per-parameter updates via SysEx (single value change, <100ms round-trip)
-- [ ] **PROTO-03**: Editor can request and receive full config dump for initial sync and backup/restore
-- [ ] **PROTO-04**: Firmware validates SysEx payload length and structure before deserialization
-- [ ] **PROTO-05**: Protocol supports version handshake on connect (firmware reports protocol version to editor)
+- [x] **PROTO-02**: Editor can send per-parameter updates via SysEx (single value change, <100ms round-trip)
+- [x] **PROTO-03**: Editor can request and receive full config dump for initial sync and backup/restore
+- [x] **PROTO-04**: Firmware validates SysEx payload length and structure before deserialization
+- [x] **PROTO-05**: Protocol supports version handshake on connect (firmware reports protocol version to editor)
 
 ### Firmware Architecture
 
@@ -102,10 +102,10 @@ Deferred to future release. Tracked but not in current roadmap.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | PROTO-01 | Phase 1 | Pending |
-| PROTO-02 | Phase 1 | Pending |
-| PROTO-03 | Phase 1 | Pending |
-| PROTO-04 | Phase 1 | Pending |
-| PROTO-05 | Phase 1 | Pending |
+| PROTO-02 | Phase 1 | Complete |
+| PROTO-03 | Phase 1 | Complete |
+| PROTO-04 | Phase 1 | Complete |
+| PROTO-05 | Phase 1 | Complete |
 | FWARCH-01 | Phase 2 | Pending |
 | FWARCH-02 | Phase 2 | Pending |
 | FWARCH-03 | Phase 2 | Pending |
