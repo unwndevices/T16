@@ -13,22 +13,18 @@ DataManager calibration("/calibration_data.json");
 DataManager config("/configuration_data.json");
 
 #include <FastLED.h>
+#include "Libs/Leds/Palettes.hpp"
 
-DEFINE_GRADIENT_PALETTE(unwn_gp){0, 255, 246, 197, 128, 255, 178, 28, 255, 255, 83, 0};
-// DEFINE_GRADIENT_PALETTE(unwn_gp){0, 176, 65, 251, 127, 230, 2, 2, 255, 255, 111, 156};
-DEFINE_GRADIENT_PALETTE(topo_gp){0, 0, 107, 189, 128, 255, 147, 0, 255, 0, 255, 121};
-DEFINE_GRADIENT_PALETTE(alt_gp){0, 189, 70, 70, 255, 78, 75, 232};
-DEFINE_GRADIENT_PALETTE(acid_gp){0, 126, 255, 36, 255, 130, 0, 255};
 CRGBPalette16 palette[] = {unwn_gp, topo_gp, alt_gp, acid_gp};
 
+#include <memory>
 #include "Libs/Leds/LedManager.hpp"
+#include "Libs/Leds/patterns/NoBlur.hpp"
+#include "Libs/Leds/patterns/TouchBlur.hpp"
+#include "Libs/Leds/patterns/Strips.hpp"
+#include "Libs/Leds/patterns/Strum.hpp"
+#include "Libs/Leds/patterns/QuickSettings.hpp"
 LedManager led_manager;
-
-TouchBlur touch_blur;
-NoBlur no_blur;
-Strips strips;
-Strum strum;
-QuickSettings quick;
 
 #include "Libs/Adc.hpp"
 Adc adc;
@@ -347,7 +343,7 @@ void ProcessModeButton()
         keyboard.RemoveOnStateChanged();
         keyboard.SetOnStateChanged(&ProcessKey);
         keyboard.SetMode(Mode::KEYBOARD);
-        led_manager.TransitionToPattern(&no_blur);
+        led_manager.TransitionToPattern(std::make_unique<NoBlur>());
         slider_mode = SliderMode::BEND;
         ProcessSliderButton();
         break;
@@ -355,7 +351,7 @@ void ProcessModeButton()
         log_d("Mode: XY");
         keyboard.RemoveOnStateChanged();
         keyboard.SetMode(Mode::XY_PAD);
-        led_manager.TransitionToPattern(&touch_blur);
+        led_manager.TransitionToPattern(std::make_unique<TouchBlur>());
         slider_mode = SliderMode::SLEW;
         ProcessSliderButton();
         break;
@@ -363,7 +359,7 @@ void ProcessModeButton()
         log_d("Mode: Strips");
         keyboard.RemoveOnStateChanged();
         keyboard.SetMode(Mode::STRIPS);
-        led_manager.TransitionToPattern(&strips);
+        led_manager.TransitionToPattern(std::make_unique<Strips>());
         slider_mode = SliderMode::SLEW;
         ProcessSliderButton();
         break;
@@ -372,7 +368,7 @@ void ProcessModeButton()
         keyboard.RemoveOnStateChanged();
         keyboard.SetOnStateChanged(&ProcessStrum);
         keyboard.SetMode(Mode::STRUM);
-        led_manager.TransitionToPattern(&strum);
+        led_manager.TransitionToPattern(std::make_unique<Strum>());
         slider_mode = SliderMode::STRUMMING;
         ProcessStrum(0, Key::State::PRESSED);
         ProcessSliderButton();
@@ -380,7 +376,7 @@ void ProcessModeButton()
     case Mode::QUICK_SETTINGS:
         log_d("Mode: Quick Settings");
         slider_mode = SliderMode::QUICK;
-        led_manager.TransitionToPattern(&quick);
+        led_manager.TransitionToPattern(std::make_unique<QuickSettings>());
         keyboard.RemoveOnStateChanged();
         keyboard.SetOnStateChanged(&ProcessQuickSettings);
         LoadQuickSettings(parameters.bank);
