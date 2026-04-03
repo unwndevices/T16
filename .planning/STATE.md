@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 01-05-PLAN.md
-last_updated: "2026-04-03T14:10:09.207Z"
+status: executing
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-04-03T20:50:11.274Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 5
+  total_plans: 11
   completed_plans: 5
   percent: 0
 ---
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Every parameter change reaches the device in under 100ms, and any developer can modify one feature without risking another.
-**Current focus:** Phase 01 — protocol-data-foundation
+**Current focus:** Phase 02 — firmware-service-extraction
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 02 (firmware-service-extraction) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
 Last activity: 2026-04-03
 
 Progress: [░░░░░░░░░░] 0%
@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P01 | 3min | 2 tasks | 7 files |
 | Phase 01 P04 | 8min | 2 tasks | 15 files |
 | Phase 01 P05 | 1min | 2 tasks | 2 files |
+| Phase 02 P02 | 5min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,8 @@ Recent decisions affecting current work:
 - [Phase 01]: Restructured platformio.ini to use [env_common] for ESP32 envs, keeping native test env clean
 - [Phase 01]: Native test pattern: include .cpp files directly in test_main.cpp for PlatformIO native linking
 - [Phase 01]: test_deserialize_missing_global_key asserts TRUE -- v103 flat-format fallback is correct behavior
+- [Phase 02]: Concrete transport classes as nested private classes in MidiProvider.cpp, not in header
+- [Phase 02]: SysEx dispatch kept separate from transport loop (USB+BLE only, not serial)
 
 ### Pending Todos
 
@@ -86,6 +89,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T14:05:23.790Z
-Stopped at: Completed 01-05-PLAN.md
+Last session: 2026-04-03T20:50:11.271Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None
