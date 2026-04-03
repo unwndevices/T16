@@ -89,8 +89,14 @@ Plans:
   2. Clicking "Update Firmware" in the editor triggers bootloader mode via SysEx -- no physical button hold required
   3. Importing a config backup validates against the schema and rejects malformed files with a clear error message
   4. GitHub Actions CI builds firmware, builds web, runs all tests, and runs linters on every push
-**Plans**: TBD
+**Plans:** 4 plans
 **UI hint**: yes
+
+Plans:
+- [ ] 04-01-PLAN.md — CI pipeline + formatting configs (clang-format, Prettier, GitHub Actions)
+- [ ] 04-02-PLAN.md — Config import validation with ajv schema checking and v103 migration
+- [ ] 04-03-PLAN.md — Bootloader SysEx command (firmware + web protocol constants)
+- [ ] 04-04-PLAN.md — Upload page auto-bootloader UX + per-param sync round-trip timing
 
 ### Phase 5: Feature Polish
 **Goal**: Differentiator features that make the configurator feel complete -- visual note mapping, mobile access, and real-time MIDI feedback
@@ -114,5 +120,5 @@ Note: Phases 2 and 3 both depend on Phase 1. Phase 4 depends on both 2 and 3.
 | 1. Protocol & Data Foundation | 0/5 | Executing (gap closure) | - |
 | 2. Firmware Service Extraction | 0/6 | Planned | - |
 | 3. Web Rewrite | 0/6 | Planned | - |
-| 4. Integration & CI | 0/0 | Not started | - |
+| 4. Integration & CI | 0/4 | Planned | - |
 | 5. Feature Polish | 0/0 | Not started | - |
