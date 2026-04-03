@@ -9,7 +9,7 @@ Requirements for the full refactor. Each maps to roadmap phases.
 
 ### Protocol
 
-- [ ] **PROTO-01**: Device uses structured SysEx with unwn manufacturer ID prefix and command byte framing
+- [x] **PROTO-01**: Device uses structured SysEx with unwn manufacturer ID prefix and command byte framing
 - [x] **PROTO-02**: Editor can send per-parameter updates via SysEx (single value change, <100ms round-trip)
 - [x] **PROTO-03**: Editor can request and receive full config dump for initial sync and backup/restore
 - [x] **PROTO-04**: Firmware validates SysEx payload length and structure before deserialization
@@ -44,7 +44,7 @@ Requirements for the full refactor. Each maps to roadmap phases.
 - [ ] **WEBARCH-02**: Custom design system with Radix primitives and CSS custom properties (matching DROP)
 - [ ] **WEBARCH-03**: MidiProvider god-context split into ConnectionContext and ConfigContext
 - [ ] **WEBARCH-04**: Codebase organized by feature domain: contexts/, hooks/, services/, components/, types/
-- [ ] **WEBARCH-05**: Shared TypeScript types for config schema (single source of truth for firmware JSON keys)
+- [x] **WEBARCH-05**: Shared TypeScript types for config schema (single source of truth for firmware JSON keys)
 - [ ] **WEBARCH-06**: React 19 + Vite 7 + ESLint 9 flat config (matching DROP toolchain)
 
 ### Web Features
@@ -101,7 +101,7 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PROTO-01 | Phase 1 | Pending |
+| PROTO-01 | Phase 1 | Complete |
 | PROTO-02 | Phase 1 | Complete |
 | PROTO-03 | Phase 1 | Complete |
 | PROTO-04 | Phase 1 | Complete |
@@ -124,7 +124,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | WEBARCH-02 | Phase 3 | Pending |
 | WEBARCH-03 | Phase 3 | Pending |
 | WEBARCH-04 | Phase 3 | Pending |
-| WEBARCH-05 | Phase 1 | Pending |
+| WEBARCH-05 | Phase 1 | Complete |
 | WEBARCH-06 | Phase 3 | Pending |
 | WEBFEAT-01 | Phase 5 | Pending |
 | WEBFEAT-02 | Phase 5 | Pending |

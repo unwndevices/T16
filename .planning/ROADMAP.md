@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] 01-01-PLAN.md — JSON Schema, TypeScript type generation, SysEx protocol constants
 - [x] 01-02-PLAN.md — ConfigManager with load-once/save-once persistence and v103 migration
-- [x] 01-03-PLAN.md — SysEx command handler with validated dispatch
+- [ ] 01-03-PLAN.md — SysEx command handler with validated dispatch
 - [ ] 01-04-PLAN.md — PlatformIO native test environment and unit tests
 
 ### Phase 2: Firmware Service Extraction
