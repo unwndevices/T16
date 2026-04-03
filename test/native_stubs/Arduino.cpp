@@ -11,3 +11,5 @@ void set_fake_millis(unsigned long ms)
 {
     fake_millis = ms;
 }
+
+FakeSerial Serial;

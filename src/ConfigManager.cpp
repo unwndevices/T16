@@ -21,7 +21,13 @@ void ConfigManager::Init()
         if (!error && !doc.isNull())
         {
             // Check version for migration
+            // v103: root-level "version" key
+            // v200: nested "global.version" key
             uint8_t version = doc["version"] | 0;
+            if (version == 0)
+            {
+                version = doc["global"]["version"] | 0;
+            }
 
             if (version >= 100 && version < 200)
             {

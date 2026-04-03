@@ -1,0 +1,122 @@
+#include <unity.h>
+#include "SysExProtocol.hpp"
+
+void setUp(void) {}
+void tearDown(void) {}
+
+void test_manufacturer_id_is_0x7D(void)
+{
+    TEST_ASSERT_EQUAL_HEX8(0x7D, SysEx::MANUFACTURER_ID);
+}
+
+void test_cmd_values_are_unique(void)
+{
+    TEST_ASSERT_NOT_EQUAL(SysEx::CMD_VERSION, SysEx::CMD_CONFIG);
+    TEST_ASSERT_NOT_EQUAL(SysEx::CMD_VERSION, SysEx::CMD_PARAM);
+    TEST_ASSERT_NOT_EQUAL(SysEx::CMD_VERSION, SysEx::CMD_CALIBRATION);
+    TEST_ASSERT_NOT_EQUAL(SysEx::CMD_CONFIG, SysEx::CMD_PARAM);
+    TEST_ASSERT_NOT_EQUAL(SysEx::CMD_CONFIG, SysEx::CMD_CALIBRATION);
+    TEST_ASSERT_NOT_EQUAL(SysEx::CMD_PARAM, SysEx::CMD_CALIBRATION);
+}
+
+void test_cmd_values_in_range(void)
+{
+    TEST_ASSERT_GREATER_OR_EQUAL(0x01, SysEx::CMD_VERSION);
+    TEST_ASSERT_LESS_OR_EQUAL(0x04, SysEx::CMD_VERSION);
+    TEST_ASSERT_GREATER_OR_EQUAL(0x01, SysEx::CMD_CONFIG);
+    TEST_ASSERT_LESS_OR_EQUAL(0x04, SysEx::CMD_CONFIG);
+    TEST_ASSERT_GREATER_OR_EQUAL(0x01, SysEx::CMD_PARAM);
+    TEST_ASSERT_LESS_OR_EQUAL(0x04, SysEx::CMD_PARAM);
+    TEST_ASSERT_GREATER_OR_EQUAL(0x01, SysEx::CMD_CALIBRATION);
+    TEST_ASSERT_LESS_OR_EQUAL(0x04, SysEx::CMD_CALIBRATION);
+}
+
+void test_sub_values_are_unique(void)
+{
+    TEST_ASSERT_NOT_EQUAL(SysEx::SUB_REQUEST, SysEx::SUB_RESPONSE);
+    TEST_ASSERT_NOT_EQUAL(SysEx::SUB_REQUEST, SysEx::SUB_LOAD);
+    TEST_ASSERT_NOT_EQUAL(SysEx::SUB_REQUEST, SysEx::SUB_ACK);
+    TEST_ASSERT_NOT_EQUAL(SysEx::SUB_RESPONSE, SysEx::SUB_LOAD);
+    TEST_ASSERT_NOT_EQUAL(SysEx::SUB_RESPONSE, SysEx::SUB_ACK);
+    TEST_ASSERT_NOT_EQUAL(SysEx::SUB_LOAD, SysEx::SUB_ACK);
+}
+
+void test_sub_values_in_range(void)
+{
+    TEST_ASSERT_GREATER_OR_EQUAL(0x01, SysEx::SUB_REQUEST);
+    TEST_ASSERT_LESS_OR_EQUAL(0x04, SysEx::SUB_REQUEST);
+    TEST_ASSERT_GREATER_OR_EQUAL(0x01, SysEx::SUB_RESPONSE);
+    TEST_ASSERT_LESS_OR_EQUAL(0x04, SysEx::SUB_RESPONSE);
+    TEST_ASSERT_GREATER_OR_EQUAL(0x01, SysEx::SUB_LOAD);
+    TEST_ASSERT_LESS_OR_EQUAL(0x04, SysEx::SUB_LOAD);
+    TEST_ASSERT_GREATER_OR_EQUAL(0x01, SysEx::SUB_ACK);
+    TEST_ASSERT_LESS_OR_EQUAL(0x04, SysEx::SUB_ACK);
+}
+
+void test_protocol_version(void)
+{
+    TEST_ASSERT_EQUAL_UINT8(1, SysEx::PROTOCOL_VERSION);
+}
+
+void test_min_message_length(void)
+{
+    TEST_ASSERT_EQUAL(4, SysEx::MIN_MESSAGE_LENGTH);
+}
+
+void test_global_field_ids_sequential(void)
+{
+    TEST_ASSERT_EQUAL_UINT8(0, SysEx::FIELD_GLOBAL_MODE);
+    TEST_ASSERT_EQUAL_UINT8(1, SysEx::FIELD_GLOBAL_SENSITIVITY);
+    TEST_ASSERT_EQUAL_UINT8(2, SysEx::FIELD_GLOBAL_BRIGHTNESS);
+    TEST_ASSERT_EQUAL_UINT8(3, SysEx::FIELD_GLOBAL_MIDI_TRS);
+    TEST_ASSERT_EQUAL_UINT8(4, SysEx::FIELD_GLOBAL_TRS_TYPE);
+    TEST_ASSERT_EQUAL_UINT8(5, SysEx::FIELD_GLOBAL_PASSTHROUGH);
+    TEST_ASSERT_EQUAL_UINT8(6, SysEx::FIELD_GLOBAL_MIDI_BLE);
+}
+
+void test_bank_field_ids_sequential(void)
+{
+    TEST_ASSERT_EQUAL_UINT8(0, SysEx::FIELD_BANK_CHANNEL);
+    TEST_ASSERT_EQUAL_UINT8(1, SysEx::FIELD_BANK_SCALE);
+    TEST_ASSERT_EQUAL_UINT8(2, SysEx::FIELD_BANK_OCTAVE);
+    TEST_ASSERT_EQUAL_UINT8(3, SysEx::FIELD_BANK_NOTE);
+    TEST_ASSERT_EQUAL_UINT8(4, SysEx::FIELD_BANK_VELOCITY);
+    TEST_ASSERT_EQUAL_UINT8(5, SysEx::FIELD_BANK_AFTERTOUCH);
+    TEST_ASSERT_EQUAL_UINT8(6, SysEx::FIELD_BANK_FLIP_X);
+    TEST_ASSERT_EQUAL_UINT8(7, SysEx::FIELD_BANK_FLIP_Y);
+    TEST_ASSERT_EQUAL_UINT8(8, SysEx::FIELD_BANK_KOALA_MODE);
+}
+
+void test_domain_values_unique(void)
+{
+    TEST_ASSERT_EQUAL_HEX8(0x00, SysEx::DOMAIN_GLOBAL);
+    TEST_ASSERT_EQUAL_HEX8(0x01, SysEx::DOMAIN_BANK_KB);
+    TEST_ASSERT_EQUAL_HEX8(0x02, SysEx::DOMAIN_BANK_CC);
+    TEST_ASSERT_NOT_EQUAL(SysEx::DOMAIN_GLOBAL, SysEx::DOMAIN_BANK_KB);
+    TEST_ASSERT_NOT_EQUAL(SysEx::DOMAIN_GLOBAL, SysEx::DOMAIN_BANK_CC);
+    TEST_ASSERT_NOT_EQUAL(SysEx::DOMAIN_BANK_KB, SysEx::DOMAIN_BANK_CC);
+}
+
+void test_status_codes(void)
+{
+    TEST_ASSERT_EQUAL_HEX8(0x00, SysEx::STATUS_OK);
+    TEST_ASSERT_EQUAL_HEX8(0x01, SysEx::STATUS_ERROR);
+    TEST_ASSERT_NOT_EQUAL(SysEx::STATUS_OK, SysEx::STATUS_ERROR);
+}
+
+int main(int argc, char **argv)
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_manufacturer_id_is_0x7D);
+    RUN_TEST(test_cmd_values_are_unique);
+    RUN_TEST(test_cmd_values_in_range);
+    RUN_TEST(test_sub_values_are_unique);
+    RUN_TEST(test_sub_values_in_range);
+    RUN_TEST(test_protocol_version);
+    RUN_TEST(test_min_message_length);
+    RUN_TEST(test_global_field_ids_sequential);
+    RUN_TEST(test_bank_field_ids_sequential);
+    RUN_TEST(test_domain_values_unique);
+    RUN_TEST(test_status_codes);
+    return UNITY_END();
+}

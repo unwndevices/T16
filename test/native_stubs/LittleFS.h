@@ -46,6 +46,37 @@ public:
         fseek(fp, pos, SEEK_SET);
         return (size_t)sz;
     }
+
+    int available()
+    {
+        if (!fp) return 0;
+        long pos = ftell(fp);
+        fseek(fp, 0, SEEK_END);
+        long end = ftell(fp);
+        fseek(fp, pos, SEEK_SET);
+        return (int)(end - pos);
+    }
+
+    int peek()
+    {
+        if (!fp) return -1;
+        int c = fgetc(fp);
+        if (c != EOF) ungetc(c, fp);
+        return c;
+    }
+
+    size_t print(const char* s)
+    {
+        if (!fp) return 0;
+        return fprintf(fp, "%s", s);
+    }
+
+    // Support ArduinoJson serialization to file
+    size_t write(uint8_t c)
+    {
+        if (!fp) return 0;
+        return fwrite(&c, 1, 1, fp);
+    }
 };
 
 class FakeLittleFS
@@ -86,5 +117,8 @@ public:
         system(cmd);
     }
 };
+
+// Arduino compatibility typedefs
+typedef FakeFile File;
 
 extern FakeLittleFS LittleFS;
