@@ -3,10 +3,13 @@
 #define MIDIPROVIDER_HPP
 
 #include <Arduino.h>
+#include <array>
 #include <MIDI.h>
 #include <Adafruit_TinyUSB.h>
 #include <BLEMIDI_Transport.h>
 #include <hardware/BLEMIDI_ESP32_NimBLE.h>
+#include "MidiTransport.hpp"
+
 struct CustomSettings : public midi::DefaultSettings
 {
     static const bool Use1ByteParsing = false;
@@ -44,6 +47,8 @@ public:
     void SetMidiTRSType(bool type);
 
 private:
+    void RebuildTransportList();
+
     Adafruit_USBD_MIDI usb_midi;
     midi::SerialMIDI<Adafruit_USBD_MIDI, CustomSettings> serialMIDI_USB;
     midi::MidiInterface<midi::SerialMIDI<Adafruit_USBD_MIDI, CustomSettings>> MIDI_USB;
@@ -51,6 +56,18 @@ private:
     midi::MidiInterface<midi::SerialMIDI<HardwareSerial, CustomSettings>> MIDI_SERIAL;
     midi::MidiInterface<bleMidi::BLEMIDI_Transport<bleMidi::BLEMIDI_ESP32_NimBLE>, CustomSettings> MIDI_BLE;
     bleMidi::BLEMIDI_Transport<bleMidi::BLEMIDI_ESP32_NimBLE, CustomSettings> BLEMIDI;
+
+    // Transport abstraction
+    class UsbMidiTransport;
+    class BleMidiTransport;
+    class SerialMidiTransport;
+
+    UsbMidiTransport* usbTransport_;
+    BleMidiTransport* bleTransport_;
+    SerialMidiTransport* serialTransport_;
+
+    std::array<t16::MidiTransport*, 3> transports_;
+    uint8_t activeCount_ = 0;
 
     bool midiBle;
     bool midiThru;
