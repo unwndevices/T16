@@ -73,7 +73,7 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 03-01-PLAN.md — Toolchain scaffold (React 19, Vite, TypeScript strict, ESLint 9, Vitest, directory structure)
+- [x] 03-01-PLAN.md — Toolchain scaffold (React 19, Vite, TypeScript strict, ESLint 9, Vitest, directory structure)
 - [ ] 03-02-PLAN.md — Design system tokens and primitive components (Radix + CSS Modules)
 - [ ] 03-03-PLAN.md — Context split (ConnectionContext, ConfigContext, ToastContext) + services + hooks
 - [ ] 03-04-PLAN.md — Layout shell (NavBar, Footer) + Dashboard page with 4 config tabs
