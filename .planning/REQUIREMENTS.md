@@ -22,7 +22,7 @@ Requirements for the full refactor. Each maps to roadmap phases.
 - [ ] **FWARCH-03**: All header-only implementations moved to .cpp files (proper compilation units)
 - [ ] **FWARCH-04**: Global mutable state encapsulated into service classes with explicit ownership
 - [ ] **FWARCH-05**: MIDI transport abstracted into a list of interfaces (loop over active transports, not if/if/if)
-- [ ] **FWARCH-06**: DataManager rewritten — load once, modify in-memory, write once (not 11 filesystem round-trips per save)
+- [x] **FWARCH-06**: DataManager rewritten — load once, modify in-memory, write once (not 11 filesystem round-trips per save)
 - [ ] **FWARCH-07**: Task scheduler replaces tight loop() for timing-controlled execution of subsystems
 
 ### Firmware Bugs
@@ -36,7 +36,7 @@ Requirements for the full refactor. Each maps to roadmap phases.
 
 - [ ] **FWFEAT-01**: Serial command interface for diagnostics (modular command categories following eisei pattern)
 - [ ] **FWFEAT-02**: SysEx command triggers ESP32 bootloader mode for firmware update (no physical button hold)
-- [ ] **FWFEAT-03**: Configuration version migration — non-destructive upgrade from v103 to new format
+- [x] **FWFEAT-03**: Configuration version migration — non-destructive upgrade from v103 to new format
 
 ### Web Architecture
 
@@ -111,7 +111,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | FWARCH-03 | Phase 2 | Pending |
 | FWARCH-04 | Phase 2 | Pending |
 | FWARCH-05 | Phase 2 | Pending |
-| FWARCH-06 | Phase 1 | Pending |
+| FWARCH-06 | Phase 1 | Complete |
 | FWARCH-07 | Phase 2 | Pending |
 | FWBUG-01 | Phase 2 | Pending |
 | FWBUG-02 | Phase 2 | Pending |
@@ -119,7 +119,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | FWBUG-04 | Phase 2 | Pending |
 | FWFEAT-01 | Phase 2 | Pending |
 | FWFEAT-02 | Phase 4 | Pending |
-| FWFEAT-03 | Phase 1 | Pending |
+| FWFEAT-03 | Phase 1 | Complete |
 | WEBARCH-01 | Phase 3 | Pending |
 | WEBARCH-02 | Phase 3 | Pending |
 | WEBARCH-03 | Phase 3 | Pending |
