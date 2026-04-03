@@ -1,0 +1,145 @@
+.dashboard {
+  width: 100%;
+}
+
+/* --- Empty state --- */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3xl) var(--space-md);
+  text-align: center;
+  gap: var(--space-md);
+}
+
+.emptyHeading {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--gray-800);
+}
+
+.emptyBody {
+  font-size: var(--text-sm);
+  color: var(--gray-500);
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+  width: 100%;
+  max-width: 500px;
+  margin-top: var(--space-lg);
+}
+
+/* --- Tab content --- */
+
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-lg) 0;
+}
+
+/* --- Key grid --- */
+
+.keyGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-sm);
+}
+
+/* --- Card grid (responsive) --- */
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+}
+
+@media (min-width: 768px) {
+  .cardGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* --- CC grid --- */
+
+.ccGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+}
+
+@media (min-width: 768px) {
+  .ccGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* --- Scales layout --- */
+
+.scalesLayout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-xl);
+}
+
+@media (min-width: 768px) {
+  .scalesLayout {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.scaleSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.sectionHeading {
+  font-family: var(--font-heading);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--gray-800);
+}
+
+.scaleGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-sm);
+}
+
+/* --- Danger zone --- */
+
+.dangerZone {
+  display: flex;
+  gap: var(--space-md);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--gray-200);
+  margin-top: var(--space-lg);
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+
+/* --- Mobile key grid --- */
+
+@media (max-width: 767px) {
+  .keyGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .scaleGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
