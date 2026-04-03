@@ -1,0 +1,46 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.label {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.buttons {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.bankButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--gray-200);
+  background: var(--gray-50);
+  color: var(--gray-600);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: all 150ms ease-out;
+}
+
+.bankButton:hover {
+  border-color: var(--gray-300);
+  background: var(--gray-100);
+}
+
+.bankButton.active {
+  background: var(--primary-800);
+  border-color: var(--primary-800);
+  color: white;
+}

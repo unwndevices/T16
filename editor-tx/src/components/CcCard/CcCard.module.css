@@ -1,0 +1,51 @@
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.name {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--primary-800);
+  background: var(--gray-100);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: 999px;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.fieldLabel {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--gray-500);
+  min-width: 24px;
+}
+
+.ccControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.ccValue {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  min-width: 32px;
+  text-align: center;
+}
+
+.duplicate {
+  border-color: var(--color-error);
+}
