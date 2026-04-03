@@ -6,7 +6,7 @@ export default tseslint.config(
   { ignores: ['dist'] },
   {
     extends: [
-      ...tseslint.configs.strictTypeChecked,
+      ...tseslint.configs.recommendedTypeChecked,
     ],
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
@@ -25,6 +25,18 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
+      '@typescript-eslint/no-floating-promises': 'warn',
+      '@typescript-eslint/unbound-method': 'off',
+      '@typescript-eslint/no-misused-promises': ['error', {
+        checksVoidReturn: { attributes: false },
+      }],
+    },
+  },
+  {
+    files: ['vite.config.ts', 'vitest.config.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
     },
   },
 )

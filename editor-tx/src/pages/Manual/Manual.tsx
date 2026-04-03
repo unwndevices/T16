@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef, createRef, type RefObject } from 'react'
-import { Card } from '@/design-system'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { MdCircle, MdOutlineSystemUpdateAlt } from 'react-icons/md'
 import InterfaceImg from '@/assets/Interface.webp'
 import KeyboardLayoutImg from '@/assets/keyboard_layout.webp'
@@ -215,13 +214,15 @@ const content: Section[] = [
 ]
 
 export function Manual() {
-  const sectionRefs = useRef<RefObject<HTMLDivElement | null>[]>(
-    content.map(() => createRef<HTMLDivElement>())
-  )
+  const sectionEls = useRef<(HTMLDivElement | null)[]>(content.map(() => null))
   const [activeSection, setActiveSection] = useState(0)
 
+  const setSectionRef = useCallback((index: number) => (el: HTMLDivElement | null) => {
+    sectionEls.current[index] = el
+  }, [])
+
   const scrollToSection = (index: number) => {
-    const el = sectionRefs.current[index].current
+    const el = sectionEls.current[index]
     if (!el) return
     const offsetTop = el.offsetTop - 60
     window.scrollTo({ top: offsetTop, behavior: 'smooth' })
@@ -231,8 +232,7 @@ export function Manual() {
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 70
-      sectionRefs.current.forEach((ref, index) => {
-        const el = ref.current
+      sectionEls.current.forEach((el, index) => {
         if (!el) return
         const sectionTop = el.offsetTop
         const sectionHeight = el.offsetHeight
@@ -270,7 +270,7 @@ export function Manual() {
           <div
             key={sectionIndex}
             className={styles.section}
-            ref={sectionRefs.current[sectionIndex]}
+            ref={setSectionRef(sectionIndex)}
           >
             <h2 className={styles.sectionTitle}>{section.title}</h2>
             {section.sections.map((sub, subIndex) => (

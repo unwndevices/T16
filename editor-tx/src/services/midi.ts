@@ -27,8 +27,8 @@ export async function enableMidi(): Promise<void> {
 /**
  * Disable WebMIDI and release all resources.
  */
-export function disableMidi(): void {
-  WebMidi.disable()
+export async function disableMidi(): Promise<void> {
+  await WebMidi.disable()
 }
 
 /**

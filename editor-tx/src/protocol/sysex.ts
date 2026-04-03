@@ -54,16 +54,18 @@ export const FIELD_BANK = {
 // Note: webmidi.js output.sendSysex(manufacturerId, data) automatically
 // wraps with F0 <manufacturerId> ... F7. Do NOT include manufacturer ID in data array.
 
-export function requestVersion(output: any): void {
+import type { Output } from 'webmidi'
+
+export function requestVersion(output: Output): void {
   output.sendSysex(MANUFACTURER_ID, [CMD.VERSION, SUB.REQUEST])
 }
 
-export function requestConfigDump(output: any): void {
+export function requestConfigDump(output: Output): void {
   output.sendSysex(MANUFACTURER_ID, [CMD.CONFIG, SUB.REQUEST])
 }
 
 export function sendParamUpdate(
-  output: any,
+  output: Output,
   domain: number,
   bankIndex: number,
   fieldId: number,
@@ -75,7 +77,7 @@ export function sendParamUpdate(
   ])
 }
 
-export function sendFullConfig(output: any, config: object): void {
+export function sendFullConfig(output: Output, config: object): void {
   const json = JSON.stringify(config)
   const data = Array.from(json).map(c => c.charCodeAt(0))
   output.sendSysex(MANUFACTURER_ID, [CMD.CONFIG, SUB.LOAD, ...data])

@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { ESPLoader } from 'esptool-js'
+import { ESPLoader, Transport } from 'esptool-js'
 import { Button, Card } from '@/design-system'
 import { useToast } from '@/hooks/useToast'
 import { useConnection } from '@/hooks/useConnection'
@@ -22,8 +22,8 @@ interface ReleaseNotesMap {
     releaseDate: string
     releaseNotes: {
       Highlights: string
-      Bugfixes: string[]
-      Improvements: string[]
+      Bugfixes?: string[]
+      Improvements?: string[]
     }
   }
 }
@@ -71,15 +71,15 @@ export function Upload() {
   const { isConnected: isMidiConnected } = useConnection()
 
   useEffect(() => {
-    const notes = releaseNotes as ReleaseNotesMap
+    const notes = releaseNotes as unknown as ReleaseNotesMap
     const parsed: FirmwareRelease[] = Object.entries(notes).map(
       ([version, data]) => ({
         version,
         fileName: data.fileName,
         releaseDate: data.releaseDate,
         highlights: data.releaseNotes.Highlights,
-        bugfixes: data.releaseNotes.Bugfixes,
-        improvements: data.releaseNotes.Improvements,
+        bugfixes: data.releaseNotes.Bugfixes ?? [],
+        improvements: data.releaseNotes.Improvements ?? [],
       })
     )
     setFirmwares(parsed)
@@ -95,31 +95,33 @@ export function Upload() {
 
   const handleConnect = async () => {
     try {
-      const port = await navigator.serial.requestPort()
+      // Web Serial API is not in standard TypeScript DOM types
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+      const port = await (navigator as any).serial.requestPort()
+      const transport = new Transport(port)
       const esploader = new ESPLoader({
-        transport: 'web-serial',
+        transport,
         baudrate: 921600,
-        port: port,
-      } as ConstructorParameters<typeof ESPLoader>[0])
+      })
 
       await esploader.main()
       await esploader.flashId()
       espLoaderRef.current = esploader
       setIsSerialConnected(true)
-      toast('Connected successfully', 'success')
+      toast({ title: 'Connected successfully', variant: 'success' })
     } catch (error) {
       console.error('Connection failed:', error)
-      toast('Connection failed. Check that your T16 is plugged in and no other app is using it.', 'error')
+      toast({ title: 'Connection failed. Check that your T16 is plugged in and no other app is using it.', variant: 'error' })
     }
   }
 
   const handleUpload = useCallback(async () => {
     if (!selectedFirmware) {
-      toast('Please select a firmware version before uploading.', 'error')
+      toast({ title: 'Please select a firmware version before uploading.', variant: 'error' })
       return
     }
     if (!espLoaderRef.current) {
-      toast('Device not connected. Connect first.', 'error')
+      toast({ title: 'Device not connected. Connect first.', variant: 'error' })
       return
     }
 
@@ -138,12 +140,8 @@ export function Upload() {
       }
 
       const blob = await response.blob()
-      const reader = new FileReader()
-      const firmwareData = await new Promise<string>((resolve, reject) => {
-        reader.onload = (e) => resolve(e.target?.result as string)
-        reader.onerror = (e) => reject(e)
-        reader.readAsBinaryString(blob)
-      })
+      const arrayBuffer = await blob.arrayBuffer()
+      const firmwareData = new Uint8Array(arrayBuffer)
 
       const fileArray = [
         {
@@ -152,22 +150,22 @@ export function Upload() {
         },
       ]
 
-      const flashOptions = {
-        fileArray: fileArray,
+      await espLoaderRef.current.writeFlash({
+        fileArray,
         flashSize: 'keep',
+        flashMode: 'keep',
+        flashFreq: 'keep',
         eraseAll: false,
         compress: true,
         reportProgress: (_fileIndex: number, written: number, total: number) => {
           const pct = Math.floor((written / total) * 100)
           setProgress(pct)
         },
-      }
-
-      await espLoaderRef.current.writeFlash(flashOptions)
-      toast('Firmware uploaded successfully', 'success')
+      })
+      toast({ title: 'Firmware uploaded successfully', variant: 'success' })
     } catch (error) {
       console.error('Upload failed:', error)
-      toast('Upload failed. Please try again.', 'error')
+      toast({ title: 'Upload failed. Please try again.', variant: 'error' })
     } finally {
       setIsUploading(false)
       setProgress(0)
