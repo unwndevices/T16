@@ -38,22 +38,22 @@ created: 2026-04-03
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 02-01-01 | 01 | 0 | FWARCH-01 | unit | `pio test -e native -f test_mode_manager` | ❌ W0 | ⬜ pending |
-| 02-02-01 | 02 | 0 | FWARCH-05 | unit | `pio test -e native -f test_transport` | ❌ W0 | ⬜ pending |
-| 02-03-01 | 03 | 0 | FWBUG-02 | unit | `pio test -e native -f test_slider` | ❌ W0 | ⬜ pending |
-| 02-04-01 | 04 | 0 | TEST-01 | unit | `pio test -e native -f test_input_processor` | ❌ W0 | ⬜ pending |
+| 02-06-01 | 06 | 4 | FWARCH-01 | unit | `pio test -e native -f test_mode_manager` | ❌ W4 | ⬜ pending |
+| 02-06-01 | 06 | 4 | FWARCH-05 | unit | `pio test -e native -f test_transport` | ❌ W4 | ⬜ pending |
+| 02-06-01 | 06 | 4 | FWBUG-02 | unit | `pio test -e native -f test_slider` | ❌ W4 | ⬜ pending |
+| 02-06-02 | 06 | 4 | TEST-01 | unit | `pio test -e native -f test_input_processor` | ❌ W4 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
 ---
 
-## Wave 0 Requirements
+## Wave 4 Test Requirements
 
 - [ ] `test/test_mode_manager/test_main.cpp` — ModeManager transitions, allowed slider modes
 - [ ] `test/test_transport/test_main.cpp` — transport abstraction dispatch (mock transports)
-- [ ] `test/test_slider/test_main.cpp` — SetPosition bug fix verification
+- [ ] `test/test_slider/test_main.cpp` — SetPosition bug fix verification (FWBUG-02)
 - [ ] `test/test_input_processor/test_main.cpp` — key-to-note mapping
-- [ ] Native test stubs may need extension for Mode/SliderMode enums
+- [ ] Native test stubs may need extension for Mode/SliderMode enums and TouchSlider hardware deps
 
 ---
 
@@ -69,9 +69,9 @@ created: 2026-04-03
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
+- [ ] All tasks have `<automated>` verify or Wave 4 dependencies
 - [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
+- [ ] Wave 4 covers all MISSING references
 - [ ] No watch-mode flags
 - [ ] Feedback latency < 5s
 - [ ] `nyquist_compliant: true` set in frontmatter
