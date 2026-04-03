@@ -2,7 +2,8 @@
 
 #include <FastLED.h>
 
-DEFINE_GRADIENT_PALETTE(unwn_gp){0, 255, 246, 197, 128, 255, 178, 28, 255, 255, 83, 0};
-DEFINE_GRADIENT_PALETTE(topo_gp){0, 0, 107, 189, 128, 255, 147, 0, 255, 0, 255, 121};
-DEFINE_GRADIENT_PALETTE(alt_gp){0, 189, 70, 70, 255, 78, 75, 232};
-DEFINE_GRADIENT_PALETTE(acid_gp){0, 126, 255, 36, 255, 130, 0, 255};
+// Palette forward declarations -- definitions in Palettes.cpp
+DECLARE_GRADIENT_PALETTE(unwn_gp);
+DECLARE_GRADIENT_PALETTE(topo_gp);
+DECLARE_GRADIENT_PALETTE(alt_gp);
+DECLARE_GRADIENT_PALETTE(acid_gp);

@@ -24,6 +24,7 @@ public:
     void processStrum(int idx, Key::State state);
     void processQuickSettings(int idx, Key::State state);
     void applyConfiguration();
+    void onModeChanged(Mode mode);
     void onBankChange();
 
     // Strum state accessors (used by SliderProcessor for STRUMMING mode)

@@ -182,4 +182,44 @@ void InputProcessor::applyConfiguration()
     ledManager_.UpdateTransition();
 }
 
+void InputProcessor::onModeChanged(Mode mode)
+{
+    // Transition LED pattern for the new mode
+    ledManager_.TransitionToModePattern(mode);
+
+    // Wire keyboard callbacks based on mode
+    keyboard_.RemoveOnStateChanged();
+    switch (mode)
+    {
+    case KEYBOARD:
+        keyboard_.SetOnStateChanged([this](int idx, Key::State state) {
+            processKey(idx, state);
+        });
+        keyboard_.SetMode(KEYBOARD);
+        break;
+    case XY_PAD:
+        keyboard_.SetMode(XY_PAD);
+        break;
+    case STRIPS:
+        keyboard_.SetMode(STRIPS);
+        break;
+    case STRUM:
+        keyboard_.SetOnStateChanged([this](int idx, Key::State state) {
+            processStrum(idx, state);
+        });
+        keyboard_.SetMode(STRUM);
+        processStrum(0, Key::State::PRESSED);
+        break;
+    case QUICK_SETTINGS:
+        keyboard_.SetOnStateChanged([this](int idx, Key::State state) {
+            processQuickSettings(idx, state);
+        });
+        LoadQuickSettings(params_.bank);
+        processQuickSettings(0, Key::State::PRESSED);
+        break;
+    default:
+        break;
+    }
+}
+
 } // namespace t16

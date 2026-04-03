@@ -45,7 +45,7 @@ void ButtonHandler::handleButton(int idx, Button::State state)
                 nextMode = KEYBOARD;
             }
             modeManager_.setMode(nextMode);
-            inputProcessor_.applyConfiguration();
+            inputProcessor_.onModeChanged(nextMode);
             sliderProcessor_.onSliderModeChanged();
         }
     }
@@ -61,7 +61,7 @@ void ButtonHandler::handleButton(int idx, Button::State state)
                     log_d("Both buttons long pressed");
                     log_d("Entering Quick Settings mode");
                     modeManager_.setMode(QUICK_SETTINGS);
-                    inputProcessor_.applyConfiguration();
+                    inputProcessor_.onModeChanged(QUICK_SETTINGS);
                     sliderProcessor_.onSliderModeChanged();
                 }
                 else
@@ -72,7 +72,7 @@ void ButtonHandler::handleButton(int idx, Button::State state)
                     configManager_.Save(true);
                     log_d("Saved configuration");
                     modeManager_.setMode(KEYBOARD);
-                    inputProcessor_.applyConfiguration();
+                    inputProcessor_.onModeChanged(KEYBOARD);
                     sliderProcessor_.onSliderModeChanged();
                 }
             }
@@ -92,7 +92,7 @@ void ButtonHandler::handleButton(int idx, Button::State state)
                     log_d("Both buttons long pressed");
                     log_d("Entering Quick Settings mode");
                     modeManager_.setMode(QUICK_SETTINGS);
-                    inputProcessor_.applyConfiguration();
+                    inputProcessor_.onModeChanged(QUICK_SETTINGS);
                     sliderProcessor_.onSliderModeChanged();
                 }
                 else
@@ -103,7 +103,7 @@ void ButtonHandler::handleButton(int idx, Button::State state)
                     configManager_.Save(true);
                     log_d("Saved configuration");
                     modeManager_.setMode(KEYBOARD);
-                    inputProcessor_.applyConfiguration();
+                    inputProcessor_.onModeChanged(KEYBOARD);
                     sliderProcessor_.onSliderModeChanged();
                 }
             }

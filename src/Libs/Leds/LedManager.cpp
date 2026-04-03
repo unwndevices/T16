@@ -231,6 +231,31 @@ void LedManager::TransitionToPattern(std::unique_ptr<Pattern> pattern)
     currentPattern_ = std::make_unique<WaveTransition>();
 }
 
+void LedManager::TransitionToModePattern(Mode mode)
+{
+    switch (mode)
+    {
+    case KEYBOARD:
+        TransitionToPattern(std::make_unique<NoBlur>());
+        break;
+    case XY_PAD:
+        TransitionToPattern(std::make_unique<TouchBlur>());
+        break;
+    case STRIPS:
+        TransitionToPattern(std::make_unique<Strips>());
+        break;
+    case STRUM:
+        TransitionToPattern(std::make_unique<Strum>());
+        break;
+    case QUICK_SETTINGS:
+        TransitionToPattern(std::make_unique<QuickSettings>());
+        break;
+    default:
+        TransitionToPattern(std::make_unique<NoBlur>());
+        break;
+    }
+}
+
 void LedManager::UpdateTransition()
 {
     if (nextPattern_ && !nextPattern_->isTransition)

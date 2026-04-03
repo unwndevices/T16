@@ -4,6 +4,7 @@
 #include <FastLED.h>
 #include <memory>
 #include "pinout.h"
+#include "../../Types.hpp"
 
 #define kMatrixWidth 4  // Matrix width [4]
 #define kMatrixHeight 4 // Matrix height [4]
@@ -57,6 +58,7 @@ public:
 
     void SetPattern(std::unique_ptr<Pattern> pattern);
     void TransitionToPattern(std::unique_ptr<Pattern> pattern);
+    void TransitionToModePattern(Mode mode);
     void UpdateTransition();
 
     void SetSliderHue(uint8_t hue);
