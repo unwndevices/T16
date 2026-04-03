@@ -1,0 +1,27 @@
+.content {
+  background: var(--gray-800);
+  color: var(--white);
+  font-size: var(--text-xs);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  line-height: 1.4;
+  max-width: 240px;
+  animation: fadeIn 150ms ease-out;
+  z-index: 300;
+  user-select: none;
+}
+
+.arrow {
+  fill: var(--gray-800);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

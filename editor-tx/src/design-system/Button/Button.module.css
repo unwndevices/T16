@@ -1,0 +1,121 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--primary-800);
+  outline-offset: 2px;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Sizes */
+.sm {
+  height: 32px;
+  padding: 0 var(--space-sm);
+  font-size: var(--text-xs);
+}
+
+.md {
+  height: 40px;
+  padding: 0 var(--space-md);
+  font-size: var(--text-sm);
+}
+
+/* Variants */
+.primary {
+  background: var(--primary-800);
+  color: var(--white);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--primary-700);
+}
+
+.primary:active:not(:disabled) {
+  background: var(--primary-900);
+}
+
+.secondary {
+  background: var(--gray-50);
+  color: var(--gray-800);
+  border-color: var(--gray-200);
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--gray-100);
+  border-color: var(--gray-300);
+}
+
+.secondary:active:not(:disabled) {
+  background: var(--gray-200);
+}
+
+.destructive {
+  background: var(--color-error);
+  color: var(--white);
+}
+
+.destructive:hover:not(:disabled) {
+  background: #cc3a27;
+}
+
+.destructive:active:not(:disabled) {
+  background: #b33322;
+}
+
+.ghost {
+  background: transparent;
+  color: var(--gray-600);
+}
+
+.ghost:hover:not(:disabled) {
+  background: var(--gray-100);
+  color: var(--gray-800);
+}
+
+.ghost:active:not(:disabled) {
+  background: var(--gray-200);
+}
+
+/* Loading */
+.loading {
+  position: relative;
+  color: transparent;
+}
+
+.spinner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 600ms linear infinite;
+  color: var(--white);
+}
+
+.secondary .spinner,
+.ghost .spinner {
+  color: var(--gray-600);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
