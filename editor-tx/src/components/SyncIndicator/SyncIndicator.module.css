@@ -1,0 +1,20 @@
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background-color 150ms ease-out;
+}
+
+.synced {
+  background-color: var(--color-success);
+}
+
+.unsynced {
+  background-color: var(--color-warning);
+}
+
+.disconnected {
+  background-color: var(--color-error);
+}
