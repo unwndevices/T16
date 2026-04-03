@@ -2,18 +2,9 @@
 #define KEYBOARD_HPP
 
 #include <stdint.h>
-#include "adc.hpp"
+#include "Adc.hpp"
 #include "Signal.hpp"
-
-enum Mode
-{
-    KEYBOARD,
-    STRUM,
-    XY_PAD,
-    STRIPS,
-    QUICK_SETTINGS,
-    MODE_AMOUNT
-};
+#include "../Types.hpp"
 
 float fmap(float x, float in_min, float in_max, float out_min, float out_max)
 {

@@ -52,18 +52,7 @@ Button t_btn(PIN_TOUCH);
 Button m_btn(PIN_MODE);
 
 #include "Scales.hpp"
-
-enum SliderMode
-{
-    BEND,
-    OCTAVE,
-    MOD,
-    BANK,
-    SLEW,
-    STRUMMING,
-    QUICK,
-    SLIDER_MODE_AMOUNT
-};
+#include "Types.hpp"
 
 /////////////////////////
 // Data
