@@ -38,12 +38,12 @@ export function ToastProvider({ children }: ToastProviderProps) {
       open: true,
     }
 
-    setToasts(prev => [...prev, newToast])
+    setToasts((prev) => [...prev, newToast])
   }, [])
 
   const handleOpenChange = useCallback((id: number, open: boolean) => {
     if (!open) {
-      setToasts(prev => prev.filter(t => t.id !== id))
+      setToasts((prev) => prev.filter((t) => t.id !== id))
     }
   }, [])
 
@@ -53,18 +53,16 @@ export function ToastProvider({ children }: ToastProviderProps) {
     <ToastContext.Provider value={value}>
       <Toast.Provider duration={AUTO_DISMISS_MS}>
         {children}
-        {toasts.map(t => (
+        {toasts.map((t) => (
           <Toast.Root
             key={t.id}
             open={t.open}
-            onOpenChange={open => handleOpenChange(t.id, open)}
+            onOpenChange={(open) => handleOpenChange(t.id, open)}
             className={`toast-root toast-${t.variant ?? 'default'}`}
           >
             <Toast.Title className="toast-title">{t.title}</Toast.Title>
             {t.description && (
-              <Toast.Description className="toast-description">
-                {t.description}
-              </Toast.Description>
+              <Toast.Description className="toast-description">{t.description}</Toast.Description>
             )}
             <Toast.Close className="toast-close" aria-label="Close">
               x

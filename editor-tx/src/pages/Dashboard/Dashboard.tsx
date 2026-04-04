@@ -2,9 +2,18 @@ import { useState } from 'react'
 import { useConnection } from '@/hooks/useConnection'
 import { useConfig } from '@/hooks/useConfig'
 import {
-  Tabs, TabsList, TabsTrigger, TabsContent,
-  Button, Skeleton,
-  Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  Button,
+  Skeleton,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
 } from '@/design-system'
 import { DOMAIN, FIELD_GLOBAL, FIELD_BANK } from '@/protocol/sysex'
 import { BankSelector } from '@/components/BankSelector/BankSelector'
@@ -19,11 +28,25 @@ import styles from './Dashboard.module.css'
 // --- Data constants ---
 
 const SCALES = [
-  'Chromatic', 'Ionian', 'Dorian', 'Phrygian', 'Lydian',
-  'Mixolydian', 'Aeolian', 'Locrian', 'Major Pentatonic',
-  'Minor Pentatonic', 'Blues', 'Whole Tone', 'Diminished',
-  'Augmented', 'Harmonic Minor', 'Melodic Minor', 'Japanese',
-  'Custom Scale 1', 'Custom Scale 2',
+  'Chromatic',
+  'Ionian',
+  'Dorian',
+  'Phrygian',
+  'Lydian',
+  'Mixolydian',
+  'Aeolian',
+  'Locrian',
+  'Major Pentatonic',
+  'Minor Pentatonic',
+  'Blues',
+  'Whole Tone',
+  'Diminished',
+  'Augmented',
+  'Harmonic Minor',
+  'Melodic Minor',
+  'Japanese',
+  'Custom Scale 1',
+  'Custom Scale 2',
 ]
 
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
@@ -355,8 +378,8 @@ function SettingsTab() {
           <DialogContent>
             <DialogTitle>Start Calibration</DialogTitle>
             <DialogDescription>
-              This will reset all key sensitivity data. The device will restart and
-              guide you through the calibration process. Continue?
+              This will reset all key sensitivity data. The device will restart and guide you
+              through the calibration process. Continue?
             </DialogDescription>
             <div className={styles.dialogActions}>
               <DialogClose>
@@ -382,8 +405,8 @@ function SettingsTab() {
           <DialogContent>
             <DialogTitle>Factory Reset</DialogTitle>
             <DialogDescription>
-              This will erase all configuration and restore defaults. This cannot be
-              undone. Reset device?
+              This will erase all configuration and restore defaults. This cannot be undone. Reset
+              device?
             </DialogDescription>
             <div className={styles.dialogActions}>
               <DialogClose>

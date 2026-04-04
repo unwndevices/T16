@@ -8,12 +8,7 @@ interface SwitchProps {
   disabled?: boolean
 }
 
-export function Switch({
-  label,
-  checked,
-  onCheckedChange,
-  disabled = false,
-}: SwitchProps) {
+export function Switch({ label, checked, onCheckedChange, disabled = false }: SwitchProps) {
   return (
     <div className={styles.wrapper}>
       <RadixSwitch.Root

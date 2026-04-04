@@ -33,9 +33,7 @@ function ReleaseNotesCard({ firmware }: { firmware: FirmwareRelease | null }) {
 
   return (
     <Card title={`Release Notes - ${firmware.version}`}>
-      {firmware.highlights && (
-        <p className={styles.highlights}>{firmware.highlights}</p>
-      )}
+      {firmware.highlights && <p className={styles.highlights}>{firmware.highlights}</p>}
       {firmware.bugfixes && firmware.bugfixes.length > 0 && (
         <div className={styles.notesSection}>
           <h4 className={styles.notesSectionTitle}>Bugfixes</h4>
@@ -72,16 +70,14 @@ export function Upload() {
 
   useEffect(() => {
     const notes = releaseNotes as unknown as ReleaseNotesMap
-    const parsed: FirmwareRelease[] = Object.entries(notes).map(
-      ([version, data]) => ({
-        version,
-        fileName: data.fileName,
-        releaseDate: data.releaseDate,
-        highlights: data.releaseNotes.Highlights,
-        bugfixes: data.releaseNotes.Bugfixes ?? [],
-        improvements: data.releaseNotes.Improvements ?? [],
-      })
-    )
+    const parsed: FirmwareRelease[] = Object.entries(notes).map(([version, data]) => ({
+      version,
+      fileName: data.fileName,
+      releaseDate: data.releaseDate,
+      highlights: data.releaseNotes.Highlights,
+      bugfixes: data.releaseNotes.Bugfixes ?? [],
+      improvements: data.releaseNotes.Improvements ?? [],
+    }))
     setFirmwares(parsed)
     if (parsed.length > 0) {
       setSelectedFirmware(parsed[0])
@@ -111,7 +107,10 @@ export function Upload() {
       toast({ title: 'Connected successfully', variant: 'success' })
     } catch (error) {
       console.error('Connection failed:', error)
-      toast({ title: 'Connection failed. Check that your T16 is plugged in and no other app is using it.', variant: 'error' })
+      toast({
+        title: 'Connection failed. Check that your T16 is plugged in and no other app is using it.',
+        variant: 'error',
+      })
     }
   }
 
@@ -131,7 +130,7 @@ export function Upload() {
     try {
       const firmwareUrl = new URL(
         `../../assets/firmwares/${selectedFirmware.fileName}`,
-        import.meta.url
+        import.meta.url,
       ).href
       const response = await fetch(firmwareUrl)
 
@@ -189,21 +188,18 @@ export function Upload() {
           <h3 className={styles.instructionsTitle}>How to update</h3>
           <ol className={styles.instructionsList}>
             <li>
-              Hold the <strong>MODE button</strong> down while plugging in your
-              device. All LEDs will stay off during the procedure.
+              Hold the <strong>MODE button</strong> down while plugging in your device. All LEDs
+              will stay off during the procedure.
             </li>
             <li>
-              Click <strong>"Connect Device"</strong>. A popup will appear --
-              select <strong>"USB JTAG/Serial debug unit"</strong> and click{' '}
-              <strong>"Connect"</strong>.
+              Click <strong>"Connect Device"</strong>. A popup will appear -- select{' '}
+              <strong>"USB JTAG/Serial debug unit"</strong> and click <strong>"Connect"</strong>.
             </li>
             <li>
-              Select a firmware version and click{' '}
-              <strong>"Update Firmware"</strong>.
+              Select a firmware version and click <strong>"Update Firmware"</strong>.
             </li>
             <li>
-              Once complete, <strong>unplug</strong> the device to exit Update
-              mode.
+              Once complete, <strong>unplug</strong> the device to exit Update mode.
             </li>
           </ol>
         </div>
@@ -211,8 +207,7 @@ export function Upload() {
 
       {isMidiConnected && (
         <div className={styles.warning}>
-          Your device is connected via MIDI. You may need to disconnect it
-          before flashing firmware.
+          Your device is connected via MIDI. You may need to disconnect it before flashing firmware.
         </div>
       )}
 
@@ -243,20 +238,13 @@ export function Upload() {
           variant={isSerialConnected ? 'primary' : 'secondary'}
           disabled={isUploading}
         >
-          {isUploading
-            ? 'Uploading...'
-            : isSerialConnected
-              ? 'Update Firmware'
-              : 'Connect Device'}
+          {isUploading ? 'Uploading...' : isSerialConnected ? 'Update Firmware' : 'Connect Device'}
         </Button>
 
         {isUploading && (
           <div className={styles.progressContainer}>
             <div className={styles.progressBar}>
-              <div
-                className={styles.progressFill}
-                style={{ width: `${progress}%` }}
-              />
+              <div className={styles.progressFill} style={{ width: `${progress}%` }} />
             </div>
             <span className={styles.progressText}>{progress}%</span>
           </div>

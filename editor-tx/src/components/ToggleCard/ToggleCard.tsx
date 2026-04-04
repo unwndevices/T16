@@ -23,11 +23,7 @@ export function ToggleCard({
           {showSyncDot ? <span className={styles.syncDot} /> : null}
           <span className={styles.label}>{label}</span>
         </div>
-        <Switch
-          checked={checked}
-          onCheckedChange={onCheckedChange}
-          disabled={disabled}
-        />
+        <Switch checked={checked} onCheckedChange={onCheckedChange} disabled={disabled} />
       </div>
     </Card>
   )

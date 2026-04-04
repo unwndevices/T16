@@ -7,12 +7,7 @@ interface SkeletonProps {
   className?: string
 }
 
-export function Skeleton({
-  width,
-  height = 16,
-  borderRadius,
-  className,
-}: SkeletonProps) {
+export function Skeleton({ width, height = 16, borderRadius, className }: SkeletonProps) {
   const classNames = [styles.skeleton, className].filter(Boolean).join(' ')
 
   return (

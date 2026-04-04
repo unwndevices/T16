@@ -6,15 +6,8 @@ interface TooltipProviderProps {
   delayDuration?: number
 }
 
-export function TooltipProvider({
-  children,
-  delayDuration = 300,
-}: TooltipProviderProps) {
-  return (
-    <RadixTooltip.Provider delayDuration={delayDuration}>
-      {children}
-    </RadixTooltip.Provider>
-  )
+export function TooltipProvider({ children, delayDuration = 300 }: TooltipProviderProps) {
+  return <RadixTooltip.Provider delayDuration={delayDuration}>{children}</RadixTooltip.Provider>
 }
 
 interface TooltipProps {
@@ -33,11 +26,7 @@ interface TooltipTriggerProps {
 }
 
 export function TooltipTrigger({ children, asChild = true }: TooltipTriggerProps) {
-  return (
-    <RadixTooltip.Trigger asChild={asChild}>
-      {children}
-    </RadixTooltip.Trigger>
-  )
+  return <RadixTooltip.Trigger asChild={asChild}>{children}</RadixTooltip.Trigger>
 }
 
 interface TooltipContentProps {
@@ -46,18 +35,10 @@ interface TooltipContentProps {
   sideOffset?: number
 }
 
-export function TooltipContent({
-  children,
-  side = 'top',
-  sideOffset = 4,
-}: TooltipContentProps) {
+export function TooltipContent({ children, side = 'top', sideOffset = 4 }: TooltipContentProps) {
   return (
     <RadixTooltip.Portal>
-      <RadixTooltip.Content
-        className={styles.content}
-        side={side}
-        sideOffset={sideOffset}
-      >
+      <RadixTooltip.Content className={styles.content} side={side} sideOffset={sideOffset}>
         {children}
         <RadixTooltip.Arrow className={styles.arrow} />
       </RadixTooltip.Content>

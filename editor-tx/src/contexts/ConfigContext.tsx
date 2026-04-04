@@ -25,11 +25,36 @@ const DEFAULT_BANK = {
   flip_y: 0,
   koala_mode: 0,
   chs: [1, 1, 1, 1, 1, 1, 1, 1] as [number, number, number, number, number, number, number, number],
-  ids: [13, 14, 15, 16, 17, 18, 19, 20] as [number, number, number, number, number, number, number, number],
+  ids: [13, 14, 15, 16, 17, 18, 19, 20] as [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+  ],
 }
 
-const DEFAULT_SCALE: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number] =
-  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+const DEFAULT_SCALE: [
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 
 export const DEFAULT_CONFIG: T16Configuration = {
   version: 200,
@@ -215,11 +240,7 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
     setConfig,
   }
 
-  return (
-    <ConfigContext.Provider value={value}>
-      {children}
-    </ConfigContext.Provider>
-  )
+  return <ConfigContext.Provider value={value}>{children}</ConfigContext.Provider>
 }
 
 export default ConfigContext

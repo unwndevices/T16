@@ -18,11 +18,7 @@ interface ToastProps {
   children: React.ReactNode
 }
 
-export function Toast({
-  variant = 'default',
-  children,
-  ...props
-}: ToastProps) {
+export function Toast({ variant = 'default', children, ...props }: ToastProps) {
   const classNames = [styles.toast, styles[variant]].join(' ')
 
   return (
@@ -37,11 +33,7 @@ interface ToastTitleProps {
 }
 
 export function ToastTitle({ children }: ToastTitleProps) {
-  return (
-    <RadixToast.Title className={styles.title}>
-      {children}
-    </RadixToast.Title>
-  )
+  return <RadixToast.Title className={styles.title}>{children}</RadixToast.Title>
 }
 
 interface ToastDescriptionProps {
@@ -49,11 +41,7 @@ interface ToastDescriptionProps {
 }
 
 export function ToastDescription({ children }: ToastDescriptionProps) {
-  return (
-    <RadixToast.Description className={styles.description}>
-      {children}
-    </RadixToast.Description>
-  )
+  return <RadixToast.Description className={styles.description}>{children}</RadixToast.Description>
 }
 
 interface ToastCloseProps {
@@ -61,11 +49,7 @@ interface ToastCloseProps {
 }
 
 export function ToastClose({ children }: ToastCloseProps) {
-  return (
-    <RadixToast.Close className={styles.close}>
-      {children ?? <CloseIcon />}
-    </RadixToast.Close>
-  )
+  return <RadixToast.Close className={styles.close}>{children ?? <CloseIcon />}</RadixToast.Close>
 }
 
 function CloseIcon() {

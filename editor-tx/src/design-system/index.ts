@@ -4,7 +4,21 @@ export { Select } from './Select'
 export { Switch } from './Switch'
 export { Slider } from './Slider'
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs'
-export { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose } from './Dialog'
-export { ToastProvider, ToastViewport, Toast, ToastTitle, ToastDescription, ToastClose } from './Toast'
+export {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from './Dialog'
+export {
+  ToastProvider,
+  ToastViewport,
+  Toast,
+  ToastTitle,
+  ToastDescription,
+  ToastClose,
+} from './Toast'
 export { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from './Tooltip'
 export { Skeleton } from './Skeleton'

@@ -1,65 +1,65 @@
 {
-    "v1.0.3": {
-        "fileName": "t16_v1.0.3.bin",
-        "version": 103,
-        "releaseDate": "29/07/2024",
-        "releaseNotes": {
-            "Highlights": "Koala Mode!",
-            "Bugfixes": ["fixed breaking bug in the calibration routine"],
-            "Improvements": [
-                "Added filters to the midi monitor, to make it easier to read the data",
-                "Added the \"Koala\" mode, which greatly improves usability with Koala Sampler"
-            ]
-        }
-    },
-    "v1.0.2": {
-        "fileName": "t16_v1.0.2.bin",
-        "version": 102,
-        "releaseDate": "20/07/2024",
-        "releaseNotes": {
-            "Highlights": "(Moar Bugs fixed + MIDI Monitor)",
-            "Bugfixes": [
-                "fixed crashes in strum mode",
-                "fixed slider leds not lighting up correctly",
-                "pressure in XY and Fader is now correctly calculated",
-                "fixed a bug where the default mode wouldn't apply.",
-                "fixed bug in the octave slider"
-            ],
-            "Improvements": [
-                "Added a Midi monitor to the web editor to check sent midi messages",
-                "In strum mode, key pressure is now sent as aftertouch.",
-                "Improved the Calibration routine to be more accurate and easier to use.",
-                "Improved the touch slider initialization.",
-                "Added per-parameter sync status indicators to the web editor."
-            ]
-        }
-    },
-    "v1.0.1": {
-        "fileName": "t16_v1.0.1.bin",
-        "version": 101,
-        "releaseDate": "11/07/2024",
-        "releaseNotes": {
-            "Highlights": "squashed bugs and improved reliability",
-            "Bugfixes": [
-                "lowered max brightness (to avoid power-starvation on old usb adapters)",
-                "fixed mod-wheel to correctly output 0-127 values",
-                "fixed quick-setting out of bounds bug",
-                "corrected default cc channels and ids to non-zero"
-            ],
-            "Improvements": [
-                "added a key sensitivity setting to the web editor",
-                "added option to start the sensor calibration routine from editor",
-                "added a brand new firmware update tool to Topo's website ",
-                "changed layout of the web editor to be more compact and easier to use"
-            ]
-        }
-    },
-    "v1.0.0": {
-        "fileName": "t16_v1.0.0.bin",
-        "version": 100,
-        "releaseDate": "03/06/2024",
-        "releaseNotes": {
-            "Highlights": "initial release"
-        }
+  "v1.0.3": {
+    "fileName": "t16_v1.0.3.bin",
+    "version": 103,
+    "releaseDate": "29/07/2024",
+    "releaseNotes": {
+      "Highlights": "Koala Mode!",
+      "Bugfixes": ["fixed breaking bug in the calibration routine"],
+      "Improvements": [
+        "Added filters to the midi monitor, to make it easier to read the data",
+        "Added the \"Koala\" mode, which greatly improves usability with Koala Sampler"
+      ]
     }
+  },
+  "v1.0.2": {
+    "fileName": "t16_v1.0.2.bin",
+    "version": 102,
+    "releaseDate": "20/07/2024",
+    "releaseNotes": {
+      "Highlights": "(Moar Bugs fixed + MIDI Monitor)",
+      "Bugfixes": [
+        "fixed crashes in strum mode",
+        "fixed slider leds not lighting up correctly",
+        "pressure in XY and Fader is now correctly calculated",
+        "fixed a bug where the default mode wouldn't apply.",
+        "fixed bug in the octave slider"
+      ],
+      "Improvements": [
+        "Added a Midi monitor to the web editor to check sent midi messages",
+        "In strum mode, key pressure is now sent as aftertouch.",
+        "Improved the Calibration routine to be more accurate and easier to use.",
+        "Improved the touch slider initialization.",
+        "Added per-parameter sync status indicators to the web editor."
+      ]
+    }
+  },
+  "v1.0.1": {
+    "fileName": "t16_v1.0.1.bin",
+    "version": 101,
+    "releaseDate": "11/07/2024",
+    "releaseNotes": {
+      "Highlights": "squashed bugs and improved reliability",
+      "Bugfixes": [
+        "lowered max brightness (to avoid power-starvation on old usb adapters)",
+        "fixed mod-wheel to correctly output 0-127 values",
+        "fixed quick-setting out of bounds bug",
+        "corrected default cc channels and ids to non-zero"
+      ],
+      "Improvements": [
+        "added a key sensitivity setting to the web editor",
+        "added option to start the sensor calibration routine from editor",
+        "added a brand new firmware update tool to Topo's website ",
+        "changed layout of the web editor to be more compact and easier to use"
+      ]
+    }
+  },
+  "v1.0.0": {
+    "fileName": "t16_v1.0.0.bin",
+    "version": 100,
+    "releaseDate": "03/06/2024",
+    "releaseNotes": {
+      "Highlights": "initial release"
+    }
+  }
 }

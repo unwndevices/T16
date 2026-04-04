@@ -21,11 +21,7 @@ interface TabsListProps {
 }
 
 export function TabsList({ children }: TabsListProps) {
-  return (
-    <RadixTabs.List className={styles.list}>
-      {children}
-    </RadixTabs.List>
-  )
+  return <RadixTabs.List className={styles.list}>{children}</RadixTabs.List>
 }
 
 interface TabsTriggerProps {
@@ -36,11 +32,7 @@ interface TabsTriggerProps {
 
 export function TabsTrigger({ value, children, disabled }: TabsTriggerProps) {
   return (
-    <RadixTabs.Trigger
-      className={styles.trigger}
-      value={value}
-      disabled={disabled}
-    >
+    <RadixTabs.Trigger className={styles.trigger} value={value} disabled={disabled}>
       {children}
     </RadixTabs.Trigger>
   )

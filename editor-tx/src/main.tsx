@@ -21,5 +21,5 @@ createRoot(document.getElementById('root')!).render(
         </ConfigProvider>
       </ConnectionProvider>
     </ToastProvider>
-  </StrictMode>
+  </StrictMode>,
 )

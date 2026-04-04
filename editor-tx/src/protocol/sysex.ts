@@ -1,5 +1,5 @@
 // SysEx protocol constants — MUST match src/SysExProtocol.hpp exactly
-export const MANUFACTURER_ID = 0x7D
+export const MANUFACTURER_ID = 0x7d
 
 export const CMD = {
   VERSION: 0x01,
@@ -69,16 +69,13 @@ export function sendParamUpdate(
   domain: number,
   bankIndex: number,
   fieldId: number,
-  value: number
+  value: number,
 ): void {
-  output.sendSysex(MANUFACTURER_ID, [
-    CMD.PARAM, SUB.REQUEST,
-    domain, bankIndex, fieldId, value
-  ])
+  output.sendSysex(MANUFACTURER_ID, [CMD.PARAM, SUB.REQUEST, domain, bankIndex, fieldId, value])
 }
 
 export function sendFullConfig(output: Output, config: object): void {
   const json = JSON.stringify(config)
-  const data = Array.from(json).map(c => c.charCodeAt(0))
+  const data = Array.from(json).map((c) => c.charCodeAt(0))
   output.sendSysex(MANUFACTURER_ID, [CMD.CONFIG, SUB.LOAD, ...data])
 }

@@ -114,11 +114,7 @@ export function ConnectionProvider({ children }: ConnectionProviderProps) {
     setDemo,
   }
 
-  return (
-    <ConnectionContext.Provider value={value}>
-      {children}
-    </ConnectionContext.Provider>
-  )
+  return <ConnectionContext.Provider value={value}>{children}</ConnectionContext.Provider>
 }
 
 export default ConnectionContext

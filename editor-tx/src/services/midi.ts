@@ -111,7 +111,7 @@ export function parseSysExMessage(data: Uint8Array): {
  */
 export function parseConfigDump(payload: Uint8Array): T16Configuration {
   const jsonString = Array.from(payload)
-    .map(byte => String.fromCharCode(byte))
+    .map((byte) => String.fromCharCode(byte))
     .join('')
   return JSON.parse(jsonString) as T16Configuration
 }

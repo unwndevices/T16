@@ -33,12 +33,7 @@ export function Button({
     .join(' ')
 
   return (
-    <button
-      ref={ref}
-      className={classNames}
-      disabled={disabled || loading}
-      {...props}
-    >
+    <button ref={ref} className={classNames} disabled={disabled || loading} {...props}>
       {loading ? <span className={styles.spinner} /> : null}
       {children}
     </button>

@@ -17,9 +17,7 @@ export function NavBar() {
             <TooltipTrigger>
               <NavLink
                 to="/"
-                className={({ isActive }) =>
-                  `${styles.navLink} ${isActive ? styles.active : ''}`
-                }
+                className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
                 aria-label="Editor"
               >
                 <MdTune size={22} />
@@ -32,9 +30,7 @@ export function NavBar() {
             <TooltipTrigger>
               <NavLink
                 to="/upload"
-                className={({ isActive }) =>
-                  `${styles.navLink} ${isActive ? styles.active : ''}`
-                }
+                className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
                 aria-label="Update"
               >
                 <MdSystemUpdate size={22} />
@@ -47,9 +43,7 @@ export function NavBar() {
             <TooltipTrigger>
               <NavLink
                 to="/manual"
-                className={({ isActive }) =>
-                  `${styles.navLink} ${isActive ? styles.active : ''}`
-                }
+                className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
                 aria-label="Manual"
               >
                 <MdMenuBook size={22} />

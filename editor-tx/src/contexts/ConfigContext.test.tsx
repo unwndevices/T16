@@ -33,7 +33,7 @@ describe('useConfig', () => {
   it('throws when used outside ConfigProvider', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
     expect(() => renderHook(() => useConfig())).toThrow(
-      'useConfig must be used within ConfigProvider'
+      'useConfig must be used within ConfigProvider',
     )
     spy.mockRestore()
   })
@@ -44,7 +44,7 @@ describe('ConfigProvider', () => {
     render(
       <AllProviders>
         <div>config child</div>
-      </AllProviders>
+      </AllProviders>,
     )
     expect(screen.getByText('config child')).toBeInTheDocument()
   })

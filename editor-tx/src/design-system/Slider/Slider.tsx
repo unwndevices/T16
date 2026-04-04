@@ -31,7 +31,9 @@ export function Slider({
       <RadixSlider.Root
         className={styles.root}
         value={[value]}
-        onValueChange={([v]) => { if (v !== undefined) onValueChange(v) }}
+        onValueChange={([v]) => {
+          if (v !== undefined) onValueChange(v)
+        }}
         min={min}
         max={max}
         step={step}

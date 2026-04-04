@@ -16,7 +16,7 @@ describe('useConnection', () => {
     // Suppress console.error for expected error
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
     expect(() => renderHook(() => useConnection())).toThrow(
-      'useConnection must be used within ConnectionProvider'
+      'useConnection must be used within ConnectionProvider',
     )
     spy.mockRestore()
   })
@@ -27,7 +27,7 @@ describe('ConnectionProvider', () => {
     render(
       <ConnectionProvider>
         <div>test child</div>
-      </ConnectionProvider>
+      </ConnectionProvider>,
     )
     expect(screen.getByText('test child')).toBeInTheDocument()
   })

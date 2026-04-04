@@ -24,28 +24,30 @@ import {
 describe('parseSysExMessage', () => {
   it('extracts cmd, sub, and payload from valid SysEx data', () => {
     const data = new Uint8Array([
-      0xF0,              // status byte
-      MANUFACTURER_ID,   // manufacturer
-      CMD.CONFIG,        // command
-      SUB.RESPONSE,      // sub-command
-      0x48, 0x65, 0x6C,  // payload: "Hel"
+      0xf0, // status byte
+      MANUFACTURER_ID, // manufacturer
+      CMD.CONFIG, // command
+      SUB.RESPONSE, // sub-command
+      0x48,
+      0x65,
+      0x6c, // payload: "Hel"
     ])
 
     const result = parseSysExMessage(data)
     expect(result).not.toBeNull()
     expect(result!.cmd).toBe(CMD.CONFIG)
     expect(result!.sub).toBe(SUB.RESPONSE)
-    expect(result!.payload).toEqual(new Uint8Array([0x48, 0x65, 0x6C]))
+    expect(result!.payload).toEqual(new Uint8Array([0x48, 0x65, 0x6c]))
   })
 
   it('returns null for non-matching manufacturer ID', () => {
-    const data = new Uint8Array([0xF0, 0x42, CMD.CONFIG, SUB.RESPONSE])
+    const data = new Uint8Array([0xf0, 0x42, CMD.CONFIG, SUB.RESPONSE])
     const result = parseSysExMessage(data)
     expect(result).toBeNull()
   })
 
   it('handles empty payload', () => {
-    const data = new Uint8Array([0xF0, MANUFACTURER_ID, CMD.VERSION, SUB.REQUEST])
+    const data = new Uint8Array([0xf0, MANUFACTURER_ID, CMD.VERSION, SUB.REQUEST])
     const result = parseSysExMessage(data)
     expect(result).not.toBeNull()
     expect(result!.cmd).toBe(CMD.VERSION)
@@ -72,7 +74,7 @@ describe('parseConfigDump', () => {
       banks: [],
     }
     const json = JSON.stringify(config)
-    const payload = new Uint8Array(Array.from(json).map(c => c.charCodeAt(0)))
+    const payload = new Uint8Array(Array.from(json).map((c) => c.charCodeAt(0)))
 
     const result = parseConfigDump(payload)
     expect(result.version).toBe(200)
@@ -95,10 +97,14 @@ describe('sendParamUpdate', () => {
       3,
     )
 
-    expect(mockOutput.sendSysex).toHaveBeenCalledWith(
-      MANUFACTURER_ID,
-      [CMD.PARAM, SUB.REQUEST, DOMAIN.GLOBAL, 0, FIELD_GLOBAL.BRIGHTNESS, 3],
-    )
+    expect(mockOutput.sendSysex).toHaveBeenCalledWith(MANUFACTURER_ID, [
+      CMD.PARAM,
+      SUB.REQUEST,
+      DOMAIN.GLOBAL,
+      0,
+      FIELD_GLOBAL.BRIGHTNESS,
+      3,
+    ])
   })
 })
 
