@@ -46,6 +46,15 @@
   padding: var(--space-lg) 0;
 }
 
+/* --- Note grid section --- */
+
+.noteGridSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
 /* --- Key grid --- */
 
 .keyGrid {
