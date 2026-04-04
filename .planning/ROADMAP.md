@@ -46,7 +46,7 @@ Plans:
 **Gap Closure:** Closes BLE connection input/output null issue, "BLE MIDI Connection" flow
 **Plans:** 2 plans
 Plans:
-- [ ] 08-01-PLAN.md — BLE MIDI bridge: SysEx framing, reassembly, and transport abstraction (TDD)
+- [x] 08-01-PLAN.md — BLE MIDI bridge: SysEx framing, reassembly, and transport abstraction (TDD)
 - [ ] 08-02-PLAN.md — Wire BLE transport into ConnectionContext, ConfigContext, and sysex.ts
 
 ## Progress
