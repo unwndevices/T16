@@ -157,9 +157,6 @@ function configReducer(state: ConfigReducerState, action: ConfigAction): ConfigR
     case 'SET_BANK':
       return { ...state, selectedBank: action.payload }
 
-    case 'SYNC_CONFIRMED':
-      return { ...state, deviceConfig: structuredClone(state.config) }
-
     default:
       return state
   }

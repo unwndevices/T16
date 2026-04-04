@@ -3,15 +3,8 @@ import { useConnection } from '@/hooks/useConnection'
 import { useMidiMonitor } from '@/hooks/useMidiMonitor'
 import type { MidiMessage } from '@/hooks/useMidiMonitor'
 import { Button } from '@/design-system'
+import { getNoteNameWithOctave } from '@/constants/scales'
 import styles from './Monitor.module.css'
-
-const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-
-function getNoteNameWithOctave(midiNote: number): string {
-  const name = NOTE_NAMES[midiNote % 12]
-  const octave = Math.floor(midiNote / 12) - 1
-  return `${name}${octave}`
-}
 
 function formatTimestamp(ts: number): string {
   return new Date(ts).toLocaleTimeString('en-GB')
