@@ -16,6 +16,7 @@ import {
   DialogClose,
 } from '@/design-system'
 import { DOMAIN, FIELD_GLOBAL, FIELD_BANK } from '@/protocol/sysex'
+import { requestCalibration, requestFactoryReset } from '@/services/midi'
 import { SCALES, NOTE_NAMES, getNoteNameWithOctave, computeNoteMap } from '@/constants/scales'
 import { BankSelector } from '@/components/BankSelector/BankSelector'
 import { NoteGrid } from '@/components/NoteGrid'
@@ -277,6 +278,7 @@ function CcMappingTab() {
 
 function SettingsTab() {
   const { config, deviceConfig, updateParam } = useConfig()
+  const { output } = useConnection()
   const [calibrationOpen, setCalibrationOpen] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
 
@@ -363,7 +365,7 @@ function SettingsTab() {
               <Button
                 variant="destructive"
                 onClick={() => {
-                  // Send calibration command
+                  if (output) requestCalibration(output)
                   setCalibrationOpen(false)
                 }}
               >
@@ -390,7 +392,7 @@ function SettingsTab() {
               <Button
                 variant="destructive"
                 onClick={() => {
-                  // Send factory reset command
+                  if (output) requestFactoryReset(output)
                   setResetOpen(false)
                 }}
               >

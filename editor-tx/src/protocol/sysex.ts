@@ -7,6 +7,7 @@ export const CMD = {
   PARAM: 0x03,
   CALIBRATION: 0x04,
   BOOTLOADER: 0x05,
+  FACTORY_RESET: 0x06,
 } as const
 
 export const SUB = {
@@ -90,6 +91,14 @@ export function sendCCParamUpdate(
 
 export function requestBootloader(output: Output): void {
   output.sendSysex(MANUFACTURER_ID, [CMD.BOOTLOADER, SUB.REQUEST])
+}
+
+export function requestCalibration(output: Output): void {
+  output.sendSysex(MANUFACTURER_ID, [CMD.CALIBRATION, SUB.REQUEST])
+}
+
+export function requestFactoryReset(output: Output): void {
+  output.sendSysex(MANUFACTURER_ID, [CMD.FACTORY_RESET, SUB.REQUEST])
 }
 
 export function sendFullConfig(output: Output, config: object): void {

@@ -11,6 +11,8 @@ import {
   sendParamUpdate as sysexSendParamUpdate,
   sendCCParamUpdate as sysexSendCCParamUpdate,
   sendFullConfig as sysexSendFullConfig,
+  requestCalibration as sysexRequestCalibration,
+  requestFactoryReset as sysexRequestFactoryReset,
 } from '@/protocol/sysex'
 import type { T16Configuration } from '@/types/config'
 
@@ -88,6 +90,20 @@ export function sendCCParamUpdate(
  */
 export function sendFullConfig(output: Output, config: T16Configuration): void {
   sysexSendFullConfig(output, config)
+}
+
+/**
+ * Request calibration reset -- device will delete calibration data and restart.
+ */
+export function requestCalibration(output: Output): void {
+  sysexRequestCalibration(output)
+}
+
+/**
+ * Request factory reset -- device will delete all data and restart.
+ */
+export function requestFactoryReset(output: Output): void {
+  sysexRequestFactoryReset(output)
 }
 
 /**
