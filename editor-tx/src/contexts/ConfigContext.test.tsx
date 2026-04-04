@@ -16,8 +16,19 @@ vi.mock('@/services/midi', () => ({
   parseConfigDump: vi.fn(),
   isConfigResponse: vi.fn(),
   sendParamUpdate: vi.fn(),
+  sendFullConfig: vi.fn(),
   requestConfigDump: vi.fn(),
   requestVersion: vi.fn(),
+}))
+
+// Mock configValidator
+vi.mock('@/services/configValidator', () => ({
+  prepareImport: vi.fn().mockReturnValue({
+    valid: false,
+    config: null,
+    errors: [],
+    migrated: false,
+  }),
 }))
 
 // Wrapper that provides both ConnectionProvider and ConfigProvider

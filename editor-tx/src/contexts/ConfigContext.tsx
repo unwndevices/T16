@@ -5,12 +5,14 @@ import {
   parseConfigDump,
   isConfigResponse,
   sendParamUpdate as midiSendParamUpdate,
+  sendFullConfig,
   requestConfigDump,
   requestVersion,
 } from '@/services/midi'
 import { DOMAIN, FIELD_GLOBAL, FIELD_BANK } from '@/protocol/sysex'
 import type { T16Configuration } from '@/types/config'
 import type { ConfigContextValue, ConfigAction } from '@/types/midi'
+import { prepareImport, type ImportResult } from '@/services/configValidator'
 import { useConnection } from '@/hooks/useConnection'
 
 // Default configuration matching the device defaults
@@ -191,6 +193,35 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
     [output],
   )
 
+  const importConfig = useCallback(
+    (data: unknown): ImportResult => {
+      const result = prepareImport(data)
+      if (result.valid && result.config) {
+        dispatch({ type: 'SET_CONFIG', payload: result.config })
+        if (output) {
+          sendFullConfig(output, result.config)
+        }
+      }
+      return result
+    },
+    [output],
+  )
+
+  const exportConfig = useCallback(() => {
+    const exportData = {
+      ...state.config,
+      _schema_version: 200,
+      _exported_at: new Date().toISOString(),
+    }
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `t16-config-${Date.now()}.topo`
+    a.click()
+    URL.revokeObjectURL(url)
+  }, [state.config])
+
   // Request config dump and version when output becomes available
   useEffect(() => {
     if (!output || !isConnected) return
@@ -238,6 +269,8 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
     setBank,
     updateParam,
     setConfig,
+    importConfig,
+    exportConfig,
   }
 
   return <ConfigContext.Provider value={value}>{children}</ConfigContext.Provider>
