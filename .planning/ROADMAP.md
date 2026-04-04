@@ -53,9 +53,9 @@ Plans:
 **Goal:** Add missing UI surfaces for BLE connect, config import/export, and make calibration/factory reset transport-agnostic so all features are user-accessible.
 **Requirements:** WEBFEAT-02, WEBFEAT-04
 **Gap Closure:** Closes BLE connect button missing, import/export UI missing, calibration/reset BLE bypass
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
-- [ ] 09-01-PLAN.md — Add BLE connect buttons to NavBar/EmptyState, fix transport-agnostic calibration/reset
+- [x] 09-01-PLAN.md — Add BLE connect buttons to NavBar/EmptyState, fix transport-agnostic calibration/reset
 - [ ] 09-02-PLAN.md — Add config import/export buttons to SettingsTab
 
 ## Progress
@@ -70,7 +70,7 @@ Plans:
 | 6. CC Sync & Schema Fix | v1.0 gap | 0/2 | Planned | — |
 | 7. Firmware Bug & Tech Debt | v1.0 gap | 0/2 | Planned | — |
 | 8. BLE MIDI Bridging | v1.0 gap | 2/2 | Complete   | 2026-04-04 |
-| 9. UI Wiring Gap Closure | v1.0 gap | 0/2 | Planned | — |
+| 9. UI Wiring Gap Closure | v1.0 gap | 1/2 | In Progress|  |
 
 ---
 *Roadmap last updated: 2026-04-04 after Phase 9 planning*
