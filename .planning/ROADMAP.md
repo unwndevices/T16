@@ -35,6 +35,10 @@ Plans:
 **Goal:** Verify/complete LedManager pattern leak fix, implement calibration/factory reset SysEx commands, clean up code duplication and dead code.
 **Requirements:** FWBUG-01
 **Gap Closure:** Closes FWBUG-01 partial, calibration/factory reset stubs, getNoteNameWithOctave duplication, SYNC_CONFIRMED dead code
+**Plans:** 2 plans
+Plans:
+- [ ] 07-01-PLAN.md — Fix LedManager UpdateTransition bug, implement calibration/factory reset SysEx handlers
+- [ ] 07-02-PLAN.md — Wire web calibration/reset buttons, remove Monitor duplication and SYNC_CONFIRMED dead code
 
 ### Phase 8: BLE MIDI Bridging
 **Goal:** Complete BLE MIDI data flow — implement firmware SysEx chunking over BLE MTU and wire web BLE connection to produce working MIDI I/O.
@@ -51,8 +55,8 @@ Plans:
 | 4. Integration & CI | v1.0 | 4/4 | Complete | 2026-04-04 |
 | 5. Feature Polish | v1.0 | 3/3 | Complete | 2026-04-04 |
 | 6. CC Sync & Schema Fix | v1.0 gap | 0/2 | Planned | — |
-| 7. Firmware Bug & Tech Debt | v1.0 gap | 0/0 | Pending | — |
+| 7. Firmware Bug & Tech Debt | v1.0 gap | 0/2 | Planned | — |
 | 8. BLE MIDI Bridging | v1.0 gap | 0/0 | Pending | — |
 
 ---
-*Roadmap last updated: 2026-04-04 after Phase 6 planning*
+*Roadmap last updated: 2026-04-04 after Phase 7 planning*
