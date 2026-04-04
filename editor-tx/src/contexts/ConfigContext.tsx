@@ -1,4 +1,4 @@
-import { createContext, useReducer, useCallback, useEffect } from 'react'
+import { createContext, useReducer, useCallback, useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 import {
   parseSysExMessage,
@@ -8,6 +8,7 @@ import {
   sendFullConfig,
   requestConfigDump,
   requestVersion,
+  isParamAck,
 } from '@/services/midi'
 import { DOMAIN, FIELD_GLOBAL, FIELD_BANK } from '@/protocol/sysex'
 import type { T16Configuration } from '@/types/config'
@@ -173,6 +174,9 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
 
   const isSynced = computeIsSynced(state.config, state.deviceConfig)
 
+  // Track pending param send timestamps for round-trip measurement
+  const pendingParamTimestamps = useRef<Map<string, number>>(new Map())
+
   const setBank = useCallback((bank: number) => {
     dispatch({ type: 'SET_BANK', payload: bank })
   }, [])
@@ -187,7 +191,24 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
 
       // Send to device if connected
       if (output) {
+        const key = `${domain}-${bank}-${field}`
+        pendingParamTimestamps.current.set(key, performance.now())
         midiSendParamUpdate(output, domain, bank, field, value)
+
+        // Retry after 500ms if no ACK received
+        setTimeout(() => {
+          if (pendingParamTimestamps.current.has(key)) {
+            console.debug(`[T16 Sync] Param ${key} no ACK, retrying...`)
+            midiSendParamUpdate(output, domain, bank, field, value)
+            // Final failure after another 500ms
+            setTimeout(() => {
+              if (pendingParamTimestamps.current.has(key)) {
+                pendingParamTimestamps.current.delete(key)
+                console.warn(`[T16 Sync] Param ${key} sync failed after retry`)
+              }
+            }, 500)
+          }
+        }, 500)
       }
     },
     [output],
@@ -244,6 +265,20 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
           dispatch({ type: 'SET_DEVICE_CONFIG', payload: config })
         } catch (err) {
           console.error('Failed to parse config dump:', err)
+        }
+      }
+
+      // Measure per-parameter sync round-trip time
+      if (isParamAck(msg.cmd, msg.sub)) {
+        const timestamps = pendingParamTimestamps.current
+        if (timestamps.size > 0) {
+          const entry = timestamps.entries().next()
+          if (!entry.done) {
+            const [key, sendTime] = entry.value
+            const roundTrip = performance.now() - sendTime
+            console.debug(`[T16 Sync] Param ${key} round-trip: ${roundTrip.toFixed(1)}ms`)
+            timestamps.delete(key)
+          }
         }
       }
     }
