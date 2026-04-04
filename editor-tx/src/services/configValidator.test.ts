@@ -34,6 +34,25 @@ describe('validateConfig', () => {
     expect(result.valid).toBe(false)
     expect(result.errors.length).toBeGreaterThan(0)
   })
+
+  it('validates config with pal field from device dump', () => {
+    const config = structuredClone(DEFAULT_CONFIG)
+    config.banks[0].pal = 0
+    config.banks[1].pal = 1
+    config.banks[2].pal = 2
+    config.banks[3].pal = 3
+    const result = validateConfig(config)
+    expect(result.valid).toBe(true)
+    expect(result.errors).toEqual([])
+  })
+
+  it('rejects config with pal out of range', () => {
+    const config = structuredClone(DEFAULT_CONFIG)
+    ;(config.banks[0] as Record<string, unknown>).pal = 10
+    const result = validateConfig(config)
+    expect(result.valid).toBe(false)
+    expect(result.errors.some(e => e.field.includes('banks'))).toBe(true)
+  })
 })
 
 describe('migrateV103', () => {
@@ -49,10 +68,10 @@ describe('migrateV103', () => {
     custom_scale1: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
     custom_scale2: [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45],
     banks: [
-      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, chs: [1,1,1,1,1,1,1,1], ids: [13,14,15,16,17,18,19,20] },
-      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, chs: [1,1,1,1,1,1,1,1], ids: [21,22,23,24,25,26,27,28] },
-      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, chs: [1,1,1,1,1,1,1,1], ids: [21,22,23,24,25,26,27,28] },
-      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, chs: [1,1,1,1,1,1,1,1], ids: [31,32,33,34,35,36,37,38] },
+      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 0, chs: [1,1,1,1,1,1,1,1], ids: [13,14,15,16,17,18,19,20] },
+      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 1, chs: [1,1,1,1,1,1,1,1], ids: [21,22,23,24,25,26,27,28] },
+      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 2, chs: [1,1,1,1,1,1,1,1], ids: [21,22,23,24,25,26,27,28] },
+      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 3, chs: [1,1,1,1,1,1,1,1], ids: [31,32,33,34,35,36,37,38] },
     ],
   }
 
@@ -75,6 +94,20 @@ describe('migrateV103', () => {
     expect(result!.banks[0].ids).toEqual([13,14,15,16,17,18,19,20])
     expect(result!.banks[3].ids).toEqual([31,32,33,34,35,36,37,38])
   })
+
+  it('migrateV103 adds pal defaults to banks', () => {
+    // Create a v103 config without pal in banks
+    const noPalConfig = {
+      ...v103Config,
+      banks: v103Config.banks.map(({ pal: _pal, ...rest }) => rest),
+    }
+    const result = migrateV103(noPalConfig)
+    expect(result).not.toBeNull()
+    expect(result!.banks[0].pal).toBe(0)
+    expect(result!.banks[1].pal).toBe(1)
+    expect(result!.banks[2].pal).toBe(2)
+    expect(result!.banks[3].pal).toBe(3)
+  })
 })
 
 describe('prepareImport', () => {
@@ -90,10 +123,10 @@ describe('prepareImport', () => {
     custom_scale1: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
     custom_scale2: [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45],
     banks: [
-      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, chs: [1,1,1,1,1,1,1,1], ids: [13,14,15,16,17,18,19,20] },
-      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, chs: [1,1,1,1,1,1,1,1], ids: [21,22,23,24,25,26,27,28] },
-      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, chs: [1,1,1,1,1,1,1,1], ids: [21,22,23,24,25,26,27,28] },
-      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, chs: [1,1,1,1,1,1,1,1], ids: [31,32,33,34,35,36,37,38] },
+      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 0, chs: [1,1,1,1,1,1,1,1], ids: [13,14,15,16,17,18,19,20] },
+      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 1, chs: [1,1,1,1,1,1,1,1], ids: [21,22,23,24,25,26,27,28] },
+      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 2, chs: [1,1,1,1,1,1,1,1], ids: [21,22,23,24,25,26,27,28] },
+      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 3, chs: [1,1,1,1,1,1,1,1], ids: [31,32,33,34,35,36,37,38] },
     ],
   }
 
