@@ -174,7 +174,7 @@ interface ConfigProviderProps {
 }
 
 export function ConfigProvider({ children }: ConfigProviderProps) {
-  const { input, output, isConnected } = useConnection()
+  const { input, output, transport, isConnected } = useConnection()
 
   const [state, dispatch] = useReducer(configReducer, {
     config: DEFAULT_CONFIG,
@@ -186,6 +186,43 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
 
   // Track pending param send timestamps for round-trip measurement
   const pendingParamTimestamps = useRef<Map<string, number>>(new Map())
+
+  // Derive the active sender: BLE transport takes priority, fallback to USB output
+  const sender = transport ?? output
+
+  // Keep a ref for sender to avoid stale closures in timeouts
+  const senderRef = useRef(sender)
+  senderRef.current = sender
+
+  // Shared SysEx message handler used by both USB and BLE receive paths
+  const handleSysexData = useCallback((data: Uint8Array) => {
+    const msg = parseSysExMessage(data)
+    if (!msg) return
+
+    if (isConfigResponse(msg.cmd, msg.sub)) {
+      try {
+        const config = parseConfigDump(msg.payload)
+        dispatch({ type: 'SET_CONFIG', payload: config })
+        dispatch({ type: 'SET_DEVICE_CONFIG', payload: config })
+      } catch (err) {
+        console.error('Failed to parse config dump:', err)
+      }
+    }
+
+    // Measure per-parameter sync round-trip time
+    if (isParamAck(msg.cmd, msg.sub)) {
+      const timestamps = pendingParamTimestamps.current
+      if (timestamps.size > 0) {
+        const entry = timestamps.entries().next()
+        if (!entry.done) {
+          const [key, sendTime] = entry.value
+          const roundTrip = performance.now() - sendTime
+          console.debug(`[T16 Sync] Param ${key} round-trip: ${roundTrip.toFixed(1)}ms`)
+          timestamps.delete(key)
+        }
+      }
+    }
+  }, [])
 
   const setBank = useCallback((bank: number) => {
     dispatch({ type: 'SET_BANK', payload: bank })
@@ -200,16 +237,18 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
       dispatch({ type: 'UPDATE_PARAM', domain, bank, field, value })
 
       // Send to device if connected
-      if (output) {
+      const s = senderRef.current
+      if (s) {
         const key = `${domain}-${bank}-${field}`
         pendingParamTimestamps.current.set(key, performance.now())
-        midiSendParamUpdate(output, domain, bank, field, value)
+        midiSendParamUpdate(s, domain, bank, field, value)
 
         // Retry after 500ms if no ACK received
         setTimeout(() => {
           if (pendingParamTimestamps.current.has(key)) {
             console.debug(`[T16 Sync] Param ${key} no ACK, retrying...`)
-            midiSendParamUpdate(output, domain, bank, field, value)
+            const retryS = senderRef.current
+            if (retryS) midiSendParamUpdate(retryS, domain, bank, field, value)
             // Final failure after another 500ms
             setTimeout(() => {
               if (pendingParamTimestamps.current.has(key)) {
@@ -221,22 +260,24 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
         }, 500)
       }
     },
-    [output],
+    [sender],
   )
 
   const updateCCParam = useCallback(
     (bank: number, ccIndex: number, channel: number, id: number) => {
       dispatch({ type: 'UPDATE_CC_PARAM', bank, ccIndex, channel, id })
 
-      if (output) {
+      const s = senderRef.current
+      if (s) {
         const key = `cc-${bank}-${ccIndex}`
         pendingParamTimestamps.current.set(key, performance.now())
-        midiSendCCParamUpdate(output, bank, ccIndex, channel, id)
+        midiSendCCParamUpdate(s, bank, ccIndex, channel, id)
 
         setTimeout(() => {
           if (pendingParamTimestamps.current.has(key)) {
             console.debug(`[T16 Sync] CC param ${key} no ACK, retrying...`)
-            midiSendCCParamUpdate(output, bank, ccIndex, channel, id)
+            const retryS = senderRef.current
+            if (retryS) midiSendCCParamUpdate(retryS, bank, ccIndex, channel, id)
             setTimeout(() => {
               if (pendingParamTimestamps.current.has(key)) {
                 pendingParamTimestamps.current.delete(key)
@@ -247,7 +288,7 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
         }, 500)
       }
     },
-    [output],
+    [sender],
   )
 
   const importConfig = useCallback(
@@ -255,13 +296,14 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
       const result = prepareImport(data)
       if (result.valid && result.config) {
         dispatch({ type: 'SET_CONFIG', payload: result.config })
-        if (output) {
-          sendFullConfig(output, result.config)
+        const s = senderRef.current
+        if (s) {
+          sendFullConfig(s, result.config)
         }
       }
       return result
     },
-    [output],
+    [sender],
   )
 
   const exportConfig = useCallback(() => {
@@ -279,51 +321,38 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
     URL.revokeObjectURL(url)
   }, [state.config])
 
-  // Request config dump and version when output becomes available
+  // Request config dump and version when a sender becomes available
   useEffect(() => {
-    if (!output || !isConnected) return
-    requestConfigDump(output)
-    requestVersion(output)
-  }, [output, isConnected])
+    const s = transport ?? output
+    if (!s || !isConnected) return
+    requestConfigDump(s)
+    requestVersion(s)
+  }, [output, transport, isConnected])
 
-  // Listen for SysEx messages on input
+  // Listen for SysEx messages on USB input
   useEffect(() => {
     if (!input || !isConnected) return
 
     const handleSysex = (e: { data: Uint8Array }) => {
-      const msg = parseSysExMessage(e.data)
-      if (!msg) return
-
-      if (isConfigResponse(msg.cmd, msg.sub)) {
-        try {
-          const config = parseConfigDump(msg.payload)
-          dispatch({ type: 'SET_CONFIG', payload: config })
-          dispatch({ type: 'SET_DEVICE_CONFIG', payload: config })
-        } catch (err) {
-          console.error('Failed to parse config dump:', err)
-        }
-      }
-
-      // Measure per-parameter sync round-trip time
-      if (isParamAck(msg.cmd, msg.sub)) {
-        const timestamps = pendingParamTimestamps.current
-        if (timestamps.size > 0) {
-          const entry = timestamps.entries().next()
-          if (!entry.done) {
-            const [key, sendTime] = entry.value
-            const roundTrip = performance.now() - sendTime
-            console.debug(`[T16 Sync] Param ${key} round-trip: ${roundTrip.toFixed(1)}ms`)
-            timestamps.delete(key)
-          }
-        }
-      }
+      handleSysexData(e.data)
     }
 
     input.addListener('sysex', handleSysex)
     return () => {
       input.removeListener('sysex', handleSysex)
     }
-  }, [input, isConnected])
+  }, [input, isConnected, handleSysexData])
+
+  // Listen for SysEx messages on BLE transport (when no USB input available)
+  useEffect(() => {
+    if (!transport || !isConnected || input) return
+    // If USB input exists, the USB path handles SysEx -- skip BLE listener to avoid duplicates
+
+    transport.addSysexListener(handleSysexData)
+    return () => {
+      transport.removeSysexListener(handleSysexData)
+    }
+  }, [transport, isConnected, input, handleSysexData])
 
   // Clear device config on disconnect
   useEffect(() => {

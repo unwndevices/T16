@@ -39,7 +39,15 @@ describe('ConnectionProvider', () => {
     expect(result.current.isConnected).toBe(false)
     expect(result.current.input).toBeNull()
     expect(result.current.output).toBeNull()
+    expect(result.current.transport).toBeNull()
     expect(result.current.isDemo).toBe(false)
+  })
+
+  it('provides null transport initially', () => {
+    const { result } = renderHook(() => useConnection(), {
+      wrapper: ConnectionProvider,
+    })
+    expect(result.current.transport).toBeNull()
   })
 
   it('provides connect and disconnect functions', () => {
