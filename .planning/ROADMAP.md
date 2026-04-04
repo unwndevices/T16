@@ -112,7 +112,7 @@ Plans:
 Plans:
 - [ ] 05-01-PLAN.md — Note grid visualizer with scale degree coloring and firmware algorithm port
 - [ ] 05-02-PLAN.md — MIDI monitor page with real-time CC/note visualization
-- [ ] 05-03-PLAN.md — PWA support with service worker, manifest, BLE MIDI connection
+- [x] 05-03-PLAN.md — PWA support with service worker, manifest, BLE MIDI connection
 
 ## Progress
 
