@@ -146,6 +146,40 @@
   margin-top: var(--space-lg);
 }
 
+/* --- Config section --- */
+
+.configSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--gray-200);
+  margin-top: var(--space-lg);
+}
+
+.configActions {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.importErrors {
+  background: color-mix(in srgb, var(--color-error, #ef4444) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-error, #ef4444) 30%, transparent);
+  border-radius: 8px;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-sm);
+  color: var(--color-error, #ef4444);
+}
+
+.importErrors ul {
+  margin: var(--space-xs) 0 0 var(--space-md);
+  padding: 0;
+}
+
+.importErrors li {
+  list-style: disc;
+}
+
 /* --- Mobile key grid --- */
 
 @media (max-width: 767px) {

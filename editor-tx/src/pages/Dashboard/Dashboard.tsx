@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useConnection } from '@/hooks/useConnection'
 import { useConfig } from '@/hooks/useConfig'
 import {
@@ -282,11 +282,35 @@ function CcMappingTab() {
 // --- Settings tab ---
 
 function SettingsTab() {
-  const { config, deviceConfig, updateParam } = useConfig()
+  const { config, deviceConfig, updateParam, importConfig, exportConfig } = useConfig()
   const { output, transport } = useConnection()
   const sender = transport ?? output
   const [calibrationOpen, setCalibrationOpen] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
+  const [importErrors, setImportErrors] = useState<string[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result as string)
+        const result = importConfig(data)
+        if (!result.valid && result.errors) {
+          setImportErrors(result.errors.map((e) => `${e.field}: ${e.message}`))
+        } else {
+          setImportErrors([])
+        }
+      } catch {
+        setImportErrors(['Invalid JSON file'])
+      }
+    }
+    reader.readAsText(file)
+    // Reset input so same file can be re-imported
+    e.target.value = ''
+  }
 
   const g = config.global
   const dg = deviceConfig?.global
@@ -407,6 +431,35 @@ function SettingsTab() {
             </div>
           </DialogContent>
         </Dialog>
+      </div>
+
+      <div className={styles.configSection}>
+        <h3 className={styles.sectionHeading}>Configuration</h3>
+        <div className={styles.configActions}>
+          <Button variant="secondary" onClick={exportConfig}>
+            Export Config
+          </Button>
+          <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
+            Import Config
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".topo,.json"
+            onChange={handleImport}
+            style={{ display: 'none' }}
+          />
+        </div>
+        {importErrors.length > 0 && (
+          <div className={styles.importErrors}>
+            <p>Import failed:</p>
+            <ul>
+              {importErrors.map((err, i) => (
+                <li key={i}>{err}</li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   )
