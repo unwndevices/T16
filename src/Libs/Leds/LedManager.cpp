@@ -262,7 +262,10 @@ void LedManager::UpdateTransition()
     {
         currentPattern_ = std::move(nextPattern_);
     }
-    currentPattern_ = std::make_unique<WaveTransition>(Direction::DOWN);
+    else
+    {
+        currentPattern_ = std::make_unique<WaveTransition>(Direction::DOWN);
+    }
 }
 
 void LedManager::SetSliderHue(uint8_t hue)
