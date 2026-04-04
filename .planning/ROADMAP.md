@@ -56,7 +56,7 @@ Plans:
 **Plans:** 1/2 plans executed
 Plans:
 - [x] 09-01-PLAN.md — Add BLE connect buttons to NavBar/EmptyState, fix transport-agnostic calibration/reset
-- [ ] 09-02-PLAN.md — Add config import/export buttons to SettingsTab
+- [x] 09-02-PLAN.md — Add config import/export buttons to SettingsTab
 
 ## Progress
 
