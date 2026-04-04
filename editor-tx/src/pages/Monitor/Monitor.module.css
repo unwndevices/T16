@@ -1,0 +1,153 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-2xl);
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: var(--space-md);
+  }
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  line-height: 1.2;
+  color: var(--gray-900);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0;
+  position: sticky;
+  top: var(--nav-height);
+  background: var(--gray-50);
+  z-index: 10;
+}
+
+.messageCount {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--gray-500);
+  margin-left: auto;
+}
+
+.pausedBadge {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--gray-500);
+}
+
+.messageList {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-height: 40px;
+  padding: var(--space-xs) var(--space-sm);
+  border-left: 3px solid;
+}
+
+.row:nth-child(even) {
+  background: var(--gray-50);
+}
+
+.rowNoteOn {
+  border-left-color: var(--primary-800);
+}
+
+.rowNoteOff {
+  border-left-color: var(--gray-400);
+}
+
+.rowCc {
+  border-left-color: var(--color-success);
+}
+
+.timestamp {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--gray-400);
+  width: 60px;
+  flex-shrink: 0;
+}
+
+.typeBadge {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  width: 60px;
+  flex-shrink: 0;
+}
+
+.badgeNoteOn {
+  color: var(--primary-800);
+}
+
+.badgeNoteOff {
+  color: var(--gray-400);
+}
+
+.badgeCc {
+  color: var(--color-success);
+}
+
+.detail {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  flex: 1;
+}
+
+.barContainer {
+  width: 120px;
+  height: 16px;
+  background: var(--gray-200);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.barFill {
+  height: 100%;
+  transition: width var(--transition-fast);
+}
+
+.barCc {
+  background: var(--color-success);
+}
+
+.barNote {
+  background: var(--primary-800);
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--space-3xl);
+}
+
+.emptyHeading {
+  font-family: var(--font-heading);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--gray-800);
+  margin-bottom: var(--space-sm);
+}
+
+.emptyBody {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--gray-500);
+  line-height: 1.5;
+  max-width: 400px;
+  margin: 0 auto;
+}
