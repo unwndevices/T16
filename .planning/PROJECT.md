@@ -10,11 +10,11 @@ The configurator must feel instant and the firmware must be maintainable — eve
 
 ## Current State
 
-**Shipped:** v1.0 (2026-04-04) — 5 phases, 24 plans, 47 tasks
+**Shipped:** v1.0 (2026-04-04) — 9 phases, 32 plans, all verified
 
 **Firmware:** Service-based architecture with AppEngine orchestrator (14-line main.cpp), structured SysEx protocol, ConfigManager with lazy persistence, 72+ native unit tests.
 
-**Web Editor:** React 19 + TypeScript strict + Vite 8, custom design system (10 Radix components), ConnectionContext/ConfigContext split, note grid visualizer, MIDI monitor, PWA installable, 70+ Vitest tests.
+**Web Editor:** React 19 + TypeScript strict + Vite 8, custom design system (10 Radix components), ConnectionContext/ConfigContext split, note grid visualizer, MIDI monitor, PWA installable, BLE MIDI transport with SysEx framing/reassembly, config import/export with validation, 89 Vitest tests.
 
 **CI:** GitHub Actions with firmware build/test/format and web typecheck/lint/test/build.
 
@@ -102,4 +102,4 @@ The configurator must feel instant and the firmware must be maintainable — eve
 | Web Bluetooth for BLE MIDI | Standard API, no plugins | ✓ Good |
 
 ---
-*Last updated: 2026-04-04 after Phase 9 (UI Wiring Gap Closure) — all gap closure phases complete*
+*Last updated: 2026-04-04 — v1.0 milestone complete (9 phases, 32 plans)*
