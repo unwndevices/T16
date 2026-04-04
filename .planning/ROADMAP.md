@@ -20,7 +20,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 
 </details>
 
-### v1.0 Gap Closure (Phases 6-8)
+### v1.0 Gap Closure (Phases 6-9)
 
 ### Phase 6: CC Sync & Schema Fix
 **Goal:** Fix CC per-parameter sync payload mismatch and add missing 'pal' field to schema so CC edits and config export-reimport work correctly.
@@ -49,6 +49,11 @@ Plans:
 - [x] 08-01-PLAN.md — BLE MIDI bridge: SysEx framing, reassembly, and transport abstraction (TDD)
 - [x] 08-02-PLAN.md — Wire BLE transport into ConnectionContext, ConfigContext, and sysex.ts
 
+### Phase 9: UI Wiring Gap Closure
+**Goal:** Add missing UI surfaces for BLE connect, config import/export, and make calibration/factory reset transport-agnostic so all features are user-accessible.
+**Requirements:** WEBFEAT-02, WEBFEAT-04
+**Gap Closure:** Closes BLE connect button missing, import/export UI missing, calibration/reset BLE bypass
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -61,6 +66,7 @@ Plans:
 | 6. CC Sync & Schema Fix | v1.0 gap | 0/2 | Planned | — |
 | 7. Firmware Bug & Tech Debt | v1.0 gap | 0/2 | Planned | — |
 | 8. BLE MIDI Bridging | v1.0 gap | 2/2 | Complete   | 2026-04-04 |
+| 9. UI Wiring Gap Closure | v1.0 gap | 0/0 | Pending | — |
 
 ---
 *Roadmap last updated: 2026-04-04 after Phase 8 planning*
