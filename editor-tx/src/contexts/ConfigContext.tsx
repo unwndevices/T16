@@ -27,6 +27,7 @@ const DEFAULT_BANK = {
   flip_x: 0,
   flip_y: 0,
   koala_mode: 0,
+  pal: 0,
   chs: [1, 1, 1, 1, 1, 1, 1, 1] as [number, number, number, number, number, number, number, number],
   ids: [13, 14, 15, 16, 17, 18, 19, 20] as [
     number,
@@ -73,10 +74,10 @@ export const DEFAULT_CONFIG: T16Configuration = {
     custom_scale2: [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45],
   },
   banks: [
-    { ...DEFAULT_BANK, ids: [13, 14, 15, 16, 17, 18, 19, 20] },
-    { ...DEFAULT_BANK, ids: [21, 22, 23, 24, 25, 26, 27, 28] },
-    { ...DEFAULT_BANK, ids: [21, 22, 23, 24, 25, 26, 27, 28] },
-    { ...DEFAULT_BANK, ids: [31, 32, 33, 34, 35, 36, 37, 38] },
+    { ...DEFAULT_BANK, pal: 0, ids: [13, 14, 15, 16, 17, 18, 19, 20] },
+    { ...DEFAULT_BANK, pal: 1, ids: [21, 22, 23, 24, 25, 26, 27, 28] },
+    { ...DEFAULT_BANK, pal: 2, ids: [21, 22, 23, 24, 25, 26, 27, 28] },
+    { ...DEFAULT_BANK, pal: 3, ids: [31, 32, 33, 34, 35, 36, 37, 38] },
   ],
 }
 

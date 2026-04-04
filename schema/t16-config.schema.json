@@ -45,6 +45,7 @@
           "flip_x": { "type": "integer", "minimum": 0, "maximum": 1 },
           "flip_y": { "type": "integer", "minimum": 0, "maximum": 1 },
           "koala_mode": { "type": "integer", "minimum": 0, "maximum": 1 },
+          "pal": { "type": "integer", "minimum": 0, "maximum": 7 },
           "chs": {
             "type": "array",
             "items": { "type": "integer", "minimum": 1, "maximum": 16 },
@@ -58,7 +59,7 @@
             "maxItems": 8
           }
         },
-        "required": ["ch", "scale", "oct", "note", "vel", "at", "flip_x", "flip_y", "koala_mode", "chs", "ids"],
+        "required": ["ch", "scale", "oct", "note", "vel", "at", "flip_x", "flip_y", "koala_mode", "pal", "chs", "ids"],
         "additionalProperties": false
       },
       "minItems": 4,

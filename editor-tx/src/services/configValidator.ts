@@ -65,7 +65,10 @@ export function migrateV103(data: Record<string, unknown>): T16Configuration | n
     return {
       version: 200,
       global: global as T16Configuration['global'],
-      banks: data.banks as T16Configuration['banks'],
+      banks: (data.banks as Record<string, unknown>[]).map((bank, i) => ({
+        ...bank,
+        pal: typeof bank.pal === 'number' ? bank.pal : i,
+      })) as T16Configuration['banks'],
     }
   } catch {
     return null

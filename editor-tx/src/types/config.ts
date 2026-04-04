@@ -70,6 +70,7 @@ export interface T16Configuration {
       flip_x: number
       flip_y: number
       koala_mode: number
+      pal: number
       /**
        * @minItems 8
        * @maxItems 8
@@ -91,6 +92,7 @@ export interface T16Configuration {
       flip_x: number
       flip_y: number
       koala_mode: number
+      pal: number
       /**
        * @minItems 8
        * @maxItems 8
@@ -112,6 +114,7 @@ export interface T16Configuration {
       flip_x: number
       flip_y: number
       koala_mode: number
+      pal: number
       /**
        * @minItems 8
        * @maxItems 8
@@ -133,6 +136,7 @@ export interface T16Configuration {
       flip_x: number
       flip_y: number
       koala_mode: number
+      pal: number
       /**
        * @minItems 8
        * @maxItems 8
