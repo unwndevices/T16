@@ -283,7 +283,8 @@ function CcMappingTab() {
 
 function SettingsTab() {
   const { config, deviceConfig, updateParam } = useConfig()
-  const { output } = useConnection()
+  const { output, transport } = useConnection()
+  const sender = transport ?? output
   const [calibrationOpen, setCalibrationOpen] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
 
@@ -370,7 +371,7 @@ function SettingsTab() {
               <Button
                 variant="destructive"
                 onClick={() => {
-                  if (output) requestCalibration(output)
+                  if (sender) requestCalibration(sender)
                   setCalibrationOpen(false)
                 }}
               >
@@ -397,7 +398,7 @@ function SettingsTab() {
               <Button
                 variant="destructive"
                 onClick={() => {
-                  if (output) requestFactoryReset(output)
+                  if (sender) requestFactoryReset(sender)
                   setResetOpen(false)
                 }}
               >
