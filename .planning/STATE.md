@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Gap Closure
 status: executing
-stopped_at: Completed 05-03-PLAN.md
-last_updated: "2026-04-04T17:10:43.887Z"
-last_activity: 2026-04-04 -- Phase 06 execution started
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-04-04T17:37:50.579Z"
+last_activity: 2026-04-04 -- Phase 07 execution started
 progress:
   total_phases: 3
-  completed_phases: 0
-  total_plans: 2
-  completed_plans: 0
+  completed_phases: 1
+  total_plans: 4
+  completed_plans: 2
   percent: 70
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Every parameter change reaches the device in under 100ms, and any developer can modify one feature without risking another.
-**Current focus:** Phase 06 — cc-sync-schema-fix
+**Current focus:** Phase 07 — firmware-bug-tech-debt
 
 ## Current Position
 
-Phase: 06 (cc-sync-schema-fix) — EXECUTING
+Phase: 07 (firmware-bug-tech-debt) — EXECUTING
 Plan: 1 of 2
-Status: Executing Phase 06
-Last activity: 2026-04-04 -- Phase 06 execution started
+Status: Executing Phase 07
+Last activity: 2026-04-04 -- Phase 07 execution started
 
 Progress: [#######░░░] 70%
 
@@ -68,6 +68,7 @@ Progress: [#######░░░] 70%
 | Phase 04 P03 | 2min | 2 tasks | 5 files |
 | Phase 04 P04 | 3min | 3 tasks | 4 files |
 | Phase 05 P03 | 5min | 2 tasks | 12 files |
+| Phase 06 P02 | 3min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -107,6 +108,7 @@ Recent decisions affecting current work:
 - [Phase 04]: 500ms ACK timeout with single retry for param sync measurement
 - [Phase 05]: Used --legacy-peer-deps for vite-plugin-pwa (Vite 8 peer dep gap)
 - [Phase 05]: BLE connectBLE() defers full MIDI bridging -- SysEx chunking needed first
+- [Phase 06]: CC updates always send channel+id together (atomic) matching firmware SetCCParam
 
 ### Pending Todos
 
@@ -120,6 +122,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-04T00:47:31.810Z
-Stopped at: Completed 05-03-PLAN.md
+Last session: 2026-04-04T17:20:43.965Z
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None
