@@ -93,7 +93,7 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 04-01-PLAN.md — CI pipeline + formatting configs (clang-format, Prettier, GitHub Actions)
+- [x] 04-01-PLAN.md — CI pipeline + formatting configs (clang-format, Prettier, GitHub Actions)
 - [ ] 04-02-PLAN.md — Config import validation with ajv schema checking and v103 migration
 - [ ] 04-03-PLAN.md — Bootloader SysEx command (firmware + web protocol constants)
 - [ ] 04-04-PLAN.md — Upload page auto-bootloader UX + per-param sync round-trip timing

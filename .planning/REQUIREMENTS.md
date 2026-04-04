@@ -60,8 +60,8 @@ Requirements for the full refactor. Each maps to roadmap phases.
 
 - [x] **TEST-01**: Firmware unit tests via PlatformIO native env (config parsing, SysEx encoding, state machines)
 - [x] **TEST-02**: Web component and integration tests via Vitest + Testing Library
-- [ ] **TEST-03**: CI pipeline via GitHub Actions (build firmware, build web, run tests, lint)
-- [ ] **TEST-04**: clang-format for firmware code, ESLint 9 + Prettier for web code
+- [x] **TEST-03**: CI pipeline via GitHub Actions (build firmware, build web, run tests, lint)
+- [x] **TEST-04**: clang-format for firmware code, ESLint 9 + Prettier for web code
 
 ## v2 Requirements
 
@@ -134,8 +134,8 @@ Deferred to future release. Tracked but not in current roadmap.
 | WEBFEAT-06 | Phase 3 | Complete |
 | TEST-01 | Phase 2 | Complete |
 | TEST-02 | Phase 3 | Complete |
-| TEST-03 | Phase 4 | Pending |
-| TEST-04 | Phase 4 | Pending |
+| TEST-03 | Phase 4 | Complete |
+| TEST-04 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 35 total
