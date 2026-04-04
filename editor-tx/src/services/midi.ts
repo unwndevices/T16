@@ -9,6 +9,7 @@ import {
   requestVersion as sysexRequestVersion,
   requestConfigDump as sysexRequestConfigDump,
   sendParamUpdate as sysexSendParamUpdate,
+  sendCCParamUpdate as sysexSendCCParamUpdate,
   sendFullConfig as sysexSendFullConfig,
 } from '@/protocol/sysex'
 import type { T16Configuration } from '@/types/config'
@@ -66,6 +67,20 @@ export function sendParamUpdate(
   value: number,
 ): void {
   sysexSendParamUpdate(output, domain, bank, field, value)
+}
+
+/**
+ * Send a CC parameter update (channel + id) to the device.
+ * CC domain requires both values in one message (firmware SetCCParam is atomic).
+ */
+export function sendCCParamUpdate(
+  output: Output,
+  bankIndex: number,
+  ccIndex: number,
+  channel: number,
+  id: number,
+): void {
+  sysexSendCCParamUpdate(output, bankIndex, ccIndex, channel, id)
 }
 
 /**

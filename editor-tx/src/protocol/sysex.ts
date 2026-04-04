@@ -75,6 +75,19 @@ export function sendParamUpdate(
   output.sendSysex(MANUFACTURER_ID, [CMD.PARAM, SUB.REQUEST, domain, bankIndex, fieldId, value])
 }
 
+export function sendCCParamUpdate(
+  output: Output,
+  bankIndex: number,
+  ccIndex: number,
+  channel: number,
+  id: number,
+): void {
+  output.sendSysex(MANUFACTURER_ID, [
+    CMD.PARAM, SUB.REQUEST,
+    DOMAIN.BANK_CC, bankIndex, ccIndex, channel, id
+  ])
+}
+
 export function requestBootloader(output: Output): void {
   output.sendSysex(MANUFACTURER_ID, [CMD.BOOTLOADER, SUB.REQUEST])
 }
