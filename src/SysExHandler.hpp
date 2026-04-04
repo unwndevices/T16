@@ -24,6 +24,7 @@ private:
     void HandleConfigLoad(const byte* payload, size_t payloadLen);
     void HandleParamSet(const byte* payload, size_t payloadLen);
     void HandleCalibrationReset();
+    void HandleFactoryReset();
     void HandleBootloaderRequest();
     void SendAck(uint8_t cmd, uint8_t status);
 };
