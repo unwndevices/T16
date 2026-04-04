@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-04-04T00:06:02.478Z"
-last_activity: 2026-04-03
+stopped_at: Completed 04-04-PLAN.md
+last_updated: "2026-04-04T00:14:06.671Z"
+last_activity: 2026-04-04
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 21
-  completed_plans: 18
+  completed_plans: 21
   percent: 70
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Every parameter change reaches the device in under 100ms, and any developer can modify one feature without risking another.
-**Current focus:** Phase 03 — web-rewrite
+**Current focus:** Phase 04 — integration-ci
 
 ## Current Position
 
-Phase: 4
-Plan: Not started
+Phase: 04 (integration-ci) — EXECUTING
+Plan: 3 of 4
 Status: Ready to execute
-Last activity: 2026-04-03
+Last activity: 2026-04-04
 
 Progress: [#######░░░] 70%
 
@@ -65,7 +65,8 @@ Progress: [#######░░░] 70%
 | Phase 03 P03 | 5min | 2 tasks | 10 files |
 | Phase 03 P04 | 7min | 3 tasks | 36 files |
 | Phase 03 P06 | 8min | 2 tasks | 36 files |
-| Phase 04 P02 | 3min | 2 tasks | 6 files |
+| Phase 04 P03 | 2min | 2 tasks | 5 files |
+| Phase 04 P04 | 3min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -100,7 +101,9 @@ Recent decisions affecting current work:
 - [Phase 03]: Used react-router v7 imports instead of react-router-dom (package alignment)
 - [Phase 03]: Explicit file paths for new components to avoid old JSX file shadowing during migration
 - [Phase 03]: Downgraded ESLint from strictTypeChecked to recommendedTypeChecked to avoid false positives with React patterns
-- [Phase 04]: Used ajv/dist/2020 for JSON Schema draft 2020-12 support (default ajv only supports draft-07)
+- [Phase 04]: 100ms delay before esp_restart() to allow USB ACK flush
+- [Phase 04]: ESP32-S3 VID 0x303A / PID 0x1001 for auto-detecting bootloader serial port
+- [Phase 04]: 500ms ACK timeout with single retry for param sync measurement
 
 ### Pending Todos
 
@@ -114,6 +117,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-04T00:06:02.475Z
-Stopped at: Completed 04-02-PLAN.md
+Last session: 2026-04-04T00:14:06.669Z
+Stopped at: Completed 04-04-PLAN.md
 Resume file: None

@@ -93,10 +93,10 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 04-01-PLAN.md — CI pipeline + formatting configs (clang-format, Prettier, GitHub Actions)
+- [x] 04-01-PLAN.md — CI pipeline + formatting configs (clang-format, Prettier, GitHub Actions)
 - [x] 04-02-PLAN.md — Config import validation with ajv schema checking and v103 migration
-- [ ] 04-03-PLAN.md — Bootloader SysEx command (firmware + web protocol constants)
-- [ ] 04-04-PLAN.md — Upload page auto-bootloader UX + per-param sync round-trip timing
+- [x] 04-03-PLAN.md — Bootloader SysEx command (firmware + web protocol constants)
+- [x] 04-04-PLAN.md — Upload page auto-bootloader UX + per-param sync round-trip timing
 
 ### Phase 5: Feature Polish
 **Goal**: Differentiator features that make the configurator feel complete -- visual note mapping, mobile access, and real-time MIDI feedback
