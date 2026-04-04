@@ -44,10 +44,10 @@ Plans:
 **Goal:** Complete BLE MIDI data flow — implement firmware SysEx chunking over BLE MTU and wire web BLE connection to produce working MIDI I/O.
 **Requirements:** WEBFEAT-02
 **Gap Closure:** Closes BLE connection input/output null issue, "BLE MIDI Connection" flow
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 08-01-PLAN.md — BLE MIDI bridge: SysEx framing, reassembly, and transport abstraction (TDD)
-- [ ] 08-02-PLAN.md — Wire BLE transport into ConnectionContext, ConfigContext, and sysex.ts
+- [x] 08-02-PLAN.md — Wire BLE transport into ConnectionContext, ConfigContext, and sysex.ts
 
 ## Progress
 
@@ -60,7 +60,7 @@ Plans:
 | 5. Feature Polish | v1.0 | 3/3 | Complete | 2026-04-04 |
 | 6. CC Sync & Schema Fix | v1.0 gap | 0/2 | Planned | — |
 | 7. Firmware Bug & Tech Debt | v1.0 gap | 0/2 | Planned | — |
-| 8. BLE MIDI Bridging | v1.0 gap | 0/2 | Planned | — |
+| 8. BLE MIDI Bridging | v1.0 gap | 2/2 | Complete   | 2026-04-04 |
 
 ---
 *Roadmap last updated: 2026-04-04 after Phase 8 planning*
