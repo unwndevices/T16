@@ -29,7 +29,7 @@ The configurator must feel instant and the firmware must be maintainable — eve
 - [ ] Per-parameter config sync (send only what changed, <100ms round-trip)
 - [ ] Full config dump for backup/restore (optimized serialization)
 - [ ] Web app rewrite in TypeScript with custom design system (match DROP)
-- [ ] Working note grid visualizer with scale overlay (4x4 grid, colored by scale degree)
+- ✓ Working note grid visualizer with scale overlay (4x4 grid, colored by scale degree) — Validated in Phase 5
 - [ ] Split MidiProvider god-context into connection, config, and sync concerns
 - [ ] Web app organized by feature domain (contexts/, hooks/, services/, components/)
 - [ ] Consistent, polished UI/UX across all configurator pages
@@ -39,7 +39,7 @@ The configurator must feel instant and the firmware must be maintainable — eve
 - [ ] Fix HardwareTest infinite loop on broken key
 - [ ] Move header-only implementations to .cpp files
 - [ ] Encapsulate global state into service classes
-- [ ] PWA support for mobile configuration over BLE
+- ✓ PWA support for mobile configuration — Validated in Phase 5 (BLE bridging deferred — needs firmware SysEx chunking)
 - [ ] Automated tests (firmware unit tests, web component/integration tests)
 - ✓ CI pipeline (build, lint, test) — Validated in Phase 4
 - ✓ Proper firmware update flow (no bootloader button hold) — Validated in Phase 4
@@ -99,4 +99,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-04 after Phase 4 completion*
+*Last updated: 2026-04-04 after Phase 5 completion (milestone v1.0 complete)*
