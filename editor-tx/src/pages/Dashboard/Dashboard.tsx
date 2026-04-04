@@ -227,7 +227,7 @@ function CustomScalesTab() {
 // --- CC Mapping tab ---
 
 function CcMappingTab() {
-  const { config, selectedBank, updateParam } = useConfig()
+  const { config, selectedBank, updateCCParam } = useConfig()
   const bank = config.banks[selectedBank]
 
   // Check for duplicate CC assignments
@@ -245,13 +245,11 @@ function CcMappingTab() {
   })
 
   const handleChannelChange = (ccIndex: number, channel: number) => {
-    // CC channel updates use DOMAIN.BANK_CC
-    // Field encoding: ccIndex * 2 for channel, ccIndex * 2 + 1 for id
-    updateParam(DOMAIN.BANK_CC, selectedBank, ccIndex * 2, channel)
+    updateCCParam(selectedBank, ccIndex, channel, bank.ids[ccIndex])
   }
 
   const handleIdChange = (ccIndex: number, id: number) => {
-    updateParam(DOMAIN.BANK_CC, selectedBank, ccIndex * 2 + 1, id)
+    updateCCParam(selectedBank, ccIndex, bank.chs[ccIndex], id)
   }
 
   return (

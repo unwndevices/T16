@@ -16,6 +16,7 @@ import {
   parseSysExMessage,
   parseConfigDump,
   sendParamUpdate,
+  sendCCParamUpdate,
   isConfigResponse,
   isVersionResponse,
   isParamAck,
@@ -105,6 +106,20 @@ describe('sendParamUpdate', () => {
       FIELD_GLOBAL.BRIGHTNESS,
       3,
     ])
+  })
+})
+
+describe('sendCCParamUpdate', () => {
+  it('sends 5-byte CC payload matching firmware expectation', () => {
+    const sent: number[][] = []
+    const mockOutput = {
+      sendSysex: (_mfr: number, data: number[]) => {
+        sent.push(data)
+      },
+    } as unknown as Parameters<typeof sendCCParamUpdate>[0]
+    sendCCParamUpdate(mockOutput, 2, 3, 5, 64)
+    expect(sent).toHaveLength(1)
+    expect(sent[0]).toEqual([CMD.PARAM, SUB.REQUEST, DOMAIN.BANK_CC, 2, 3, 5, 64])
   })
 })
 

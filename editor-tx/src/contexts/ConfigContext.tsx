@@ -5,6 +5,7 @@ import {
   parseConfigDump,
   isConfigResponse,
   sendParamUpdate as midiSendParamUpdate,
+  sendCCParamUpdate as midiSendCCParamUpdate,
   sendFullConfig,
   requestConfigDump,
   requestVersion,
@@ -129,7 +130,7 @@ function configReducer(state: ConfigReducerState, action: ConfigAction): ConfigR
           // Safe to cast: we've excluded tuple fields above
           ;(newConfig.global as unknown as Record<string, number>)[key] = value
         }
-      } else if (domain === DOMAIN.BANK_KB || domain === DOMAIN.BANK_CC) {
+      } else if (domain === DOMAIN.BANK_KB) {
         const bankConfig = newConfig.banks[bank]
         if (bankConfig) {
           const key = BANK_FIELD_MAP[field]
@@ -139,6 +140,17 @@ function configReducer(state: ConfigReducerState, action: ConfigAction): ConfigR
         }
       }
 
+      return { ...state, config: newConfig }
+    }
+
+    case 'UPDATE_CC_PARAM': {
+      const { bank, ccIndex, channel, id } = action
+      const newConfig = structuredClone(state.config)
+      const bankConfig = newConfig.banks[bank]
+      if (bankConfig && ccIndex >= 0 && ccIndex < 8) {
+        bankConfig.chs[ccIndex] = channel
+        bankConfig.ids[ccIndex] = id
+      }
       return { ...state, config: newConfig }
     }
 
@@ -206,6 +218,32 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
               if (pendingParamTimestamps.current.has(key)) {
                 pendingParamTimestamps.current.delete(key)
                 console.warn(`[T16 Sync] Param ${key} sync failed after retry`)
+              }
+            }, 500)
+          }
+        }, 500)
+      }
+    },
+    [output],
+  )
+
+  const updateCCParam = useCallback(
+    (bank: number, ccIndex: number, channel: number, id: number) => {
+      dispatch({ type: 'UPDATE_CC_PARAM', bank, ccIndex, channel, id })
+
+      if (output) {
+        const key = `cc-${bank}-${ccIndex}`
+        pendingParamTimestamps.current.set(key, performance.now())
+        midiSendCCParamUpdate(output, bank, ccIndex, channel, id)
+
+        setTimeout(() => {
+          if (pendingParamTimestamps.current.has(key)) {
+            console.debug(`[T16 Sync] CC param ${key} no ACK, retrying...`)
+            midiSendCCParamUpdate(output, bank, ccIndex, channel, id)
+            setTimeout(() => {
+              if (pendingParamTimestamps.current.has(key)) {
+                pendingParamTimestamps.current.delete(key)
+                console.warn(`[T16 Sync] CC param ${key} sync failed after retry`)
               }
             }, 500)
           }
@@ -304,6 +342,7 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
     isSynced,
     setBank,
     updateParam,
+    updateCCParam,
     setConfig,
     importConfig,
     exportConfig,

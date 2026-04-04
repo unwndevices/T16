@@ -16,6 +16,7 @@ vi.mock('@/services/midi', () => ({
   parseConfigDump: vi.fn(),
   isConfigResponse: vi.fn(),
   sendParamUpdate: vi.fn(),
+  sendCCParamUpdate: vi.fn(),
   sendFullConfig: vi.fn(),
   requestConfigDump: vi.fn(),
   requestVersion: vi.fn(),
@@ -92,6 +93,19 @@ describe('ConfigProvider', () => {
     })
 
     expect(result.current.config.global.brightness).toBe(5)
+  })
+
+  it('UPDATE_CC_PARAM updates chs and ids arrays', () => {
+    const { result } = renderHook(() => useConfig(), {
+      wrapper: AllProviders,
+    })
+
+    act(() => {
+      result.current.updateCCParam(0, 2, 5, 42)
+    })
+
+    expect(result.current.config.banks[0].chs[2]).toBe(5)
+    expect(result.current.config.banks[0].ids[2]).toBe(42)
   })
 
   it('updates config via setConfig', () => {
