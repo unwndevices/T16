@@ -3,6 +3,7 @@
 #include "ConfigManager.hpp"
 #include "Configuration.hpp"
 #include "Libs/MidiProvider.hpp"
+#include <LittleFS.h>
 #include "esp_system.h"
 #include "soc/rtc_cntl_reg.h"
 
@@ -76,6 +77,13 @@ void SysExHandler::ProcessSysEx(byte* data, unsigned length)
             if (sub == SysEx::SUB_REQUEST)
             {
                 HandleBootloaderRequest();
+            }
+            break;
+
+        case SysEx::CMD_FACTORY_RESET:
+            if (sub == SysEx::SUB_REQUEST)
+            {
+                HandleFactoryReset();
             }
             break;
 
@@ -199,7 +207,41 @@ void SysExHandler::HandleParamSet(const byte* payload, size_t payloadLen)
 void SysExHandler::HandleCalibrationReset()
 {
     log_d("Calibration reset requested");
-    // TODO: Wire to CalibrationManager when separated (D-07, Phase 2)
+
+    // Delete calibration data -- device will run calibration routine on next boot
+    if (LittleFS.exists("/calibration_data.json"))
+    {
+        LittleFS.remove("/calibration_data.json");
+    }
+
+    SendAck(SysEx::CMD_CALIBRATION, SysEx::STATUS_OK);
+
+    // Allow USB to flush ACK before restart
+    delay(100);
+
+    esp_restart();
+}
+
+void SysExHandler::HandleFactoryReset()
+{
+    log_d("Factory reset requested");
+
+    // Delete both config and calibration data
+    if (LittleFS.exists("/configuration_data.json"))
+    {
+        LittleFS.remove("/configuration_data.json");
+    }
+    if (LittleFS.exists("/calibration_data.json"))
+    {
+        LittleFS.remove("/calibration_data.json");
+    }
+
+    SendAck(SysEx::CMD_FACTORY_RESET, SysEx::STATUS_OK);
+
+    // Allow USB to flush ACK before restart
+    delay(100);
+
+    esp_restart();
 }
 
 void SysExHandler::HandleBootloaderRequest()
