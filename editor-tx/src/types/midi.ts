@@ -32,6 +32,13 @@ export interface ConfigContextValue extends ConfigState {
   exportConfig(): void
 }
 
+export interface MidiTransport {
+  sendSysex(manufacturerId: number, data: number[]): void
+  addSysexListener(handler: (data: Uint8Array) => void): void
+  removeSysexListener(handler: (data: Uint8Array) => void): void
+  dispose(): void
+}
+
 export type ConfigAction =
   | { type: 'SET_CONFIG'; payload: T16Configuration }
   | { type: 'SET_DEVICE_CONFIG'; payload: T16Configuration | null }
