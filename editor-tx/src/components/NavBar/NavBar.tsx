@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router'
-import { MdTune, MdSystemUpdate, MdMenuBook } from 'react-icons/md'
+import { MdTune, MdSystemUpdate, MdEqualizer, MdMenuBook } from 'react-icons/md'
 import { useConnection } from '@/hooks/useConnection'
 import { Button } from '@/design-system'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/design-system'
@@ -37,6 +37,19 @@ export function NavBar() {
               </NavLink>
             </TooltipTrigger>
             <TooltipContent side="bottom">Update</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger>
+              <NavLink
+                to="/monitor"
+                className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
+                aria-label="Monitor"
+              >
+                <MdEqualizer size={22} />
+              </NavLink>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Monitor</TooltipContent>
           </Tooltip>
 
           <Tooltip>

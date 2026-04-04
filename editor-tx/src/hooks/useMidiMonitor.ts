@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import type { Input } from 'webmidi'
+import type { Input, ControlChangeMessageEvent, NoteMessageEvent } from 'webmidi'
 
 export interface MidiMessage {
   id: number
@@ -30,25 +30,25 @@ export function useMidiMonitor(input: Input | null) {
       setMessages((prev) => [message, ...prev].slice(0, MAX_MESSAGES))
     }
 
-    const handleCC = (e: { message: { channel: number }; controller: { number: number }; rawValue: number }) => {
+    const handleCC = (e: ControlChangeMessageEvent) => {
       addMessage({
         type: 'cc',
         channel: e.message.channel,
         data1: e.controller.number,
-        data2: e.rawValue,
+        data2: e.rawValue ?? Math.round((e.value as number) * 127),
       })
     }
 
-    const handleNoteOn = (e: { message: { channel: number }; note: { number: number }; rawAttack: number }) => {
+    const handleNoteOn = (e: NoteMessageEvent) => {
       addMessage({
         type: 'noteon',
         channel: e.message.channel,
         data1: e.note.number,
-        data2: e.rawAttack,
+        data2: e.note.rawAttack,
       })
     }
 
-    const handleNoteOff = (e: { message: { channel: number }; note: { number: number } }) => {
+    const handleNoteOff = (e: NoteMessageEvent) => {
       addMessage({
         type: 'noteoff',
         channel: e.message.channel,
@@ -57,14 +57,14 @@ export function useMidiMonitor(input: Input | null) {
       })
     }
 
-    input.addListener('controlchange', handleCC as Parameters<Input['addListener']>[1])
-    input.addListener('noteon', handleNoteOn as Parameters<Input['addListener']>[1])
-    input.addListener('noteoff', handleNoteOff as Parameters<Input['addListener']>[1])
+    input.addListener('controlchange', handleCC)
+    input.addListener('noteon', handleNoteOn)
+    input.addListener('noteoff', handleNoteOff)
 
     return () => {
-      input.removeListener('controlchange', handleCC as Parameters<Input['removeListener']>[1])
-      input.removeListener('noteon', handleNoteOn as Parameters<Input['removeListener']>[1])
-      input.removeListener('noteoff', handleNoteOff as Parameters<Input['removeListener']>[1])
+      input.removeListener('controlchange', handleCC)
+      input.removeListener('noteon', handleNoteOn)
+      input.removeListener('noteoff', handleNoteOff)
     }
   }, [input, paused])
 

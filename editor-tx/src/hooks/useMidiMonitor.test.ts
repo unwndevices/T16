@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { useMidiMonitor, MAX_MESSAGES } from './useMidiMonitor'
 import type { MidiMessage } from './useMidiMonitor'
 
@@ -74,8 +74,7 @@ describe('useMidiMonitor', () => {
     act(() => {
       mockInput.emit('noteon', {
         message: { channel: 2 },
-        note: { number: 60 },
-        rawAttack: 100,
+        note: { number: 60, rawAttack: 100 },
       })
     })
 
@@ -95,8 +94,7 @@ describe('useMidiMonitor', () => {
     act(() => {
       mockInput.emit('noteoff', {
         message: { channel: 3 },
-        note: { number: 48 },
-        rawAttack: 0,
+        note: { number: 48, rawAttack: 0 },
       })
     })
 
@@ -187,8 +185,7 @@ describe('useMidiMonitor', () => {
     act(() => {
       mockInput.emit('noteon', {
         message: { channel: 1 },
-        note: { number: 60 },
-        rawAttack: 127,
+        note: { number: 60, rawAttack: 127 },
       })
     })
     expect(result.current.messages).toHaveLength(1)
