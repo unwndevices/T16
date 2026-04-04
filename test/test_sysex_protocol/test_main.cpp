@@ -14,21 +14,27 @@ void test_cmd_values_are_unique(void)
     TEST_ASSERT_NOT_EQUAL(SysEx::CMD_VERSION, SysEx::CMD_CONFIG);
     TEST_ASSERT_NOT_EQUAL(SysEx::CMD_VERSION, SysEx::CMD_PARAM);
     TEST_ASSERT_NOT_EQUAL(SysEx::CMD_VERSION, SysEx::CMD_CALIBRATION);
+    TEST_ASSERT_NOT_EQUAL(SysEx::CMD_VERSION, SysEx::CMD_BOOTLOADER);
     TEST_ASSERT_NOT_EQUAL(SysEx::CMD_CONFIG, SysEx::CMD_PARAM);
     TEST_ASSERT_NOT_EQUAL(SysEx::CMD_CONFIG, SysEx::CMD_CALIBRATION);
+    TEST_ASSERT_NOT_EQUAL(SysEx::CMD_CONFIG, SysEx::CMD_BOOTLOADER);
     TEST_ASSERT_NOT_EQUAL(SysEx::CMD_PARAM, SysEx::CMD_CALIBRATION);
+    TEST_ASSERT_NOT_EQUAL(SysEx::CMD_PARAM, SysEx::CMD_BOOTLOADER);
+    TEST_ASSERT_NOT_EQUAL(SysEx::CMD_CALIBRATION, SysEx::CMD_BOOTLOADER);
 }
 
 void test_cmd_values_in_range(void)
 {
     TEST_ASSERT_GREATER_OR_EQUAL(0x01, SysEx::CMD_VERSION);
-    TEST_ASSERT_LESS_OR_EQUAL(0x04, SysEx::CMD_VERSION);
+    TEST_ASSERT_LESS_OR_EQUAL(0x05, SysEx::CMD_VERSION);
     TEST_ASSERT_GREATER_OR_EQUAL(0x01, SysEx::CMD_CONFIG);
-    TEST_ASSERT_LESS_OR_EQUAL(0x04, SysEx::CMD_CONFIG);
+    TEST_ASSERT_LESS_OR_EQUAL(0x05, SysEx::CMD_CONFIG);
     TEST_ASSERT_GREATER_OR_EQUAL(0x01, SysEx::CMD_PARAM);
-    TEST_ASSERT_LESS_OR_EQUAL(0x04, SysEx::CMD_PARAM);
+    TEST_ASSERT_LESS_OR_EQUAL(0x05, SysEx::CMD_PARAM);
     TEST_ASSERT_GREATER_OR_EQUAL(0x01, SysEx::CMD_CALIBRATION);
-    TEST_ASSERT_LESS_OR_EQUAL(0x04, SysEx::CMD_CALIBRATION);
+    TEST_ASSERT_LESS_OR_EQUAL(0x05, SysEx::CMD_CALIBRATION);
+    TEST_ASSERT_GREATER_OR_EQUAL(0x01, SysEx::CMD_BOOTLOADER);
+    TEST_ASSERT_LESS_OR_EQUAL(0x05, SysEx::CMD_BOOTLOADER);
 }
 
 void test_sub_values_are_unique(void)
@@ -97,6 +103,11 @@ void test_domain_values_unique(void)
     TEST_ASSERT_NOT_EQUAL(SysEx::DOMAIN_BANK_KB, SysEx::DOMAIN_BANK_CC);
 }
 
+void test_bootloader_command_constant(void)
+{
+    TEST_ASSERT_EQUAL_UINT8(0x05, SysEx::CMD_BOOTLOADER);
+}
+
 void test_status_codes(void)
 {
     TEST_ASSERT_EQUAL_HEX8(0x00, SysEx::STATUS_OK);
@@ -117,6 +128,7 @@ int main(int argc, char **argv)
     RUN_TEST(test_global_field_ids_sequential);
     RUN_TEST(test_bank_field_ids_sequential);
     RUN_TEST(test_domain_values_unique);
+    RUN_TEST(test_bootloader_command_constant);
     RUN_TEST(test_status_codes);
     return UNITY_END();
 }
