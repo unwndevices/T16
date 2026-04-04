@@ -69,8 +69,8 @@ describe('getNoteNameWithOctave', () => {
     expect(getNoteNameWithOctave(0)).toBe('C-1')
   })
 
-  it('returns C2 for MIDI note 24', () => {
-    expect(getNoteNameWithOctave(24)).toBe('C2')
+  it('returns C1 for MIDI note 24', () => {
+    expect(getNoteNameWithOctave(24)).toBe('C1')
   })
 })
 
