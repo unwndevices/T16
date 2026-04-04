@@ -16,7 +16,9 @@ import {
   DialogClose,
 } from '@/design-system'
 import { DOMAIN, FIELD_GLOBAL, FIELD_BANK } from '@/protocol/sysex'
+import { SCALES, NOTE_NAMES, getNoteNameWithOctave, computeNoteMap } from '@/constants/scales'
 import { BankSelector } from '@/components/BankSelector/BankSelector'
+import { NoteGrid } from '@/components/NoteGrid'
 import { SelectCard } from '@/components/SelectCard/SelectCard'
 import { SliderCard } from '@/components/SliderCard/SliderCard'
 import { ToggleCard } from '@/components/ToggleCard/ToggleCard'
@@ -27,44 +29,14 @@ import styles from './Dashboard.module.css'
 
 // --- Data constants ---
 
-const SCALES = [
-  'Chromatic',
-  'Ionian',
-  'Dorian',
-  'Phrygian',
-  'Lydian',
-  'Mixolydian',
-  'Aeolian',
-  'Locrian',
-  'Major Pentatonic',
-  'Minor Pentatonic',
-  'Blues',
-  'Whole Tone',
-  'Diminished',
-  'Augmented',
-  'Harmonic Minor',
-  'Melodic Minor',
-  'Japanese',
-  'Custom Scale 1',
-  'Custom Scale 2',
-]
-
-const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-
 const VELOCITY_CURVES = ['Linear', 'Exponential', 'Logarithmic', 'Cubic']
 const AFTERTOUCH_CURVES = ['Linear', 'Exponential', 'Logarithmic', 'Cubic']
 const MODES = ['Keyboard', 'Strum', 'Joystick', 'Faders']
 const TRS_TYPES = ['Type A', 'Type B']
 const CC_NAMES = ['X', 'Y', 'Z', 'M', 'A', 'B', 'C', 'D']
 
-function toSelectOptions(arr: string[]) {
+function toSelectOptions(arr: readonly string[]) {
   return arr.map((label, i) => ({ value: String(i), label }))
-}
-
-function getNoteNameWithOctave(midiNote: number): string {
-  const name = NOTE_NAMES[midiNote % 12]
-  const octave = Math.floor(midiNote / 12) - 1
-  return `${name}${octave}`
 }
 
 // --- Empty state ---
@@ -104,20 +76,25 @@ function KeyboardTab() {
     updateParam(DOMAIN.BANK_KB, selectedBank, field, value)
   }
 
-  // Compute note grid based on scale, root, octave, flip
-  const baseNote = bank.oct * 12 + bank.note
-  const keyNotes = Array.from({ length: 16 }, (_, i) => {
-    let row = Math.floor(i / 4)
-    let col = i % 4
-    if (bank.flip_x) col = 3 - col
-    if (bank.flip_y) row = 3 - row
-    const gridIndex = row * 4 + col
-    return baseNote + gridIndex
-  })
+  // Compute note grid using firmware-matching algorithm
+  const keyNotes = computeNoteMap(
+    bank.scale,
+    bank.note,
+    bank.oct,
+    bank.flip_x === 1,
+    bank.flip_y === 1,
+    config.global.custom_scale1,
+    config.global.custom_scale2,
+  )
 
   return (
     <div className={styles.tabContent}>
       <BankSelector />
+
+      <div className={styles.noteGridSection}>
+        <h3 className={styles.sectionHeading}>Note Mapping</h3>
+        <NoteGrid />
+      </div>
 
       <div className={styles.keyGrid}>
         {keyNotes.map((note, i) => (
