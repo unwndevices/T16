@@ -58,6 +58,18 @@
   gap: var(--space-md);
 }
 
+.offlineBanner {
+  background: color-mix(in srgb, var(--color-warning) 20%, transparent);
+  color: var(--gray-700);
+  font-size: var(--text-sm);
+  text-align: center;
+  padding: var(--space-xs) var(--space-md);
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 @media (max-width: 767px) {
   .inner {
     padding: 0 var(--space-md);
