@@ -1,8 +1,8 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
-import { ESPLoader, Transport } from 'esptool-js'
+import { useState, useEffect, useCallback } from 'react'
 import { Button, Card } from '@/design-system'
 import { useToast } from '@/hooks/useToast'
-import { useConnection } from '@/hooks/useConnection'
+import { useBootloader } from '@/hooks/useBootloader'
+import type { BootloaderState } from '@/hooks/useBootloader'
 import releaseNotes from '@/assets/firmwares/release_notes.json'
 import styles from './Upload.module.css'
 
@@ -58,15 +58,37 @@ function ReleaseNotesCard({ firmware }: { firmware: FirmwareRelease | null }) {
   )
 }
 
+function getButtonLabel(state: BootloaderState, isMidiConnected: boolean): string {
+  switch (state) {
+    case 'idle':
+      return isMidiConnected ? 'Update Firmware' : 'Connect Device'
+    case 'entering_bootloader':
+      return 'Entering Update Mode...'
+    case 'bootloader_ready':
+      return 'Upload Firmware'
+    case 'uploading':
+      return 'Uploading...'
+    case 'success':
+    case 'error':
+      return 'Update Firmware'
+  }
+}
+
+function getButtonVariant(state: BootloaderState, isMidiConnected: boolean): 'primary' | 'secondary' {
+  if (state === 'idle' && !isMidiConnected) return 'secondary'
+  return 'primary'
+}
+
+function isButtonDisabled(state: BootloaderState): boolean {
+  return state === 'entering_bootloader' || state === 'uploading'
+}
+
 export function Upload() {
   const [firmwares, setFirmwares] = useState<FirmwareRelease[]>([])
   const [selectedFirmware, setSelectedFirmware] = useState<FirmwareRelease | null>(null)
-  const [isSerialConnected, setIsSerialConnected] = useState(false)
-  const [isUploading, setIsUploading] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const espLoaderRef = useRef<ESPLoader | null>(null)
+  const { state, progress, enterBootloader, uploadFirmware, reset, isConnected: isMidiConnected } =
+    useBootloader()
   const { toast } = useToast()
-  const { isConnected: isMidiConnected } = useConnection()
 
   useEffect(() => {
     const notes = releaseNotes as unknown as ReleaseNotesMap
@@ -87,97 +109,50 @@ export function Upload() {
   const handleFirmwareChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selected = firmwares.find((fw) => fw.version === event.target.value)
     setSelectedFirmware(selected ?? null)
-  }
 
-  const handleConnect = async () => {
-    try {
-      // Web Serial API is not in standard TypeScript DOM types
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-      const port = await (navigator as any).serial.requestPort()
-      const transport = new Transport(port)
-      const esploader = new ESPLoader({
-        transport,
-        baudrate: 921600,
-      })
-
-      await esploader.main()
-      await esploader.flashId()
-      espLoaderRef.current = esploader
-      setIsSerialConnected(true)
-      toast({ title: 'Connected successfully', variant: 'success' })
-    } catch (error) {
-      console.error('Connection failed:', error)
-      toast({
-        title: 'Connection failed. Check that your T16 is plugged in and no other app is using it.',
-        variant: 'error',
-      })
+    // Downgrade warning: compare selected version number with device version if available
+    if (selected) {
+      const notes = releaseNotes as unknown as ReleaseNotesMap
+      const selectedVersionNum = notes[selected.version]?.version
+      // If the first firmware is the latest, check if selected is older
+      const latestVersionNum = firmwares.length > 0 ? notes[firmwares[0].version]?.version : undefined
+      if (
+        selectedVersionNum !== undefined &&
+        latestVersionNum !== undefined &&
+        selectedVersionNum < latestVersionNum
+      ) {
+        toast({
+          title: 'You are installing an older firmware version. Your settings will be preserved.',
+          variant: 'default',
+        })
+      }
     }
   }
 
-  const handleUpload = useCallback(async () => {
-    if (!selectedFirmware) {
-      toast({ title: 'Please select a firmware version before uploading.', variant: 'error' })
-      return
-    }
-    if (!espLoaderRef.current) {
-      toast({ title: 'Device not connected. Connect first.', variant: 'error' })
+  const handleAction = useCallback(async () => {
+    if (state === 'success' || state === 'error') {
+      reset()
       return
     }
 
-    setIsUploading(true)
-    setProgress(0)
+    if (state === 'idle' && !isMidiConnected) {
+      // No MIDI connected -- this is a no-op, the user needs to connect via Dashboard first
+      return
+    }
 
-    try {
+    if (state === 'idle' && isMidiConnected) {
+      await enterBootloader()
+      return
+    }
+
+    if (state === 'bootloader_ready' && selectedFirmware) {
       const firmwareUrl = new URL(
         `../../assets/firmwares/${selectedFirmware.fileName}`,
         import.meta.url,
       ).href
-      const response = await fetch(firmwareUrl)
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const blob = await response.blob()
-      const arrayBuffer = await blob.arrayBuffer()
-      const firmwareData = new Uint8Array(arrayBuffer)
-
-      const fileArray = [
-        {
-          data: firmwareData,
-          address: 0x10000,
-        },
-      ]
-
-      await espLoaderRef.current.writeFlash({
-        fileArray,
-        flashSize: 'keep',
-        flashMode: 'keep',
-        flashFreq: 'keep',
-        eraseAll: false,
-        compress: true,
-        reportProgress: (_fileIndex: number, written: number, total: number) => {
-          const pct = Math.floor((written / total) * 100)
-          setProgress(pct)
-        },
-      })
-      toast({ title: 'Firmware uploaded successfully', variant: 'success' })
-    } catch (error) {
-      console.error('Upload failed:', error)
-      toast({ title: 'Upload failed. Please try again.', variant: 'error' })
-    } finally {
-      setIsUploading(false)
-      setProgress(0)
+      await uploadFirmware(firmwareUrl)
     }
-  }, [selectedFirmware, toast])
-
-  const handleConnectOrUpload = () => {
-    if (!isSerialConnected) {
-      handleConnect()
-    } else {
-      handleUpload()
-    }
-  }
+  }, [state, isMidiConnected, enterBootloader, uploadFirmware, reset, selectedFirmware])
 
   return (
     <div className={styles.page}>
@@ -187,29 +162,18 @@ export function Upload() {
         <div className={styles.instructions}>
           <h3 className={styles.instructionsTitle}>How to update</h3>
           <ol className={styles.instructionsList}>
+            <li>Select a firmware version below.</li>
             <li>
-              Hold the <strong>MODE button</strong> down while plugging in your device. All LEDs
-              will stay off during the procedure.
+              Click <strong>Update Firmware</strong>. Your T16 will restart into update mode
+              automatically.
             </li>
-            <li>
-              Click <strong>"Connect Device"</strong>. A popup will appear -- select{' '}
-              <strong>"USB JTAG/Serial debug unit"</strong> and click <strong>"Connect"</strong>.
-            </li>
-            <li>
-              Select a firmware version and click <strong>"Update Firmware"</strong>.
-            </li>
-            <li>
-              Once complete, <strong>unplug</strong> the device to exit Update mode.
-            </li>
+            <li>Wait for the upload to complete. The device will restart when done.</li>
           </ol>
+          <p className={styles.fallbackLink}>
+            Device not entering update mode? Hold the BOOT button while plugging in.
+          </p>
         </div>
       </Card>
-
-      {isMidiConnected && (
-        <div className={styles.warning}>
-          Your device is connected via MIDI. You may need to disconnect it before flashing firmware.
-        </div>
-      )}
 
       <div className={styles.controls}>
         <div className={styles.firmwareSelect}>
@@ -234,14 +198,14 @@ export function Upload() {
         </div>
 
         <Button
-          onClick={handleConnectOrUpload}
-          variant={isSerialConnected ? 'primary' : 'secondary'}
-          disabled={isUploading}
+          onClick={handleAction}
+          variant={getButtonVariant(state, isMidiConnected)}
+          disabled={isButtonDisabled(state)}
         >
-          {isUploading ? 'Uploading...' : isSerialConnected ? 'Update Firmware' : 'Connect Device'}
+          {getButtonLabel(state, isMidiConnected)}
         </Button>
 
-        {isUploading && (
+        {state === 'uploading' && (
           <div className={styles.progressContainer}>
             <div className={styles.progressBar}>
               <div className={styles.progressFill} style={{ width: `${progress}%` }} />

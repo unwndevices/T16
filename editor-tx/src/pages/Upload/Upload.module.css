@@ -166,3 +166,17 @@
 .notesList li {
   margin-bottom: var(--space-xs);
 }
+
+.fallbackLink {
+  color: var(--gray-400);
+  font-size: var(--text-xs);
+  text-decoration: underline;
+  cursor: pointer;
+  margin-top: var(--space-sm);
+}
+
+.versionInfo {
+  font-size: var(--text-sm);
+  color: var(--gray-500);
+  margin-bottom: var(--space-md);
+}
