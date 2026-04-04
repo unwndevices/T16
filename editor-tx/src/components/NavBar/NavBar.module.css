@@ -58,6 +58,11 @@
   gap: var(--space-md);
 }
 
+.connectGroup {
+  display: flex;
+  gap: var(--space-xs);
+}
+
 .offlineBanner {
   background: color-mix(in srgb, var(--color-warning) 20%, transparent);
   color: var(--gray-700);

@@ -42,16 +42,21 @@ function toSelectOptions(arr: readonly string[]) {
 
 // --- Empty state ---
 
-function EmptyState({ onConnect }: { onConnect: () => void }) {
+function EmptyState({ onConnect, onConnectBLE }: { onConnect: () => void; onConnectBLE: () => void }) {
   return (
     <div className={styles.emptyState}>
       <h2 className={styles.emptyHeading}>No Device Connected</h2>
       <p className={styles.emptyBody}>
-        Connect your T16 via USB to start editing. Make sure Chrome or Edge is open.
+        Connect your T16 via USB or Bluetooth to start editing.
       </p>
-      <Button variant="primary" onClick={onConnect}>
-        Connect Device
-      </Button>
+      <div className={styles.connectActions}>
+        <Button variant="primary" onClick={onConnect}>
+          Connect USB
+        </Button>
+        <Button variant="secondary" onClick={onConnectBLE}>
+          Connect BLE
+        </Button>
+      </div>
       <div className={styles.skeletonGrid}>
         {Array.from({ length: 6 }).map((_, i) => (
           <Skeleton key={i} width="100%" height={48} borderRadius={8} />
@@ -409,10 +414,10 @@ function SettingsTab() {
 // --- Main Dashboard ---
 
 export function Dashboard() {
-  const { isConnected, isDemo, connect } = useConnection()
+  const { isConnected, isDemo, connect, connectBLE } = useConnection()
 
   if (!isConnected && !isDemo) {
-    return <EmptyState onConnect={connect} />
+    return <EmptyState onConnect={connect} onConnectBLE={connectBLE} />
   }
 
   return (

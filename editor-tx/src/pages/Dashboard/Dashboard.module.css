@@ -28,6 +28,11 @@
   line-height: 1.5;
 }
 
+.connectActions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
 .skeletonGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;

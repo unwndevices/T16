@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router'
-import { MdTune, MdSystemUpdate, MdEqualizer, MdMenuBook } from 'react-icons/md'
+import { MdTune, MdSystemUpdate, MdEqualizer, MdMenuBook, MdUsb, MdBluetooth } from 'react-icons/md'
 import { useConnection } from '@/hooks/useConnection'
 import { Button } from '@/design-system'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/design-system'
@@ -8,7 +8,7 @@ import { SyncIndicator } from '@/components/SyncIndicator'
 import styles from './NavBar.module.css'
 
 export function NavBar() {
-  const { isConnected, connect, disconnect } = useConnection()
+  const { isConnected, connect, connectBLE, disconnect } = useConnection()
 
   const [isOffline, setIsOffline] = useState(!navigator.onLine)
   useEffect(() => {
@@ -84,13 +84,20 @@ export function NavBar() {
 
         <div className={styles.actions}>
           <SyncIndicator />
-          <Button
-            variant={isConnected ? 'secondary' : 'primary'}
-            size="sm"
-            onClick={isConnected ? disconnect : connect}
-          >
-            {isConnected ? 'Disconnect' : 'Connect Device'}
-          </Button>
+          {isConnected ? (
+            <Button variant="secondary" size="sm" onClick={disconnect}>
+              Disconnect
+            </Button>
+          ) : (
+            <div className={styles.connectGroup}>
+              <Button variant="primary" size="sm" onClick={connect}>
+                <MdUsb size={16} /> USB
+              </Button>
+              <Button variant="secondary" size="sm" onClick={connectBLE}>
+                <MdBluetooth size={16} /> BLE
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </nav>
