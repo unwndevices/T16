@@ -57,7 +57,7 @@ The configurator must feel instant and the firmware must be maintainable — eve
 
 - ✓ CC per-parameter sync fixed (dedicated 5-byte payload for DOMAIN_BANK_CC) — v1.0 Phase 6
 - ✓ Schema 'pal' field added (export-reimport roundtrip works) — v1.0 Phase 6
-- BLE MIDI bridging incomplete (connects but no MIDI data flows — needs firmware SysEx chunking)
+- ✓ BLE MIDI bridging complete (SysEx framing, reassembly, transport abstraction) — v1.0 Phase 8
 - ✓ Calibration/factory reset SysEx commands implemented — v1.0 Phase 7
 - ✓ LedManager UpdateTransition bug fixed — v1.0 Phase 7
 - ✓ getNoteNameWithOctave duplication removed, SYNC_CONFIRMED dead code removed — v1.0 Phase 7
@@ -99,7 +99,7 @@ The configurator must feel instant and the firmware must be maintainable — eve
 | React 19 + Vite 8 + ESLint 9 flat config | Match DROP toolchain | ✓ Good |
 | ConfigManager lazy persistence (2s idle flush) | Reduces flash wear, batches edits | ✓ Good |
 | vite-plugin-pwa with workbox | Standard PWA approach | ✓ Good |
-| Web Bluetooth for BLE MIDI | Standard API, no plugins | ⚠️ Partial (bridging incomplete) |
+| Web Bluetooth for BLE MIDI | Standard API, no plugins | ✓ Good |
 
 ---
-*Last updated: 2026-04-04 after Phase 7 (Firmware Bug Confirmation & Tech Debt)*
+*Last updated: 2026-04-04 after Phase 8 (BLE MIDI Bridging) — all gap closure phases complete*
