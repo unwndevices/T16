@@ -50,7 +50,7 @@ Requirements for the full refactor. Each maps to roadmap phases.
 ### Web Features
 
 - [ ] **WEBFEAT-01**: Note grid visualizer showing 4x4 key mapping with scale degree colors for current bank
-- [ ] **WEBFEAT-02**: PWA support — service worker, manifest, offline capability, mobile BLE configuration
+- [x] **WEBFEAT-02**: PWA support — service worker, manifest, offline capability, mobile BLE configuration
 - [x] **WEBFEAT-03**: Firmware update without bootloader button — click "Update" triggers auto-bootloader via SysEx
 - [x] **WEBFEAT-04**: Config backup import validates against schema before applying
 - [ ] **WEBFEAT-05**: Live MIDI monitor with CC value visualization (real-time message display)
@@ -127,7 +127,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | WEBARCH-05 | Phase 1 | Complete |
 | WEBARCH-06 | Phase 3 | Complete |
 | WEBFEAT-01 | Phase 5 | Pending |
-| WEBFEAT-02 | Phase 5 | Pending |
+| WEBFEAT-02 | Phase 5 | Complete |
 | WEBFEAT-03 | Phase 4 | Complete |
 | WEBFEAT-04 | Phase 4 | Complete |
 | WEBFEAT-05 | Phase 5 | Pending |

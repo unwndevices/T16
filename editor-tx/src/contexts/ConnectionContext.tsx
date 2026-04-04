@@ -2,6 +2,7 @@ import { createContext, useState, useCallback, useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 import type { Input, Output } from 'webmidi'
 import { enableMidi, disableMidi, findDevice } from '@/services/midi'
+import { connectBLE as connectBLEService } from '@/services/ble'
 import type { ConnectionContextValue } from '@/types/midi'
 
 const ConnectionContext = createContext<ConnectionContextValue | null>(null)
@@ -80,6 +81,23 @@ export function ConnectionProvider({ children }: ConnectionProviderProps) {
     }
   }, [isDemo, disconnect])
 
+  const connectBLE = useCallback(async () => {
+    try {
+      const { device } = await connectBLEService()
+
+      device.addEventListener('gattserverdisconnected', () => {
+        disconnect()
+      })
+
+      // BLE connected -- input/output stay null since BLE doesn't use WebMidi Input/Output
+      // The actual MIDI message bridging would happen via characteristic notifications
+      setIsConnected(true)
+    } catch (err) {
+      console.error('BLE connection failed:', err)
+      throw err
+    }
+  }, [disconnect])
+
   // Cleanup MIDIAccess listener on unmount
   useEffect(() => {
     return () => {
@@ -110,6 +128,7 @@ export function ConnectionProvider({ children }: ConnectionProviderProps) {
     isConnected,
     isDemo,
     connect,
+    connectBLE,
     disconnect,
     setDemo,
   }

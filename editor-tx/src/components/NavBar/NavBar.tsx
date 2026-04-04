@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router'
 import { MdTune, MdSystemUpdate, MdEqualizer, MdMenuBook } from 'react-icons/md'
 import { useConnection } from '@/hooks/useConnection'
@@ -9,7 +10,20 @@ import styles from './NavBar.module.css'
 export function NavBar() {
   const { isConnected, connect, disconnect } = useConnection()
 
+  const [isOffline, setIsOffline] = useState(!navigator.onLine)
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false)
+    const handleOffline = () => setIsOffline(true)
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
+
   return (
+    <>
     <nav className={styles.nav}>
       <div className={styles.inner}>
         <div className={styles.links}>
@@ -80,5 +94,11 @@ export function NavBar() {
         </div>
       </div>
     </nav>
+    {isOffline && (
+      <div className={styles.offlineBanner} role="status" aria-live="polite">
+        You're offline. Device communication requires a connection.
+      </div>
+    )}
+    </>
   )
 }

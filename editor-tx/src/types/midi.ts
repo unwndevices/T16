@@ -11,6 +11,7 @@ export interface ConnectionState {
 
 export interface ConnectionContextValue extends ConnectionState {
   connect(): Promise<void>
+  connectBLE(): Promise<void>
   disconnect(): void
   setDemo(demo: boolean): void
 }
