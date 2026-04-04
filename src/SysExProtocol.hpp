@@ -10,6 +10,7 @@ namespace SysEx {
     constexpr uint8_t CMD_CONFIG      = 0x02;
     constexpr uint8_t CMD_PARAM       = 0x03;
     constexpr uint8_t CMD_CALIBRATION = 0x04;
+    constexpr uint8_t CMD_BOOTLOADER  = 0x05;
 
     // Sub-command bytes
     constexpr uint8_t SUB_REQUEST  = 0x01;

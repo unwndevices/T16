@@ -3,6 +3,8 @@
 #include "ConfigManager.hpp"
 #include "Configuration.hpp"
 #include "Libs/MidiProvider.hpp"
+#include "esp_system.h"
+#include "soc/rtc_cntl_reg.h"
 
 SysExHandler::SysExHandler(ConfigManager& configManager, MidiProvider& midiProvider)
     : configManager_(configManager)
@@ -67,6 +69,13 @@ void SysExHandler::ProcessSysEx(byte* data, unsigned length)
             if (sub == SysEx::SUB_REQUEST)
             {
                 HandleCalibrationReset();
+            }
+            break;
+
+        case SysEx::CMD_BOOTLOADER:
+            if (sub == SysEx::SUB_REQUEST)
+            {
+                HandleBootloaderRequest();
             }
             break;
 
@@ -191,6 +200,24 @@ void SysExHandler::HandleCalibrationReset()
 {
     log_d("Calibration reset requested");
     // TODO: Wire to CalibrationManager when separated (D-07, Phase 2)
+}
+
+void SysExHandler::HandleBootloaderRequest()
+{
+    // Send ACK first so editor knows the command was received
+    SendAck(SysEx::CMD_BOOTLOADER, SysEx::STATUS_OK);
+
+    // Allow USB to flush the ACK response
+    delay(100);
+
+    log_d("Entering bootloader mode via RTC register");
+
+    // ESP32-S3: Force download boot on next reset via RTC control register
+    // This is the ESP-IDF official mechanism for software-triggered bootloader entry
+    REG_WRITE(RTC_CNTL_OPTION1_REG, RTC_CNTL_FORCE_DOWNLOAD_BOOT);
+
+    // Restart into download mode
+    esp_restart();
 }
 
 void SysExHandler::SendAck(uint8_t cmd, uint8_t status)
