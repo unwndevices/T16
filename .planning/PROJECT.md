@@ -41,8 +41,9 @@ The configurator must feel instant and the firmware must be maintainable — eve
 - [ ] Encapsulate global state into service classes
 - [ ] PWA support for mobile configuration over BLE
 - [ ] Automated tests (firmware unit tests, web component/integration tests)
-- [ ] CI pipeline (build, lint, test)
-- [ ] Proper firmware update flow (no bootloader button hold)
+- ✓ CI pipeline (build, lint, test) — Validated in Phase 4
+- ✓ Proper firmware update flow (no bootloader button hold) — Validated in Phase 4
+- ✓ Config import validation against schema — Validated in Phase 4
 
 ### Out of Scope
 
@@ -98,4 +99,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-03 after initialization*
+*Last updated: 2026-04-04 after Phase 4 completion*
