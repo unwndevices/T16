@@ -106,8 +106,13 @@ Plans:
   1. Note grid visualizer displays 4x4 key mapping with scale degree colors for the active bank, updating when bank or scale changes
   2. Configurator works as a PWA on mobile -- installable, offline-capable, and can configure the device over BLE
   3. MIDI monitor displays incoming messages in real-time with CC value visualization
-**Plans**: TBD
+**Plans:** 3 plans
 **UI hint**: yes
+
+Plans:
+- [ ] 05-01-PLAN.md — Note grid visualizer with scale degree coloring and firmware algorithm port
+- [ ] 05-02-PLAN.md — MIDI monitor page with real-time CC/note visualization
+- [ ] 05-03-PLAN.md — PWA support with service worker, manifest, BLE MIDI connection
 
 ## Progress
 
@@ -121,4 +126,4 @@ Note: Phases 2 and 3 both depend on Phase 1. Phase 4 depends on both 2 and 3.
 | 2. Firmware Service Extraction | 0/6 | Planned | - |
 | 3. Web Rewrite | 0/6 | Planned | - |
 | 4. Integration & CI | 0/4 | Planned | - |
-| 5. Feature Polish | 0/0 | Not started | - |
+| 5. Feature Polish | 0/3 | Planned | - |
