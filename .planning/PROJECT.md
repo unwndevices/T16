@@ -58,7 +58,9 @@ The configurator must feel instant and the firmware must be maintainable — eve
 - ✓ CC per-parameter sync fixed (dedicated 5-byte payload for DOMAIN_BANK_CC) — v1.0 Phase 6
 - ✓ Schema 'pal' field added (export-reimport roundtrip works) — v1.0 Phase 6
 - BLE MIDI bridging incomplete (connects but no MIDI data flows — needs firmware SysEx chunking)
-- Calibration/factory reset buttons are no-ops
+- ✓ Calibration/factory reset SysEx commands implemented — v1.0 Phase 7
+- ✓ LedManager UpdateTransition bug fixed — v1.0 Phase 7
+- ✓ getNoteNameWithOctave duplication removed, SYNC_CONFIRMED dead code removed — v1.0 Phase 7
 
 ### Out of Scope
 
@@ -100,4 +102,4 @@ The configurator must feel instant and the firmware must be maintainable — eve
 | Web Bluetooth for BLE MIDI | Standard API, no plugins | ⚠️ Partial (bridging incomplete) |
 
 ---
-*Last updated: 2026-04-04 after Phase 6 (CC Sync & Schema Fix)*
+*Last updated: 2026-04-04 after Phase 7 (Firmware Bug Confirmation & Tech Debt)*
