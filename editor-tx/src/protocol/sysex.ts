@@ -6,6 +6,7 @@ export const CMD = {
   CONFIG: 0x02,
   PARAM: 0x03,
   CALIBRATION: 0x04,
+  BOOTLOADER: 0x05,
 } as const
 
 export const SUB = {
@@ -75,6 +76,10 @@ export function sendParamUpdate(
     CMD.PARAM, SUB.REQUEST,
     domain, bankIndex, fieldId, value
   ])
+}
+
+export function requestBootloader(output: Output): void {
+  output.sendSysex(MANUFACTURER_ID, [CMD.BOOTLOADER, SUB.REQUEST])
 }
 
 export function sendFullConfig(output: Output, config: object): void {
