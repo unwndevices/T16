@@ -6,6 +6,7 @@ import {
   MANUFACTURER_ID,
   CMD,
   SUB,
+  type SysExSender,
   requestVersion as sysexRequestVersion,
   requestConfigDump as sysexRequestConfigDump,
   sendParamUpdate as sysexSendParamUpdate,
@@ -47,28 +48,28 @@ export function findDevice(): { input: Input | null; output: Output | null } {
 /**
  * Request a full configuration dump from the device.
  */
-export function requestConfigDump(output: Output): void {
-  sysexRequestConfigDump(output)
+export function requestConfigDump(sender: SysExSender): void {
+  sysexRequestConfigDump(sender)
 }
 
 /**
  * Request firmware version from the device.
  */
-export function requestVersion(output: Output): void {
-  sysexRequestVersion(output)
+export function requestVersion(sender: SysExSender): void {
+  sysexRequestVersion(sender)
 }
 
 /**
  * Send a single parameter update to the device.
  */
 export function sendParamUpdate(
-  output: Output,
+  sender: SysExSender,
   domain: number,
   bank: number,
   field: number,
   value: number,
 ): void {
-  sysexSendParamUpdate(output, domain, bank, field, value)
+  sysexSendParamUpdate(sender, domain, bank, field, value)
 }
 
 /**
@@ -76,34 +77,34 @@ export function sendParamUpdate(
  * CC domain requires both values in one message (firmware SetCCParam is atomic).
  */
 export function sendCCParamUpdate(
-  output: Output,
+  sender: SysExSender,
   bankIndex: number,
   ccIndex: number,
   channel: number,
   id: number,
 ): void {
-  sysexSendCCParamUpdate(output, bankIndex, ccIndex, channel, id)
+  sysexSendCCParamUpdate(sender, bankIndex, ccIndex, channel, id)
 }
 
 /**
  * Send the full configuration to the device.
  */
-export function sendFullConfig(output: Output, config: T16Configuration): void {
-  sysexSendFullConfig(output, config)
+export function sendFullConfig(sender: SysExSender, config: T16Configuration): void {
+  sysexSendFullConfig(sender, config)
 }
 
 /**
  * Request calibration reset -- device will delete calibration data and restart.
  */
-export function requestCalibration(output: Output): void {
-  sysexRequestCalibration(output)
+export function requestCalibration(sender: SysExSender): void {
+  sysexRequestCalibration(sender)
 }
 
 /**
  * Request factory reset -- device will delete all data and restart.
  */
-export function requestFactoryReset(output: Output): void {
-  sysexRequestFactoryReset(output)
+export function requestFactoryReset(sender: SysExSender): void {
+  sysexRequestFactoryReset(sender)
 }
 
 /**

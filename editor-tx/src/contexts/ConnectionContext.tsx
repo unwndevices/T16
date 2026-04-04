@@ -3,7 +3,8 @@ import type { ReactNode } from 'react'
 import type { Input, Output } from 'webmidi'
 import { enableMidi, disableMidi, findDevice } from '@/services/midi'
 import { connectBLE as connectBLEService } from '@/services/ble'
-import type { ConnectionContextValue } from '@/types/midi'
+import { BLEMidiTransport } from '@/services/bleBridge'
+import type { ConnectionContextValue, MidiTransport } from '@/types/midi'
 
 const ConnectionContext = createContext<ConnectionContextValue | null>(null)
 
@@ -14,12 +15,16 @@ interface ConnectionProviderProps {
 export function ConnectionProvider({ children }: ConnectionProviderProps) {
   const [input, setInput] = useState<Input | null>(null)
   const [output, setOutput] = useState<Output | null>(null)
+  const [transport, setTransport] = useState<MidiTransport | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const [isDemo, setIsDemo] = useState(false)
 
   // Track MIDIAccess for statechange listener cleanup
   const midiAccessRef = useRef<MIDIAccess | null>(null)
   const stateChangeHandlerRef = useRef<((e: Event) => void) | null>(null)
+  // Ref for transport to avoid stale closure in disconnect callback
+  const transportRef = useRef<MidiTransport | null>(null)
+  transportRef.current = transport
 
   const setDemo = useCallback((demo: boolean) => {
     setIsDemo(demo)
@@ -29,9 +34,11 @@ export function ConnectionProvider({ children }: ConnectionProviderProps) {
   }, [])
 
   const disconnect = useCallback(() => {
+    transportRef.current?.dispose()
     disableMidi()
     setInput(null)
     setOutput(null)
+    setTransport(null)
     setIsConnected(false)
   }, [])
 
@@ -83,14 +90,14 @@ export function ConnectionProvider({ children }: ConnectionProviderProps) {
 
   const connectBLE = useCallback(async () => {
     try {
-      const { device } = await connectBLEService()
+      const { characteristic, device } = await connectBLEService()
 
       device.addEventListener('gattserverdisconnected', () => {
         disconnect()
       })
 
-      // BLE connected -- input/output stay null since BLE doesn't use WebMidi Input/Output
-      // The actual MIDI message bridging would happen via characteristic notifications
+      const bleTransport = new BLEMidiTransport(characteristic)
+      setTransport(bleTransport)
       setIsConnected(true)
     } catch (err) {
       console.error('BLE connection failed:', err)
@@ -125,6 +132,7 @@ export function ConnectionProvider({ children }: ConnectionProviderProps) {
   const value: ConnectionContextValue = {
     input,
     output,
+    transport,
     isConnected,
     isDemo,
     connect,

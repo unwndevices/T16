@@ -57,52 +57,56 @@ export const FIELD_BANK = {
 // wraps with F0 <manufacturerId> ... F7. Do NOT include manufacturer ID in data array.
 
 import type { Output } from 'webmidi'
+import type { MidiTransport } from '@/types/midi'
 
-export function requestVersion(output: Output): void {
-  output.sendSysex(MANUFACTURER_ID, [CMD.VERSION, SUB.REQUEST])
+/** A sender that supports sendSysex — either a WebMidi Output or a MidiTransport. */
+export type SysExSender = Output | MidiTransport
+
+export function requestVersion(sender: SysExSender): void {
+  sender.sendSysex(MANUFACTURER_ID, [CMD.VERSION, SUB.REQUEST])
 }
 
-export function requestConfigDump(output: Output): void {
-  output.sendSysex(MANUFACTURER_ID, [CMD.CONFIG, SUB.REQUEST])
+export function requestConfigDump(sender: SysExSender): void {
+  sender.sendSysex(MANUFACTURER_ID, [CMD.CONFIG, SUB.REQUEST])
 }
 
 export function sendParamUpdate(
-  output: Output,
+  sender: SysExSender,
   domain: number,
   bankIndex: number,
   fieldId: number,
   value: number,
 ): void {
-  output.sendSysex(MANUFACTURER_ID, [CMD.PARAM, SUB.REQUEST, domain, bankIndex, fieldId, value])
+  sender.sendSysex(MANUFACTURER_ID, [CMD.PARAM, SUB.REQUEST, domain, bankIndex, fieldId, value])
 }
 
 export function sendCCParamUpdate(
-  output: Output,
+  sender: SysExSender,
   bankIndex: number,
   ccIndex: number,
   channel: number,
   id: number,
 ): void {
-  output.sendSysex(MANUFACTURER_ID, [
+  sender.sendSysex(MANUFACTURER_ID, [
     CMD.PARAM, SUB.REQUEST,
     DOMAIN.BANK_CC, bankIndex, ccIndex, channel, id
   ])
 }
 
-export function requestBootloader(output: Output): void {
-  output.sendSysex(MANUFACTURER_ID, [CMD.BOOTLOADER, SUB.REQUEST])
+export function requestBootloader(sender: SysExSender): void {
+  sender.sendSysex(MANUFACTURER_ID, [CMD.BOOTLOADER, SUB.REQUEST])
 }
 
-export function requestCalibration(output: Output): void {
-  output.sendSysex(MANUFACTURER_ID, [CMD.CALIBRATION, SUB.REQUEST])
+export function requestCalibration(sender: SysExSender): void {
+  sender.sendSysex(MANUFACTURER_ID, [CMD.CALIBRATION, SUB.REQUEST])
 }
 
-export function requestFactoryReset(output: Output): void {
-  output.sendSysex(MANUFACTURER_ID, [CMD.FACTORY_RESET, SUB.REQUEST])
+export function requestFactoryReset(sender: SysExSender): void {
+  sender.sendSysex(MANUFACTURER_ID, [CMD.FACTORY_RESET, SUB.REQUEST])
 }
 
-export function sendFullConfig(output: Output, config: object): void {
+export function sendFullConfig(sender: SysExSender, config: object): void {
   const json = JSON.stringify(config)
   const data = Array.from(json).map((c) => c.charCodeAt(0))
-  output.sendSysex(MANUFACTURER_ID, [CMD.CONFIG, SUB.LOAD, ...data])
+  sender.sendSysex(MANUFACTURER_ID, [CMD.CONFIG, SUB.LOAD, ...data])
 }

@@ -5,6 +5,7 @@ import type { ImportResult } from '@/services/configValidator'
 export interface ConnectionState {
   input: Input | null
   output: Output | null
+  transport: MidiTransport | null
   isConnected: boolean
   isDemo: boolean
 }

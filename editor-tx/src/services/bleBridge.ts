@@ -71,8 +71,7 @@ export function frameSysExForBLE(manufacturerId: number, data: number[]): Uint8A
   {
     const [header, tsLow] = getMidiTimestamp()
     const capacity = BLE_PACKET_MAX - 2 // reserve header + timestamp
-    const chunkSize = Math.min(fullMessage.length - 1, capacity) // -1: don't include F7 in first if multi
-    // Actually, just grab as much of the full message as fits
+    // Grab as much of the full message as fits
     const endOffset = Math.min(offset + capacity, fullMessage.length)
     const chunk = fullMessage.slice(offset, endOffset)
     const pkt = new Uint8Array(2 + chunk.length)
@@ -88,8 +87,6 @@ export function frameSysExForBLE(manufacturerId: number, data: number[]): Uint8A
   // Continuation and last packets
   while (offset < fullMessage.length) {
     const [header] = getMidiTimestamp()
-    const remaining = fullMessage.length - offset
-
     // Check if this is the last packet (will contain F7)
     // Last packet needs: header(1) + data... + ts(1) + F7(1)
     // If remaining data includes F7 at end, we need to insert ts before it
@@ -217,7 +214,7 @@ export class BLEMidiTransport implements MidiTransport {
 
   private async writePackets(packets: Uint8Array[]): Promise<void> {
     for (const pkt of packets) {
-      await this.characteristic.writeValueWithoutResponse(pkt)
+      await this.characteristic.writeValueWithoutResponse(pkt as unknown as BufferSource)
     }
   }
 
