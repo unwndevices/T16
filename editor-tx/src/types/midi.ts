@@ -1,5 +1,6 @@
 import type { Input, Output } from 'webmidi'
 import type { T16Configuration } from '@/types/config'
+import type { ImportResult } from '@/services/configValidator'
 
 export interface ConnectionState {
   input: Input | null
@@ -25,6 +26,8 @@ export interface ConfigContextValue extends ConfigState {
   setBank(bank: number): void
   updateParam(domain: number, bank: number, field: number, value: number): void
   setConfig(config: T16Configuration): void
+  importConfig(data: unknown): ImportResult
+  exportConfig(): void
 }
 
 export type ConfigAction =
