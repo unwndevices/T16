@@ -55,8 +55,8 @@ The configurator must feel instant and the firmware must be maintainable — eve
 
 ### Known Gaps (from v1.0 audit)
 
-- CC per-parameter sync broken (4-byte vs 5-byte payload mismatch for DOMAIN_BANK_CC)
-- Schema missing firmware 'pal' field (export-reimport roundtrip fails)
+- ✓ CC per-parameter sync fixed (dedicated 5-byte payload for DOMAIN_BANK_CC) — v1.0 Phase 6
+- ✓ Schema 'pal' field added (export-reimport roundtrip works) — v1.0 Phase 6
 - BLE MIDI bridging incomplete (connects but no MIDI data flows — needs firmware SysEx chunking)
 - Calibration/factory reset buttons are no-ops
 
@@ -100,4 +100,4 @@ The configurator must feel instant and the firmware must be maintainable — eve
 | Web Bluetooth for BLE MIDI | Standard API, no plugins | ⚠️ Partial (bridging incomplete) |
 
 ---
-*Last updated: 2026-04-04 after v1.0 milestone completion*
+*Last updated: 2026-04-04 after Phase 6 (CC Sync & Schema Fix)*
