@@ -28,7 +28,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 **Gap Closure:** Closes CC domain payload mismatch, schema 'pal' field mismatch, "Config Edit (CC domain)" flow, "Config Import/Export" flow
 **Plans:** 2 plans
 Plans:
-- [ ] 06-01-PLAN.md — Add pal field to schema, types, defaults, and migration
+- [x] 06-01-PLAN.md — Add pal field to schema, types, defaults, and migration
 - [ ] 06-02-PLAN.md — Fix CC per-parameter sync with dedicated 5-byte SysEx path
 
 ### Phase 7: Firmware Bug Confirmation & Tech Debt
