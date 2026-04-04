@@ -2,48 +2,63 @@
 
 ## What This Is
 
-A full refactor of the T16 MIDI controller firmware and web configurator to bring both codebases to the same quality bar as eisei (firmware architecture) and DROP (web architecture). The T16 is a 16-key FSR MIDI controller with capacitive touch slider, built on ESP32-S3, configured via a browser-based WebMIDI editor.
+A fully refactored T16 MIDI controller firmware and web configurator. The T16 is a 16-key FSR MIDI controller with capacitive touch slider, built on ESP32-S3. The firmware uses service-based architecture (AppEngine pattern from eisei), and the web configurator is a TypeScript PWA with a custom design system (Radix + CSS custom properties, matching DROP).
 
 ## Core Value
 
 The configurator must feel instant and the firmware must be maintainable — every parameter change should reach the device in under 100ms, and any developer should be able to modify one feature without risking another.
+
+## Current State
+
+**Shipped:** v1.0 (2026-04-04) — 5 phases, 24 plans, 47 tasks
+
+**Firmware:** Service-based architecture with AppEngine orchestrator (14-line main.cpp), structured SysEx protocol, ConfigManager with lazy persistence, 72+ native unit tests.
+
+**Web Editor:** React 19 + TypeScript strict + Vite 8, custom design system (10 Radix components), ConnectionContext/ConfigContext split, note grid visualizer, MIDI monitor, PWA installable, 70+ Vitest tests.
+
+**CI:** GitHub Actions with firmware build/test/format and web typecheck/lint/test/build.
 
 ## Requirements
 
 ### Validated
 
 - ✓ 16-key FSR keyboard with velocity and aftertouch — existing
-- ✓ Capacitive touch slider with multiple modes (pitch bend, CC, mod) — existing
+- ✓ Capacitive touch slider with multiple modes — existing
 - ✓ Multi-transport MIDI output (USB, BLE, TRS) — existing
 - ✓ 4-bank configuration with per-bank key/CC settings — existing
-- ✓ LED matrix patterns per mode (keyboard, XY pad, strum, strips) — existing
+- ✓ LED matrix patterns per mode — existing
 - ✓ Browser-based configuration via WebMIDI SysEx — existing
-- ✓ Browser-based firmware flashing via esptool-js — existing
 - ✓ Custom scale editing — existing
 - ✓ Quick settings accessible from device — existing
+- ✓ Firmware service extraction from main.cpp — v1.0
+- ✓ Structured SysEx command protocol — v1.0
+- ✓ Per-parameter config sync (<100ms round-trip) — v1.0
+- ✓ Full config dump for backup/restore — v1.0
+- ✓ Web app rewrite in TypeScript with custom design system — v1.0
+- ✓ Note grid visualizer with scale degree colors — v1.0
+- ✓ Context split (ConnectionContext + ConfigContext) — v1.0
+- ✓ Feature-domain organization — v1.0
+- ✓ Consistent UI/UX across configurator — v1.0
+- ✓ LedManager memory leak fix (unique_ptr) — v1.0
+- ✓ TouchSlider::SetPosition bug fix — v1.0
+- ✓ XY_PAD dead branch removed — v1.0
+- ✓ HardwareTest timeout fix — v1.0
+- ✓ Header-only implementations moved to .cpp — v1.0
+- ✓ Global state encapsulated in services — v1.0
+- ✓ PWA installable and offline-capable — v1.0
+- ✓ Firmware + web unit tests — v1.0
+- ✓ CI pipeline (GitHub Actions) — v1.0
+- ✓ Firmware update without bootloader button — v1.0
+- ✓ Config import validation against schema — v1.0
+- ✓ MIDI monitor with CC visualization — v1.0
+- ✓ Browser-based firmware flashing via esptool-js — existing
 
-### Active
+### Known Gaps (from v1.0 audit)
 
-- [ ] Firmware service extraction from main.cpp (eisei architecture pattern)
-- [ ] Structured SysEx command protocol (replace magic byte matching)
-- [ ] Per-parameter config sync (send only what changed, <100ms round-trip)
-- [ ] Full config dump for backup/restore (optimized serialization)
-- [ ] Web app rewrite in TypeScript with custom design system (match DROP)
-- ✓ Working note grid visualizer with scale overlay (4x4 grid, colored by scale degree) — Validated in Phase 5
-- [ ] Split MidiProvider god-context into connection, config, and sync concerns
-- [ ] Web app organized by feature domain (contexts/, hooks/, services/, components/)
-- [ ] Consistent, polished UI/UX across all configurator pages
-- [ ] Fix memory leak in LedManager pattern transitions
-- [ ] Fix TouchSlider::SetPosition no-op bug
-- [ ] Fix unreachable XY_PAD branch in loop()
-- [ ] Fix HardwareTest infinite loop on broken key
-- [ ] Move header-only implementations to .cpp files
-- [ ] Encapsulate global state into service classes
-- ✓ PWA support for mobile configuration — Validated in Phase 5 (BLE bridging deferred — needs firmware SysEx chunking)
-- [ ] Automated tests (firmware unit tests, web component/integration tests)
-- ✓ CI pipeline (build, lint, test) — Validated in Phase 4
-- ✓ Proper firmware update flow (no bootloader button hold) — Validated in Phase 4
-- ✓ Config import validation against schema — Validated in Phase 4
+- CC per-parameter sync broken (4-byte vs 5-byte payload mismatch for DOMAIN_BANK_CC)
+- Schema missing firmware 'pal' field (export-reimport roundtrip fails)
+- BLE MIDI bridging incomplete (connects but no MIDI data flows — needs firmware SysEx chunking)
+- Calibration/factory reset buttons are no-ops
 
 ### Out of Scope
 
@@ -56,47 +71,33 @@ The configurator must feel instant and the firmware must be maintainable — eve
 ## Context
 
 - T16 is an unwn product — a 4x4 FSR MIDI controller with touch slider
-- Reference repos for architecture patterns: eisei (firmware services, command handlers, HAL), DROP (TypeScript, design system, feature domains, PWA), unwn-core (C++ conventions, testing)
-- Current firmware is a monolithic 887-line main.cpp with all logic, global state, and no tests
-- Current web editor is JavaScript with Chakra UI v2, a 500-line god-context, flat component structure, and a broken scale visualizer
-- Config sync is slow (~3sec) because it sends entire JSON config on every change with 11 filesystem read-write cycles per save on the firmware side
-- Web configurator is deployed via GitHub Pages
-- Hardware: ESP32-S3 custom board (unwn_s3), hardware revision REV_B active
+- Reference repos: eisei (firmware), DROP (web), unwn-core (C++ conventions)
+- Firmware: ~2000 LOC C++17 across service classes, tested with Unity
+- Web editor: ~3000 LOC TypeScript, React 19, Vite 8, tested with Vitest
+- Deployed via GitHub Pages (web) + esptool-js browser flashing (firmware)
+- Hardware: ESP32-S3 custom board (unwn_s3), revision REV_B
 
 ## Constraints
 
-- **Build system**: PlatformIO with Arduino framework — must stay (no CMake migration)
-- **Protocol**: MIDI SysEx for device-editor communication — MIDI-native, not switching to Web Serial
-- **Config compatibility**: Must handle migration from existing config format (version 103) to new format without data loss
+- **Build system**: PlatformIO with Arduino framework
+- **Protocol**: MIDI SysEx for device-editor communication
+- **Config compatibility**: v103 → v200 migration supported
 - **Hosting**: GitHub Pages for web configurator
-- **Hardware**: ESP32-S3 resource constraints (memory, flash, CPU)
+- **Hardware**: ESP32-S3 resource constraints
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| TypeScript + custom design system + Radix (match DROP) | Consistency across unwn web projects, Chakra v2 is EOL | — Pending |
-| Per-parameter SysEx + full dump for backup | Fast live edits (<100ms) + reliable backup/restore | — Pending |
-| Service extraction following eisei patterns | Proven architecture in sibling project, maintainability | — Pending |
-| Keep PlatformIO/Arduino | Existing ecosystem, custom board support, no migration cost | ✓ Good |
-| GitHub Pages deployment | Already in use, free, CI-friendly | ✓ Good |
-
-## Evolution
-
-This document evolves at phase transitions and milestone boundaries.
-
-**After each phase transition** (via `/gsd:transition`):
-1. Requirements invalidated? → Move to Out of Scope with reason
-2. Requirements validated? → Move to Validated with phase reference
-3. New requirements emerged? → Add to Active
-4. Decisions to log? → Add to Key Decisions
-5. "What This Is" still accurate? → Update if drifted
-
-**After each milestone** (via `/gsd:complete-milestone`):
-1. Full review of all sections
-2. Core Value check — still the right priority?
-3. Audit Out of Scope — reasons still valid?
-4. Update Context with current state
+| TypeScript + Radix + CSS custom properties | Match DROP, Chakra v2 EOL | ✓ Good |
+| Per-parameter SysEx + full dump for backup | Fast edits + reliable backup | ✓ Good |
+| Service extraction following eisei patterns | Proven architecture | ✓ Good |
+| Keep PlatformIO/Arduino | Ecosystem, no migration cost | ✓ Good |
+| GitHub Pages deployment | Free, CI-friendly | ✓ Good |
+| React 19 + Vite 8 + ESLint 9 flat config | Match DROP toolchain | ✓ Good |
+| ConfigManager lazy persistence (2s idle flush) | Reduces flash wear, batches edits | ✓ Good |
+| vite-plugin-pwa with workbox | Standard PWA approach | ✓ Good |
+| Web Bluetooth for BLE MIDI | Standard API, no plugins | ⚠️ Partial (bridging incomplete) |
 
 ---
-*Last updated: 2026-04-04 after Phase 5 completion (milestone v1.0 complete)*
+*Last updated: 2026-04-04 after v1.0 milestone completion*
