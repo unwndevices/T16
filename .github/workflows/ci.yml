@@ -61,17 +61,12 @@ jobs:
       - name: Run firmware unit tests
         run: pio test -e native_test
 
-  firmware-format:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install clang-format
-        run: sudo apt-get install -y clang-format
-
-      - name: Check firmware formatting
-        run: find src/ -name '*.hpp' -o -name '*.cpp' -o -name '*.h' | xargs clang-format --dry-run --Werror
+  # NOTE: A `firmware-format` job using `clang-format --dry-run --Werror` was
+  # removed in the Phase 13 review-fix pass (WR-07). The repo has no
+  # `.clang-format` config, so the job applied LLVM defaults that conflict with
+  # the codebase's actual style (Allman braces, 4-space indent, mixed naming
+  # per CLAUDE.md), causing CI to fail every file on first run. Re-enable only
+  # after a `.clang-format` matching the project conventions is committed.
 
   web-build:
     runs-on: ubuntu-latest
