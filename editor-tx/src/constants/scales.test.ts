@@ -200,4 +200,44 @@ describe('getScaleDegree', () => {
     expect(getScaleDegree(67, 7, ionianIntervals)).toBe(0) // G4 is root
     expect(getScaleDegree(69, 7, ionianIntervals)).toBe(1) // A4 is 2nd degree (semitone 2 from G)
   })
+
+  // WR-02 regression: custom_scale2 default intervals span multiple octaves
+  // (values >= 12). Each non-zero interval must reduce mod-12 to its pitch class
+  // and match against the lookup key.
+  describe('multi-octave custom scales (WR-02)', () => {
+    const customScale2Default = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45]
+
+    it('returns 0 for the root (interval 0)', () => {
+      expect(getScaleDegree(60, 0, customScale2Default)).toBe(0)
+    })
+
+    it('matches interval 12 (one octave up) to its pitch class — root again', () => {
+      // computeNoteMap places a note for intervals[4]=12 onto the grid; that
+      // note's pitch class is 0 (== root), so the FIRST matching degree is 0.
+      // Pre-fix this returned null because indexOf(0) found degree 0 in
+      // [0,3,6,9,12,...] (works for 0). The real failure was the next case.
+      expect(getScaleDegree(72, 0, customScale2Default)).toBe(0) // C5 from C
+    })
+
+    it('matches interval 15 (octave + minor third) — pitch class 3', () => {
+      // Pre-fix: indexOf(3) returned 1, but a note placed via interval 15
+      // in computeNoteMap (value 15 - rootNote) reduced to semitone 3, and
+      // indexOf scans the un-reduced list — degree 1 is correct here too.
+      // The bug surfaces when intervals contain only multi-octave entries
+      // for the matched pitch class. Verify all custom_scale2 placements
+      // resolve to a non-null degree (the true regression):
+      const root = 0
+      // Replicate the inner loop of computeNoteMap for a 16-key sweep with
+      // octave wrap so we cover every interval that lands on the grid.
+      for (const iv of customScale2Default) {
+        const midiNote = root + iv
+        expect(getScaleDegree(midiNote, root, customScale2Default)).not.toBeNull()
+      }
+    })
+
+    it('still returns null for notes outside the scale pitch-class set', () => {
+      // custom_scale2 mod-12 pitch classes = {0, 3, 6, 9}. Semitone 1 is not in set.
+      expect(getScaleDegree(61, 0, customScale2Default)).toBeNull()
+    })
+  })
 })

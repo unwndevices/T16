@@ -139,7 +139,12 @@ export function getScaleDegree(
   rootNote: number,
   intervals: readonly number[],
 ): number | null {
+  // Reduce both the lookup key and each interval to mod-12 so multi-octave
+  // custom scales (e.g. custom_scale2 default = [0, 3, 6, ..., 45]) match
+  // their pitch class. Without this, indexOf(0..11) misses any interval
+  // value >= 12 and the NoteGrid renders in-scale notes as out-of-scale
+  // (gray/muted), losing the hue ramp. Fix per WR-02 (Phase 14 review).
   const semitoneFromRoot = ((midiNote - rootNote) % 12 + 12) % 12
-  const degree = intervals.indexOf(semitoneFromRoot)
+  const degree = intervals.findIndex((iv) => ((iv % 12) + 12) % 12 === semitoneFromRoot)
   return degree === -1 ? null : degree
 }
