@@ -43,7 +43,11 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
   2. `pio run` with no env flag still builds T16 release (default target preserved)
   3. `#include "pinout.h"` resolves `CurrentPinout` to the T16 or T32 pinout namespace based on `-DT16` / `-DT32`
   4. Existing T16 firmware behavior is identical after the rename (smoke test on hardware)
-**Plans**: TBD
+**Plans**: 4 plans
+  - [ ] 10-01-PLAN.md — Add four PlatformIO envs (t16/t32 × debug/release) and set default_envs = t16_release
+  - [ ] 10-02-PLAN.md — Create namespaced pinout headers (pinout_t16.h, pinout_t32.h) and rewrite pinout.h as variant selector with CurrentPinout alias
+  - [ ] 10-03-PLAN.md — Migrate all firmware call sites from PIN_* macros to CurrentPinout::* (AppEngine, LedManager, ButtonHandler) and verify both variants compile
+  - [ ] 10-04-PLAN.md — Update CI to matrix over four envs, split native tests into sibling job, and run manual T16 hardware smoke test
 
 ### Phase 11: Hardware Abstraction Layer
 **Goal**: Firmware classes consume `HardwareVariantConfig` constexpr constants instead of fixed macros, with no behavior change on T16.
