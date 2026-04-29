@@ -8,10 +8,10 @@
 
 #if defined(T32)
   #include "pinout_t32.h"
-  using CurrentPinout = pinout::t32;
+  namespace CurrentPinout = pinout::t32;
 #elif defined(T16)
   #include "pinout_t16.h"
-  using CurrentPinout = pinout::t16;
+  namespace CurrentPinout = pinout::t16;
 #else
   #error "No variant defined: build must set -DT16 or -DT32 (see platformio.ini envs)"
 #endif

@@ -28,7 +28,7 @@ constexpr uint8_t T7 = 14;
 // MIDI / serial
 constexpr uint8_t TX  = 43;
 constexpr uint8_t RX  = 44;
-constexpr uint8_t TX2 = 42;
+constexpr uint8_t TX2_PIN = 42;
 
 // Buttons / extras
 constexpr uint8_t TOUCH = 2;
@@ -60,7 +60,7 @@ constexpr uint8_t T7 = 14;
 // MIDI / serial
 constexpr uint8_t TX  = 43;
 constexpr uint8_t RX  = 44;
-constexpr uint8_t TX2 = 42;
+constexpr uint8_t TX2_PIN = 42;
 
 // Buttons / extras
 constexpr uint8_t TOUCH = 21;

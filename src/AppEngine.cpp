@@ -48,7 +48,7 @@ void AppEngine::init()
     palettes_[3] = acid_gp;
 
     // MIDI initialization
-    midiProvider_.Init(CurrentPinout::RX, CurrentPinout::TX, CurrentPinout::TX2);
+    midiProvider_.Init(CurrentPinout::RX, CurrentPinout::TX, CurrentPinout::TX2_PIN);
     delay(200);
     midiProvider_.SetHandleSystemExclusive(sysExTrampoline);
 
