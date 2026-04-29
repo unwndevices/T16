@@ -44,11 +44,12 @@ private:
     unsigned long lastChangeTime_ = 0;
     static constexpr unsigned long IDLE_FLUSH_MS = 2000;
     static constexpr const char* CONFIG_FILE = "/configuration_data.json";
-    static constexpr uint8_t CURRENT_VERSION = 200;
+    static constexpr uint8_t CURRENT_VERSION = 201;
 
     void LoadFromFlash();
     void SaveToFlash();
     bool MigrateV103ToV200(JsonDocument& doc);
+    bool MigrateV200ToV201(JsonDocument& doc);
     void PopulateStructsFromDoc(const JsonDocument& doc);
     void PopulateDocFromStructs(JsonDocument& doc);
 };
