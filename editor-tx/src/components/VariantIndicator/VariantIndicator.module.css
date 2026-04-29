@@ -1,0 +1,48 @@
+.wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.tooltipAnchor {
+  width: 0;
+  height: 0;
+}
+
+.chip {
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1.4;
+}
+
+.chip:disabled {
+  cursor: default;
+}
+
+.active {
+  background: color-mix(in srgb, var(--primary-700) 10%, transparent);
+  color: var(--gray-800);
+}
+
+.offline {
+  background: var(--gray-100);
+  color: var(--gray-500);
+  font-style: italic;
+}
+
+.offlineLabel {
+  font-size: var(--text-xs);
+  color: var(--gray-500);
+  font-style: italic;
+}
+
+.helperText {
+  font-size: var(--text-xs);
+  color: var(--gray-500);
+  margin: 0;
+}

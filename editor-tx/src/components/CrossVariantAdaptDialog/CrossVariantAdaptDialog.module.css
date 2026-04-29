@@ -1,0 +1,10 @@
+.destructive {
+  color: var(--color-error);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: flex-end;
+  margin-top: var(--space-md);
+}

@@ -1,0 +1,1 @@
+export { VariantIndicator } from './VariantIndicator'

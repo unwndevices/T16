@@ -5,6 +5,7 @@ import { useConnection } from '@/hooks/useConnection'
 import { Button } from '@/design-system'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/design-system'
 import { SyncIndicator } from '@/components/SyncIndicator'
+import { VariantIndicator } from '@/components/VariantIndicator'
 import styles from './NavBar.module.css'
 
 export function NavBar() {
@@ -84,6 +85,7 @@ export function NavBar() {
 
         <div className={styles.actions}>
           <SyncIndicator />
+          <VariantIndicator />
           {isConnected ? (
             <Button variant="secondary" size="sm" onClick={disconnect}>
               Disconnect
