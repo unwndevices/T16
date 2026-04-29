@@ -1,11 +1,7 @@
 #pragma once
 
-// =============================================================================
-// PHASE 11 PLACEHOLDER (matches pinout_t32.h placeholder posture)
-// Values let -DT32 builds compile cleanly. Phase 12 (T32 Hardware Bring-Up)
-// will validate the dual-mux key permutation and finalize LED layout.
-// DO NOT flash a -DT32 binary onto T32 hardware until Phase 12 lands.
-// =============================================================================
+// Permutation source: origin/3dot0:src/main.cpp:10 (T32 keys[] array).
+// Inversion logic and compile-time validation: see static_assert block below.
 
 #include "variant_config.hpp"
 #include "pinout_t32.h"
@@ -31,21 +27,55 @@ inline constexpr MultiplexerConfig kMuxes[] = {
         /* enablePin       */ -1,
         /* selectPins      */ { pinout::t32::S0, pinout::t32::S1,
                                 pinout::t32::S2, pinout::t32::S3 },
-        /* keyMapping      */ { 0, 1, 2, 3, 4, 5, 6, 7,
-                                8, 9, 10, 11, 12, 13, 14, 15 },
+        /* keyMapping      */ { 17, 16, 19, 18,  25, 24, 27, 26,
+                                10, 11,  8,  9,   3,  2,  0,  1 },
         /* useSharedSelect */ false,
     },
     {
-        // Phase 12 placeholder — second mux mirrors first; real T32 has
-        // a separate commonPin and shared select pins.
+        // Mux 1 — separate commonPin (set in Plan 12.03), shared S0..S3.
         /* commonPin       */ pinout::t32::COM,
         /* enablePin       */ -1,
         /* selectPins      */ { pinout::t32::S0, pinout::t32::S1,
                                 pinout::t32::S2, pinout::t32::S3 },
-        /* keyMapping      */ { 16, 17, 18, 19, 20, 21, 22, 23,
-                                24, 25, 26, 27, 28, 29, 30, 31 },
+        /* keyMapping      */ { 21, 20, 23, 22,  29, 28, 31, 30,
+                                14, 15, 12, 13,   7,  6,  4,  5 },
         /* useSharedSelect */ true,
     },
 };
+
+namespace detail {
+    // Verbatim from origin/3dot0:src/main.cpp:10 — DO NOT EDIT.
+    inline constexpr uint8_t k3dot0Keys[32] = {
+        14, 15, 13, 12, 30, 31, 29, 28,
+        10, 11,  8,  9, 26, 27, 24, 25,
+         1,  0,  3,  2, 17, 16, 19, 18,
+         5,  4,  7,  6, 21, 20, 23, 22,
+    };
+
+    // Compile-time inversion: for each channel c, find pos such that
+    // k3dot0Keys[pos] == c. Mux 0 owns c in [0,16); Mux 1 owns c in [16,32).
+    constexpr uint8_t InvertedKeyMapping(uint8_t channel) {
+        for (uint8_t pos = 0; pos < 32; ++pos) {
+            if (k3dot0Keys[pos] == channel) return pos;
+        }
+        return 0xFF;
+    }
+
+    // Verify Mux 0 keyMapping matches the inversion.
+    static_assert([] {
+        for (uint8_t ch = 0; ch < 16; ++ch) {
+            if (kMuxes[0].keyMapping[ch] != InvertedKeyMapping(ch)) return false;
+        }
+        return true;
+    }(), "T32 mux 0 keyMapping does not match origin/3dot0 inversion");
+
+    // Verify Mux 1 keyMapping matches the inversion (channels 16..31).
+    static_assert([] {
+        for (uint8_t ch = 0; ch < 16; ++ch) {
+            if (kMuxes[1].keyMapping[ch] != InvertedKeyMapping(ch + 16)) return false;
+        }
+        return true;
+    }(), "T32 mux 1 keyMapping does not match origin/3dot0 inversion");
+} // namespace detail
 
 }  // namespace variant::t32
