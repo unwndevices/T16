@@ -35,7 +35,17 @@ const GLOBAL_KEYS = [
   'custom_scale1', 'custom_scale2',
 ] as const
 
-export function migrateV103(data: Record<string, unknown>): T16Configuration | null {
+// migrateV103 produces a v200-shaped object (no `variant` field). Callers are
+// expected to chain it through migrateV200ToV201 to land on a fully valid
+// T16Configuration. The return type is intentionally loose because v200 output
+// is not assignable to T16Configuration's `version: 201` literal.
+export type V200Config = {
+  version: 200
+  global: T16Configuration['global']
+  banks: T16Configuration['banks']
+}
+
+export function migrateV103(data: Record<string, unknown>): V200Config | null {
   try {
     // Validate that required flat keys exist for migration
     const hasGlobalKeys = GLOBAL_KEYS.every(
@@ -75,6 +85,38 @@ export function migrateV103(data: Record<string, unknown>): T16Configuration | n
   }
 }
 
+// migrateV200ToV201 default-injects `variant`. v200 only existed in T16 builds
+// (CONTEXT.md D13.2), so 'T16' is the safe default when the caller has no
+// device context. Editor-tx may pass an explicit variant when adapting after
+// device connection.
+//
+// Edge: a v200 input with a stray `variant` field is treated as malformed —
+// migration overwrites it with the caller's defaultVariant. This is correct
+// because `variant` only became part of the schema at v201.
+export function migrateV200ToV201(
+  data: Record<string, unknown>,
+  defaultVariant: 'T16' | 'T32' = 'T16',
+): T16Configuration | null {
+  if (typeof data.version !== 'number' || data.version !== 200) return null
+  const next = { ...data, version: 201, variant: defaultVariant } as unknown as T16Configuration
+  return next
+}
+
+// adaptConfigForVariant is the pure cross-variant adapter consumed by Phase 14's
+// load modal (D13.1). For v201 today this is a discriminator rewrite — banks
+// are 4 in both variants and custom_scales are 16 in both. When Phase 14
+// introduces variant-bound per-key arrays (`keyMap`, `scales`, `ccConfig`),
+// branch here:
+//   - T16 → T32: pad arrays from 16 to 32 with default values
+//   - T32 → T16: truncate arrays from 32 to 16; caller must show data-loss warning per D13.1
+export function adaptConfigForVariant(
+  config: T16Configuration,
+  targetVariant: 'T16' | 'T32',
+): T16Configuration {
+  if (config.variant === targetVariant) return config
+  return { ...config, variant: targetVariant }
+}
+
 export interface ImportResult {
   valid: boolean
   config: T16Configuration | null
@@ -84,32 +126,63 @@ export interface ImportResult {
 
 export function prepareImport(data: unknown): ImportResult {
   const obj = data as Record<string, unknown>
-  const version = typeof obj?.version === 'number' ? obj.version : 200
+  const version = typeof obj?.version === 'number' ? obj.version : 201
 
-  if (version < 200) {
-    const migrated = migrateV103(obj)
-    if (!migrated) {
-      return {
-        valid: false,
-        config: null,
-        errors: [{ field: 'version', message: `Config version ${version} could not be migrated` }],
-        migrated: false,
-      }
-    }
-    const result = validateConfig(migrated)
+  // v201 direct path: validate only
+  if (version === 201) {
+    const result = validateConfig(data)
     return {
       valid: result.valid,
-      config: result.valid ? migrated : null,
+      config: result.valid ? (data as T16Configuration) : null,
+      errors: result.errors,
+      migrated: false,
+    }
+  }
+
+  // Forward-incompatible (D13.2 symmetry — firmware logs+defaults, editor rejects loudly)
+  if (version > 201) {
+    return {
+      valid: false,
+      config: null,
+      errors: [{ field: 'version', message: `Config version ${version} is not supported by this editor` }],
+      migrated: false,
+    }
+  }
+
+  // v200 → v201
+  if (version === 200) {
+    const v201 = migrateV200ToV201(obj)
+    if (!v201) {
+      return { valid: false, config: null, errors: [{ field: 'version', message: 'Failed to migrate v200 → v201' }], migrated: false }
+    }
+    const result = validateConfig(v201)
+    return {
+      valid: result.valid,
+      config: result.valid ? v201 : null,
       errors: result.errors,
       migrated: true,
     }
   }
 
-  const result = validateConfig(data)
-  return {
-    valid: result.valid,
-    config: result.valid ? (data as T16Configuration) : null,
-    errors: result.errors,
-    migrated: false,
+  // v1xx → v200 → v201
+  if (version < 200) {
+    const v200 = migrateV103(obj)
+    if (!v200) {
+      return { valid: false, config: null, errors: [{ field: 'version', message: `Config version ${version} could not be migrated` }], migrated: false }
+    }
+    const v201 = migrateV200ToV201(v200 as unknown as Record<string, unknown>)
+    if (!v201) {
+      return { valid: false, config: null, errors: [{ field: 'version', message: 'Failed v200 → v201 step' }], migrated: false }
+    }
+    const result = validateConfig(v201)
+    return {
+      valid: result.valid,
+      config: result.valid ? v201 : null,
+      errors: result.errors,
+      migrated: true,
+    }
   }
+
+  // Unreachable, but keep TypeScript exhaustive
+  return { valid: false, config: null, errors: [{ field: 'version', message: 'Unhandled version' }], migrated: false }
 }
