@@ -3,6 +3,15 @@
 #define ADC_BUFFER 512
 #define ADC_NUM_BYTES 64 // 256 samples of 16 bits
 
+// Build with `pio run -e t32_debug --project-option="build_flags=-DSCAN_TIMING_LOG"`
+// (or add SCAN_TIMING_LOG to a custom env's build_flags) to enable per-pass
+// timing logs over Serial. Operationalizes T32-01 success gate (CONTEXT D12.4).
+// Not enabled in default builds.
+#ifdef SCAN_TIMING_LOG
+  static unsigned long g_pass_start_us = 0;
+  static unsigned long g_pass_count = 0;
+#endif
+
 AdcChannelConfig::AdcChannelConfig()
 {
     _pin = 0;
@@ -281,6 +290,10 @@ void Adc::ReadValues()
     // declare useSharedSelect=true).
     SetMuxChannel(iterator);
 
+#ifdef SCAN_TIMING_LOG
+    if (iterator == 0) g_pass_start_us = micros();
+#endif
+
     // Read every mux's commonPin BEFORE incrementing the channel iterator.
     for (uint8_t m = 0; m < _mux_count; ++m)
     {
@@ -300,4 +313,14 @@ void Adc::ReadValues()
 
     iterator++;
     if (iterator >= 16) iterator = 0;   // 16 = channels per mux, NOT total
+
+#ifdef SCAN_TIMING_LOG
+    if (iterator == 0) {
+        unsigned long elapsed = micros() - g_pass_start_us;
+        ++g_pass_count;
+        if ((g_pass_count % 32) == 0) {
+            Serial.printf("ADC pass #%lu: %lu us\n", g_pass_count, elapsed);
+        }
+    }
+#endif
 }

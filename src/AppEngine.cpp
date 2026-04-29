@@ -99,14 +99,14 @@ void AppEngine::init()
     MigrateLegacyCalibrationFile();
     DataManager calibration(variant::CalibrationFilePath());
     calibration.Init();
-    if (!calibration.LoadArray(calibrationData_.minVal, "minVal", 16))
+    if (!calibration.LoadArray(calibrationData_.minVal, "minVal", CalibrationData::kSize))
     {
-        calibrationService_.runHardwareTest(keys_, 16);
+        calibrationService_.runHardwareTest(keys_, CalibrationData::kSize);
         Serial.println("Calibration data not found, starting calibration routine");
-        calibrationService_.runCalibration(keys_, 16, touchBtn_, modeBtn_, keyboard_, slider_);
+        calibrationService_.runCalibration(keys_, CalibrationData::kSize, touchBtn_, modeBtn_, keyboard_, slider_);
         // runCalibration restarts the ESP -- won't reach here
     }
-    calibration.LoadArray(calibrationData_.maxVal, "maxVal", 16);
+    calibration.LoadArray(calibrationData_.maxVal, "maxVal", CalibrationData::kSize);
 
     // Check if touch button held during boot -- reset config
     touchBtn_.Update();
@@ -125,12 +125,12 @@ void AppEngine::init()
     log_d("Configuration initialized");
 
     // Set up ADC calibration and start
-    adc_.SetCalibration(calibrationData_.minVal, calibrationData_.maxVal, 16);
+    adc_.SetCalibration(calibrationData_.minVal, calibrationData_.maxVal, CalibrationData::kSize);
     adc_.Start();
 
     // Keyboard initialization
     KeyboardConfig keyboard_config;
-    keyboard_config.Init(keys_, 16);
+    keyboard_config.Init(keys_, variant::CurrentVariant::kConfig.TOTAL_KEYS);
     keyboard_.Init(&keyboard_config, &adc_);
 
     KeyModeData& kb = configManager_.Bank(params_.bank);

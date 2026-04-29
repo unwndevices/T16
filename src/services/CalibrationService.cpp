@@ -63,7 +63,8 @@ void CalibrationService::runCalibration(Key* keys, uint8_t numKeys, Button& touc
     keyboard.RemoveOnStateChanged();
     slider.onSensorTouched.DisconnectAll();
 
-    uint16_t minVal[16], maxVal[16];
+    constexpr uint8_t kMaxKeys = variant::CurrentVariant::kConfig.TOTAL_KEYS;
+    uint16_t minVal[kMaxKeys], maxVal[kMaxKeys];
 
     // Calibrate minimum values for all keys
     for (int i = 0; i < numKeys; i++)
@@ -118,7 +119,8 @@ void CalibrationService::runCalibration(Key* keys, uint8_t numKeys, Button& touc
     }
 
     // Save calibration data
-    uint16_t minVals[16], maxVals[16];
+    uint16_t minVals[kMaxKeys];
+    uint16_t maxVals[kMaxKeys];
     adc_.GetCalibration(minVals, maxVals, numKeys);
 
     DataManager calibration(variant::CalibrationFilePath());

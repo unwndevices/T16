@@ -11,8 +11,9 @@ inline constexpr uint8_t BANK_AMT = variant::CurrentVariant::kConfig.BANK_AMT;
 
 struct CalibrationData
 {
-    uint16_t minVal[16] = {0};
-    uint16_t maxVal[16] = {0};
+    static constexpr uint8_t kSize = variant::CurrentVariant::kConfig.TOTAL_KEYS;
+    uint16_t minVal[kSize] = {0};
+    uint16_t maxVal[kSize] = {0};
 };
 
 struct KeyModeData
