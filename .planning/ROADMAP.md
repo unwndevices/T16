@@ -81,7 +81,19 @@ Plans:
   3. The T32 key permutation from `origin/3dot0` decomposes into two 16-entry `keyMapping[]` arrays and physical key positions match logical indices when pressed
   4. Calibration completes successfully on physical T32 hardware and `/calibration_data.json` survives a power cycle with correct per-key thresholds
   5. T16 hardware remains functional (regression check after dual-mux changes)
-**Plans**: TBD
+**Plans**:
+  - **Wave 1** *(parallel — no inter-plan deps)*
+    - 12.01 — Per-variant calibration filename + legacy migration (T32-04)
+    - 12.02 — T32 key permutation in `variant_t32.hpp` `keyMapping[]` (T32-03)
+  - **Wave 2** *(blocked on Wave 1 — consumes Plan 12.02 keyMapping data)*
+    - 12.03 — Dual-mux ADC scan in `Adc::InitMuxes` / `ReadValues` + per-channel keyMapping translation (T32-01, T32-02, T32-03)
+  - **Wave 3** *(blocked on Wave 2 — calibration scale-up consumes scan path)*
+    - 12.04 — Calibration scale-up to TOTAL_KEYS + scan-time instrumentation + hardware bring-up smoke (T32-01, T32-04)
+
+  **Cross-cutting constraints** (truths that appear in 2+ plans):
+  - All four PlatformIO envs (`esp32s3`, `release`, `t32`, `t32_release`) build clean (12.01, 12.02, 12.03, 12.04).
+  - Hardware-dependent acceptance criteria are tagged `checkpoint:human-verify` with `validation_deferred: true` and surface in `12-VERIFICATION.md` § "Validation Deferred → Milestone v1.1 Batch" — they do NOT block plan completion (12.01.3, 12.02.3, 12.03.5, 12.04.5).
+  - Source of truth for T32 scan + permutation behavior is `origin/3dot0:src/main.cpp:10` (permutation array) and `origin/3dot0:src/Libs/Adc.cpp::ReadValues` (scan loop) (12.02, 12.03).
 
 ### Phase 13: Config Schema & Migration
 **Goal**: Config schema carries a `variant` discriminator and migrates v200 configs forward without data loss.
