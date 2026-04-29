@@ -117,7 +117,24 @@ Plans:
   3. Per-key array editors (note maps, scales, CC assignments) render exactly `TOTAL_KEYS` rows for the active variant
   4. The calibration view branches on variant and shows the correct number of pads
   5. `pages/Upload.tsx` selects the matching `.bin` for the target variant (auto-detect or user-pick — decided in discuss) and flashes it successfully via esptool-js
-**Plans**: TBD
+**Plans**: 5 plans
+
+**Wave 1** *(no dependencies — runs in parallel)*
+  - [ ] 14-01-PLAN.md — Variant types, ConfigContext.variant + capabilities, useVariant hook
+  - [ ] 14-02-PLAN.md — CMD_CAPABILITIES handshake wire-in (sysex protocol + ConnectionContext dispatch)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+  - [ ] 14-03-PLAN.md — Parametric `<KeyboardGrid>` + parametrize NoteGrid + per-key array editors for TOTAL_KEYS
+  - [ ] 14-04-PLAN.md — Variant indicator chip, offline picker, cross-variant adapt modal + adaptConfigForVariant
+
+**Wave 3** *(blocked on 14-01 + 14-02)*
+  - [ ] 14-05-PLAN.md — Upload page variant dropdown + override confirmation + capability-driven hiding + bundle T32 binary
+
+**Cross-cutting constraints:**
+- All copy locked verbatim to `14-UI-SPEC.md` (no paraphrasing)
+- No new design tokens — reuse existing `--space-*`, `--gray-*`, `--primary-700`, `--color-error`
+- `useVariant()` is the only sanctioned read path for variant in app code (no raw `useContext(ConfigContext)` for variant)
+
 **UI hint**: yes
 
 ## Progress
