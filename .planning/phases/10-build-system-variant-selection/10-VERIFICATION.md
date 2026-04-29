@@ -1,6 +1,6 @@
 ---
 phase: 10-build-system-variant-selection
-status: human_needed
+status: validation_deferred
 plans_complete: 4
 plans_total: 4
 requirements_complete: [BUILD-01, BUILD-02, BUILD-03]
