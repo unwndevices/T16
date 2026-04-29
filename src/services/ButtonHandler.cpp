@@ -28,14 +28,14 @@ void ButtonHandler::handleButton(int idx, Button::State state)
 {
     if (state == Button::State::CLICKED)
     {
-        if (idx == PIN_TOUCH)
+        if (idx == CurrentPinout::TOUCH)
         {
             log_d("Touch button clicked");
             modeManager_.cycleSliderMode();
             sliderProcessor_.onSliderModeChanged();
         }
 
-        if (idx == PIN_MODE)
+        if (idx == CurrentPinout::MODE)
         {
             log_d("Mode button clicked");
             Mode currentMode = modeManager_.getMode();
@@ -52,7 +52,7 @@ void ButtonHandler::handleButton(int idx, Button::State state)
 
     if (state == Button::State::LONG_PRESSED)
     {
-        if (idx == PIN_TOUCH)
+        if (idx == CurrentPinout::TOUCH)
         {
             if (modeBtn_.GetState() == Button::State::LONG_PRESSED)
             {
@@ -83,7 +83,7 @@ void ButtonHandler::handleButton(int idx, Button::State state)
                 params_.midiLearn = true;
             }
         }
-        if (idx == PIN_MODE)
+        if (idx == CurrentPinout::MODE)
         {
             if (touchBtn_.GetState() == Button::State::LONG_PRESSED)
             {
@@ -122,7 +122,7 @@ void ButtonHandler::handleButton(int idx, Button::State state)
 
     if (state == Button::State::LONG_RELEASED)
     {
-        if (idx == PIN_TOUCH)
+        if (idx == CurrentPinout::TOUCH)
         {
             log_d("Touch button long released");
             params_.midiLearn = false;

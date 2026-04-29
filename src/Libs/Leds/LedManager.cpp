@@ -59,7 +59,7 @@ LedManager::~LedManager() = default;
 
 void LedManager::Init()
 {
-    FastLED.addLeds<WS2812B, PIN_LED, GRB>(leds, NUM_LEDS);
+    FastLED.addLeds<WS2812B, CurrentPinout::LED_PIN, GRB>(leds, NUM_LEDS);
     FastLED.setCorrection(TypicalLEDStrip);
     FastLED.setTemperature(Candle);
     FastLED.setDither(0);
