@@ -168,17 +168,48 @@ bool ConfigManager::DeserializeFromBuffer(const char* buffer, size_t length)
         return false;
     }
 
+    // Reject forward versions explicitly (parity with MigrateIfNeeded / D13.2).
+    // Parse as uint16_t to avoid silently truncating values >= 256 to their low byte
+    // (WR-02). A payload of "version": 256 must not collapse to "version": 0.
+    uint16_t version = doc["version"] | 0;
+    if (version > CURRENT_VERSION)
+    {
+        log_d("SysEx config version %u > %u — rejecting", version, CURRENT_VERSION);
+        return false;
+    }
+
     // Defensive variant check (D13.4). Editor-tx already runs adaptConfigForVariant
     // before sending; this rejects any payload that slipped past. If `variant` is
     // missing entirely (e.g. an older editor sending a v200-shaped payload), skip
-    // the rejection — the migration path will catch a missing variant if version
-    // is too low.
+    // the rejection — the migration path below repairs it.
     const char* fileVariant = doc["variant"] | "";
     if (fileVariant[0] != '\0' && strcmp(fileVariant, variant::CurrentVariant::kConfig.NAME) != 0)
     {
         log_d("SysEx config variant mismatch (msg=%s, device=%s) — rejecting",
               fileVariant, variant::CurrentVariant::kConfig.NAME);
         return false;  // Reject without overwriting on-disk config
+    }
+
+    // Run migrations so older payloads land on CURRENT_VERSION before populating
+    // structs (CR-01). This restores the invariant "all version transitions go
+    // through MigrateV* functions" on the SysEx import path. version == 0 is
+    // tolerated: it represents a missing-version field on a v200/v201-shaped
+    // payload (older editors that omit the key) — the variant gate above already
+    // accepts a missing variant for that case, and PopulateStructsFromDoc handles
+    // both nested and flat shapes.
+    if (version >= 100 && version < 200)
+    {
+        MigrateV103ToV200(doc);
+        MigrateV200ToV201(doc);
+    }
+    else if (version == 200)
+    {
+        MigrateV200ToV201(doc);
+    }
+    else if (version != 0 && version != CURRENT_VERSION)
+    {
+        log_d("SysEx config version %u not recognized — rejecting", version);
+        return false;
     }
 
     PopulateStructsFromDoc(doc);
@@ -214,12 +245,36 @@ bool ConfigManager::MigrateIfNeeded()
         return false;
     }
 
-    uint8_t version = doc["version"] | 0;
+    // Parse version as uint16_t to avoid truncation of payloads >= 256 (WR-02).
+    // CURRENT_VERSION stays uint8_t until the schema actually crosses byte
+    // boundaries; only the parse target is widened here.
+    uint16_t version = doc["version"] | 0;
 
     if (version == CURRENT_VERSION)
     {
-        // v201: verify the on-disk variant matches this binary's variant
+        // v201: verify the on-disk variant matches this binary's variant.
         const char* fileVariant = doc["variant"] | "";
+
+        // WR-01: distinguish missing-variant from wrong-variant. A v201 file with
+        // no variant key (manual edit, partial flash write, or a bug in an older
+        // build that wrote v201 without variant) is more likely corruption than a
+        // T32-on-T16 mismatch — repair by injecting the current variant and
+        // re-saving rather than wiping all user config.
+        if (fileVariant[0] == '\0')
+        {
+            log_d("v201 config missing variant — repairing with %s",
+                  variant::CurrentVariant::kConfig.NAME);
+            doc["variant"] = variant::CurrentVariant::kConfig.NAME;
+            File outFile = LittleFS.open(CONFIG_FILE, "w");
+            if (outFile)
+            {
+                serializeJson(doc, outFile);
+                outFile.close();
+            }
+            PopulateStructsFromDoc(doc);
+            return true;
+        }
+
         if (strcmp(fileVariant, variant::CurrentVariant::kConfig.NAME) != 0)
         {
             log_d("Variant mismatch on load (file=%s, device=%s) — using defaults",
@@ -401,8 +456,11 @@ void ConfigManager::SaveToFlash()
 
 void ConfigManager::PopulateStructsFromDoc(const JsonDocument& doc)
 {
-    uint8_t version = doc["version"] | 0;
-    global_.version = version;
+    // Parse as uint16_t to avoid truncation; assign through a clamped narrowing
+    // to global_.version (uint8_t) — values >= 256 should never reach here
+    // because callers reject forward versions, but clamp defensively (WR-02).
+    uint16_t parsedVersion = doc["version"] | 0;
+    global_.version = (parsedVersion > 0xFF) ? 0xFF : static_cast<uint8_t>(parsedVersion);
 
     // v200 format: global fields under "global" key
     JsonObjectConst globalObj = doc["global"].as<JsonObjectConst>();

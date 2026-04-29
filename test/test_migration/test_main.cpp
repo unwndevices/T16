@@ -250,6 +250,85 @@ void test_future_version_falls_back_to_defaults(void)
     TEST_ASSERT_EQUAL_UINT8(0, cm.Global().mode);          // default
 }
 
+// --- SysEx import path migration (CR-01) ---
+
+void test_sysex_import_v103_migrates_to_v201(void)
+{
+    cm.Init();
+    bool result = cm.DeserializeFromBuffer(V103_JSON, strlen(V103_JSON));
+    TEST_ASSERT_TRUE(result);
+    // Migration ran on import — version stamp tracks payload, then PopulateDoc
+    // re-stamps CURRENT_VERSION on next Save. Here we check the in-struct view.
+    TEST_ASSERT_EQUAL_UINT8(201, cm.Global().version);
+    TEST_ASSERT_EQUAL_UINT8(2, cm.Global().mode);            // preserved from V103_JSON
+    TEST_ASSERT_EQUAL_UINT8(4, cm.Global().brightness);      // preserved
+}
+
+void test_sysex_import_v200_migrates_to_v201(void)
+{
+    cm.Init();
+    bool result = cm.DeserializeFromBuffer(V200_JSON_ROOT_VERSION, strlen(V200_JSON_ROOT_VERSION));
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_UINT8(201, cm.Global().version);
+    TEST_ASSERT_EQUAL_UINT8(2, cm.Global().mode);            // preserved from V200 fixture
+    TEST_ASSERT_EQUAL_UINT8(4, cm.Global().brightness);
+}
+
+void test_sysex_import_rejects_forward_version(void)
+{
+    cm.Init();
+    // v202 payload — must be rejected on the import path (parity with on-flash MigrateIfNeeded).
+    const char* future = "{\"version\":202,\"variant\":\"T16\",\"global\":{},\"banks\":[]}";
+    bool result = cm.DeserializeFromBuffer(future, strlen(future));
+    TEST_ASSERT_FALSE(result);
+}
+
+void test_sysex_import_rejects_overflow_version(void)
+{
+    cm.Init();
+    // version: 300 (>255) — must be rejected, not silently truncated to 44 (WR-02).
+    const char* overflow = "{\"version\":300,\"variant\":\"T16\",\"global\":{},\"banks\":[]}";
+    bool result = cm.DeserializeFromBuffer(overflow, strlen(overflow));
+    TEST_ASSERT_FALSE(result);
+}
+
+void test_sysex_import_v201_with_missing_variant_accepted(void)
+{
+    cm.Init();
+    // v201-shaped payload with no variant key — accepted (variant gate is permissive
+    // when the key is absent, matching the existing tolerance comment).
+    const char* missing =
+        "{\"version\":201,\"global\":{\"mode\":5,\"sensitivity\":1,\"brightness\":6,"
+        "\"midi_trs\":0,\"trs_type\":0,\"passthrough\":0,\"midi_ble\":0,"
+        "\"custom_scale1\":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"
+        "\"custom_scale2\":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]},"
+        "\"banks\":[]}";
+    bool result = cm.DeserializeFromBuffer(missing, strlen(missing));
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_UINT8(5, cm.Global().mode);
+}
+
+// --- v201 missing-variant repair on flash load (WR-01) ---
+
+void test_v201_missing_variant_is_repaired_not_wiped(void)
+{
+    // v201 file with no variant key — should be REPAIRED (variant injected,
+    // re-saved) rather than wiped to defaults. Preserves user config.
+    write_config(
+        "{\"version\":201,"
+        "\"global\":{\"mode\":4,\"sensitivity\":2,\"brightness\":9,"
+        "\"midi_trs\":1,\"trs_type\":0,\"passthrough\":0,\"midi_ble\":1,"
+        "\"custom_scale1\":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"
+        "\"custom_scale2\":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]},"
+        "\"banks\":[]}");
+    cm.Init();
+    // User config preserved (NOT wiped)
+    TEST_ASSERT_EQUAL_UINT8(4, cm.Global().mode);
+    TEST_ASSERT_EQUAL_UINT8(2, cm.Global().sensitivity);
+    TEST_ASSERT_EQUAL_UINT8(9, cm.Global().brightness);
+    TEST_ASSERT_EQUAL_UINT8(201, cm.Global().version);
+}
+
 int main(int argc, char **argv)
 {
     UNITY_BEGIN();
@@ -269,5 +348,11 @@ int main(int argc, char **argv)
     RUN_TEST(test_v201_matching_variant_passes_through);
     RUN_TEST(test_v201_variant_mismatch_falls_back_to_defaults);
     RUN_TEST(test_future_version_falls_back_to_defaults);
+    RUN_TEST(test_sysex_import_v103_migrates_to_v201);
+    RUN_TEST(test_sysex_import_v200_migrates_to_v201);
+    RUN_TEST(test_sysex_import_rejects_forward_version);
+    RUN_TEST(test_sysex_import_rejects_overflow_version);
+    RUN_TEST(test_sysex_import_v201_with_missing_variant_accepted);
+    RUN_TEST(test_v201_missing_variant_is_repaired_not_wiped);
     return UNITY_END();
 }
