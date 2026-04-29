@@ -1,4 +1,6 @@
 import { useConfig } from '@/hooks/useConfig'
+import { useVariant } from '@/hooks/useVariant'
+import { KeyboardGrid } from '@/components/KeyboardGrid'
 import {
   SCALE_INTERVALS,
   computeNoteMap,
@@ -9,6 +11,7 @@ import styles from './NoteGrid.module.css'
 
 export function NoteGrid() {
   const { config, selectedBank } = useConfig()
+  const { variant, totalKeys } = useVariant()
   const bank = config.banks[selectedBank]
 
   const noteMap = computeNoteMap(
@@ -19,6 +22,7 @@ export function NoteGrid() {
     bank.flip_y === 1,
     config.global.custom_scale1,
     config.global.custom_scale2,
+    totalKeys,
   )
 
   // Select correct intervals for degree coloring
@@ -32,8 +36,13 @@ export function NoteGrid() {
   }
 
   return (
-    <div role="grid" className={styles.grid}>
-      {noteMap.map((midiNote, i) => {
+    <KeyboardGrid
+      keys={totalKeys}
+      cols={4}
+      rows={totalKeys / 4}
+      aria-label={`Keyboard layout: ${variant}, ${totalKeys} keys`}
+      renderKey={(i) => {
+        const midiNote = noteMap[i]
         const degree = getScaleDegree(midiNote, bank.note, intervals)
         const isInScale = degree !== null
         const noteName = getNoteNameWithOctave(midiNote)
@@ -59,17 +68,16 @@ export function NoteGrid() {
 
         return (
           <div
-            key={i}
             role="gridcell"
             aria-label={ariaLabel}
-            className={`${styles.cell}${isInScale ? '' : ` ${styles.muted}`}`}
+            className={isInScale ? styles.cellInner : `${styles.cellInner} ${styles.muted}`}
             style={bgStyle}
           >
             <span className={styles.noteName}>{noteName}</span>
             <span className={styles.noteNumber}>{midiNote}</span>
           </div>
         )
-      })}
-    </div>
+      }}
+    />
   )
 }

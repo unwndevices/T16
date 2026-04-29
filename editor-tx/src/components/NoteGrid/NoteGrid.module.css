@@ -1,20 +1,14 @@
-.grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-sm);
-  max-width: 280px;
-}
+/* Grid container styles delegated to KeyboardGrid (Phase 14-03). NoteGrid keeps
+ * only the per-cell text styling and the muted-state background. */
 
-.cell {
-  min-height: 44px;
-  min-width: 44px;
-  border-radius: var(--radius-md);
-  padding: var(--space-sm);
+.cellInner {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: var(--transition-fast);
+  border-radius: var(--radius-md);
 }
 
 .noteName {
@@ -36,10 +30,4 @@
 .muted .noteName,
 .muted .noteNumber {
   color: var(--gray-400);
-}
-
-@media (max-width: 767px) {
-  .grid {
-    max-width: 100%;
-  }
 }

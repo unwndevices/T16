@@ -68,10 +68,14 @@ export function getNoteNameWithOctave(midiNote: number): string {
 }
 
 /**
- * Compute the 16-key note map for a given scale configuration.
+ * Compute the per-key note map for a given scale configuration.
  *
  * Port of firmware `SetNoteMap()` from `src/Scales.cpp` with `page = 0`.
- * Returns a 16-element array where `result[gridIndex]` is the MIDI note number.
+ * Returns a TOTAL_KEYS-element array where `result[gridIndex]` is the MIDI note number.
+ *
+ * The grid is always 4 columns wide (T16 = 4×4, T32 = 4×8) — `cols = 4` is
+ * an invariant per Phase 14 D14.3 (physical mapping). `totalKeys` controls
+ * the row count via `rows = totalKeys / 4`.
  */
 export function computeNoteMap(
   scaleIndex: number,
@@ -81,6 +85,7 @@ export function computeNoteMap(
   flipY: boolean,
   customScale1?: readonly number[],
   customScale2?: readonly number[],
+  totalKeys: number = 16,
 ): number[] {
   // Select intervals — use custom scale data for indices 17/18 if provided
   let intervals: readonly number[]
@@ -94,12 +99,15 @@ export function computeNoteMap(
 
   const scaleLength = intervals.length
   const baseNote = octaveOffset * 12 + rootNote
-  const noteMap = new Array<number>(16)
+  const noteMap = new Array<number>(totalKeys)
+  const cols = 4
+  const rows = totalKeys / cols
+  const lastRow = rows - 1
 
   let noteIndex = 0
   let octave = 0
 
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < totalKeys; i++) {
     // Wrap at end of scale (mirrors firmware -1 sentinel check)
     if (noteIndex >= scaleLength) {
       noteIndex = 0
@@ -107,11 +115,11 @@ export function computeNoteMap(
     }
 
     // Grid position with optional axis flipping
-    let x = i % 4
-    let y = Math.floor(i / 4)
-    if (flipX) x = 3 - x
-    if (flipY) y = 3 - y
-    const index = y * 4 + x
+    let x = i % cols
+    let y = Math.floor(i / cols)
+    if (flipX) x = cols - 1 - x
+    if (flipY) y = lastRow - y
+    const index = y * cols + x
 
     noteMap[index] = baseNote + intervals[noteIndex] + octave * 12
     noteIndex++

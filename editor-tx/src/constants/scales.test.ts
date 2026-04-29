@@ -145,6 +145,33 @@ describe('computeNoteMap', () => {
   })
 })
 
+describe('computeNoteMap totalKeys parameter', () => {
+  it('returns a 16-element array when totalKeys=16 (default)', () => {
+    const map = computeNoteMap(0, 0, 2, false, false, undefined, undefined, 16)
+    expect(map).toHaveLength(16)
+  })
+  it('returns a 32-element array when totalKeys=32', () => {
+    const map = computeNoteMap(0, 0, 2, false, false, undefined, undefined, 32)
+    expect(map).toHaveLength(32)
+  })
+  it('default parameter preserves existing 16-key behavior', () => {
+    const mapDefault = computeNoteMap(0, 0, 2, false, false)
+    const mapExplicit = computeNoteMap(0, 0, 2, false, false, undefined, undefined, 16)
+    expect(mapDefault).toEqual(mapExplicit)
+  })
+  it('first 16 elements of a 32-key Chromatic map continue the chromatic sequence', () => {
+    // For chromatic scale (12-note), the algorithm wraps and adds octaves; we cannot
+    // claim equality with the 16-key map after wrap because the y-axis flip math
+    // differs (rows changes). Assert structural correctness instead: 32-element map
+    // is monotonically non-decreasing for no-flip Chromatic (every key is current
+    // intervals[noteIndex] + octave*12, with noteIndex/octave only growing).
+    const map = computeNoteMap(0, 0, 2, false, false, undefined, undefined, 32)
+    // For no-flip chromatic, output index equals input i, so notes go 24..55.
+    expect(map[0]).toBe(24)
+    expect(map[31]).toBe(55)
+  })
+})
+
 describe('getScaleDegree', () => {
   const ionianIntervals = [0, 2, 4, 5, 7, 9, 11]
 

@@ -501,9 +501,12 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
     }
   }, [transport, isConnected, input, handleSysexData])
 
-  // Clear device config on disconnect
+  // Clear device config on disconnect transition (was-connected → disconnected).
+  // Tracked via a ref so initial mount (always-disconnected) does NOT fire and
+  // overwrite handshake state set by tests or programmatic flows (Phase 14).
+  const wasConnectedRef = useRef(false)
   useEffect(() => {
-    if (!isConnected) {
+    if (!isConnected && wasConnectedRef.current) {
       dispatch({ type: 'SET_DEVICE_CONFIG', payload: null })
       // Clear handshake confirmation on disconnect; offline picker takes over.
       dispatch({
@@ -512,6 +515,7 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
       })
       capabilitiesRequestedRef.current = false
     }
+    wasConnectedRef.current = isConnected
     // derivedVariant intentionally omitted — we want the snapshot at disconnect time.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected])
