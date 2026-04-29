@@ -4,7 +4,8 @@
   "title": "T16 Configuration",
   "type": "object",
   "properties": {
-    "version": { "type": "integer", "const": 200 },
+    "version": { "type": "integer", "const": 201 },
+    "variant": { "type": "string", "enum": ["T16", "T32"] },
     "global": {
       "type": "object",
       "properties": {
@@ -66,6 +67,6 @@
       "maxItems": 4
     }
   },
-  "required": ["version", "global", "banks"],
+  "required": ["version", "variant", "global", "banks"],
   "additionalProperties": false
 }
