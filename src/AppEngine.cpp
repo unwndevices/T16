@@ -48,13 +48,13 @@ void AppEngine::init()
     palettes_[3] = acid_gp;
 
     // MIDI initialization
-    midiProvider_.Init(PIN_RX, PIN_TX, PIN_TX2);
+    midiProvider_.Init(CurrentPinout::RX, CurrentPinout::TX, CurrentPinout::TX2);
     delay(200);
     midiProvider_.SetHandleSystemExclusive(sysExTrampoline);
 
     // Button initialization
-    touchBtn_.Init(PIN_TOUCH);
-    modeBtn_.Init(PIN_MODE);
+    touchBtn_.Init(CurrentPinout::TOUCH);
+    modeBtn_.Init(CurrentPinout::MODE);
     touchBtn_.onStateChanged.Connect(buttonTrampoline);
     modeBtn_.onStateChanged.Connect(buttonTrampoline);
 
@@ -72,7 +72,7 @@ void AppEngine::init()
 
     // ADC initialization
     AdcChannelConfig adc_config;
-    adc_config.InitMux(PIN_COM, PIN_S0, PIN_S1, PIN_S2, PIN_S3);
+    adc_config.InitMux(CurrentPinout::COM, CurrentPinout::S0, CurrentPinout::S1, CurrentPinout::S2, CurrentPinout::S3);
     adc_.Init(&adc_config, 16);
 
     // Calibration data load

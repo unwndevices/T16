@@ -43,11 +43,11 @@ private:
     Key keys_[16] = {6, 7, 15, 11, 5, 2, 14, 9, 4, 1, 13, 8, 3, 0, 12, 10};
 #endif
 
-    uint8_t sliderSensors_[7] = {PIN_T1, PIN_T2, PIN_T3, PIN_T4, PIN_T5, PIN_T6, PIN_T7};
+    uint8_t sliderSensors_[7] = {CurrentPinout::T1, CurrentPinout::T2, CurrentPinout::T3, CurrentPinout::T4, CurrentPinout::T5, CurrentPinout::T6, CurrentPinout::T7};
     Keyboard keyboard_;
     TouchSlider slider_;
-    Button touchBtn_{PIN_TOUCH};
-    Button modeBtn_{PIN_MODE};
+    Button touchBtn_{CurrentPinout::TOUCH};
+    Button modeBtn_{CurrentPinout::MODE};
     LedManager ledManager_;
     MidiProvider midiProvider_;
 
