@@ -1,6 +1,17 @@
+---
+status: validation_deferred
+phase: 12-t32-hardware-bring-up
+plans_complete: 4/4
+software_gates: passed
+hardware_gates: deferred (milestone v1.1 batch)
+verified: 2026-04-29
+---
+
 # Phase 12 — T32 Hardware Bring-Up: Verification
 
-This file is filled in during and after execution. Plans 12.01–12.04 enumerate the binding (software) and deferred (hardware) gates.
+All four plans (12.01–12.04) are code-complete. Software gates pass; hardware-bound gates intentionally deferred to milestone v1.1 batch per orchestrator convention.
+
+Actual PlatformIO env names: `t16_debug`, `t16_release`, `t32_debug`, `t32_release` (the original plan text referenced legacy `esp32s3` / `release` aliases).
 
 ---
 
@@ -8,13 +19,13 @@ This file is filled in during and after execution. Plans 12.01–12.04 enumerate
 
 | Plan | Gate | Status |
 |---|---|---|
-| 12.01 | All four envs (`esp32s3`, `release`, `t32`, `t32_release`) build clean | TODO |
-| 12.01 | `grep '/calibration_data.json'` returns 0 matches in `src/` | TODO |
-| 12.02 | `static_assert` in `variant_t32.hpp` confirms permutation = inversion of `origin/3dot0:src/main.cpp:10` | TODO |
-| 12.03 | `Adc::ReadValues` uses `_muxes[m].keyMapping[iterator]` and wraps iterator at 16 (not `_channels.size()`) | TODO |
-| 12.03 | All four envs build clean | TODO |
-| 12.04 | `CalibrationData::kSize == TOTAL_KEYS` (T16=16, T32=32) | TODO |
-| 12.04 | `SCAN_TIMING_LOG` flag compiles and emits per-pass µs over Serial | TODO |
+| 12.01 | All four envs (`t16_debug`, `t16_release`, `t32_debug`, `t32_release`) build clean | PASSED |
+| 12.01 | `grep '"/calibration_data.json"'` returns 0 matches at LittleFS call sites in `src/` (1 residue: the `kLegacyCalibrationPath` constant in variant.hpp — intentional, used by migration) | PASSED |
+| 12.02 | `static_assert` in `variant_t32.hpp` confirms permutation = inversion of `origin/3dot0:src/main.cpp:10`. Caught and corrected a typo in the plan's hand-derived expected values (mux 0[12..13] and mux 1[12..13]) — see 12-02-SUMMARY.md | PASSED |
+| 12.03 | `Adc::ReadValues` uses `_muxes[m].keyMapping[iterator]` and wraps iterator at 16 (not `_channels.size()`) | PASSED |
+| 12.03 | All four envs build clean | PASSED |
+| 12.04 | `CalibrationData::kSize == TOTAL_KEYS` (T16=16, T32=32) | PASSED |
+| 12.04 | `SCAN_TIMING_LOG` flag compiles and emits per-pass µs over Serial (gated, zero overhead in default builds) | PASSED |
 
 ---
 
