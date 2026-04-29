@@ -26,5 +26,6 @@ private:
     void HandleCalibrationReset();
     void HandleFactoryReset();
     void HandleBootloaderRequest();
+    void HandleCapabilitiesRequest();
     void SendAck(uint8_t cmd, uint8_t status);
 };

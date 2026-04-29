@@ -12,6 +12,8 @@ namespace SysEx {
     constexpr uint8_t CMD_CALIBRATION = 0x04;
     constexpr uint8_t CMD_BOOTLOADER     = 0x05;
     constexpr uint8_t CMD_FACTORY_RESET  = 0x06;
+    // Phase 11 / HAL-04: variant + capability handshake (JSON payload)
+    constexpr uint8_t CMD_CAPABILITIES   = 0x07;
 
     // Sub-command bytes
     constexpr uint8_t SUB_REQUEST  = 0x01;

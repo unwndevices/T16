@@ -2,6 +2,7 @@
 #include "SysExProtocol.hpp"
 #include "ConfigManager.hpp"
 #include "Configuration.hpp"
+#include "variant.hpp"
 #include "Libs/MidiProvider.hpp"
 #include <LittleFS.h>
 #include "esp_system.h"
@@ -84,6 +85,13 @@ void SysExHandler::ProcessSysEx(byte* data, unsigned length)
             if (sub == SysEx::SUB_REQUEST)
             {
                 HandleFactoryReset();
+            }
+            break;
+
+        case SysEx::CMD_CAPABILITIES:
+            if (sub == SysEx::SUB_REQUEST)
+            {
+                HandleCapabilitiesRequest();
             }
             break;
 
@@ -271,4 +279,26 @@ void SysExHandler::SendAck(uint8_t cmd, uint8_t status)
         status
     };
     midiProvider_.SendSysEx(sizeof(ack), ack);
+}
+
+// Phase 11 / HAL-04: emit variant + capability flags as JSON over SysEx
+void SysExHandler::HandleCapabilitiesRequest()
+{
+    const auto& cfg = variant::CurrentVariant::kConfig;
+    char buffer[128];
+    buffer[0] = SysEx::MANUFACTURER_ID;
+    buffer[1] = SysEx::CMD_CAPABILITIES;
+    buffer[2] = SysEx::SUB_RESPONSE;
+    int n = snprintf(
+        buffer + 3, sizeof(buffer) - 3,
+        "{\"variant\":\"%s\",\"capabilities\":{\"touchSlider\":%s,\"koalaMode\":%s}}",
+        cfg.NAME,
+        cfg.HAS_TOUCH_SLIDER    ? "true" : "false",
+        cfg.SUPPORTS_KOALA_MODE ? "true" : "false"
+    );
+    if (n < 0) return;
+    midiProvider_.SendSysEx(static_cast<unsigned>(n + 3),
+                            reinterpret_cast<byte*>(buffer));
+    log_d("Capabilities response: variant=%s touchSlider=%d koalaMode=%d",
+          cfg.NAME, cfg.HAS_TOUCH_SLIDER, cfg.SUPPORTS_KOALA_MODE);
 }

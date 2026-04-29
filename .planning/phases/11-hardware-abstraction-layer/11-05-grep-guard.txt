@@ -1,0 +1,5 @@
+=== Variant-dependent macros remaining in src/ ===
+NONE
+
+=== Free 'const uint8_t BANK_AMT' definitions remaining ===
+NONE

@@ -1,0 +1,8 @@
+=== Building t16_debug ===
+env=t16_debug status=0 firmware=.pio/build/t16_debug/firmware.bin
+=== Building t16_release ===
+env=t16_release status=0 firmware=.pio/build/t16_release/firmware.bin
+=== Building t32_debug ===
+env=t32_debug status=0 firmware=.pio/build/t32_debug/firmware.bin
+=== Building t32_release ===
+env=t32_release status=0 firmware=.pio/build/t32_release/firmware.bin
