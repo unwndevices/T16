@@ -12,6 +12,25 @@ namespace t16
 // File-scope trampoline for C-style callbacks
 static AppEngine* sEngine = nullptr;
 
+namespace {
+// Phase 12.01: Migrate pre-v1.1 /calibration_data.json to /calibration_t16.json on
+// first boot under the new variant-aware naming scheme. T32 hardware is brand-new,
+// so no legacy file ever exists there — skip the rename for T32.
+void MigrateLegacyCalibrationFile()
+{
+    const char* current = variant::CalibrationFilePath();
+    if (variant::CurrentVariant::kConfig.NAME[1] == '3') return;     // T32 — nothing to migrate
+    if (LittleFS.exists(current)) return;                            // already migrated
+    if (!LittleFS.exists(variant::kLegacyCalibrationPath)) return;   // nothing to migrate
+    bool ok = LittleFS.rename(variant::kLegacyCalibrationPath, current);
+    if (ok) {
+        Serial.printf("Migrated %s -> %s\n", variant::kLegacyCalibrationPath, current);
+    } else {
+        Serial.printf("WARN: rename %s -> %s failed\n", variant::kLegacyCalibrationPath, current);
+    }
+}
+} // anonymous namespace
+
 static void sysExTrampoline(byte* data, unsigned length)
 {
     if (sEngine)
@@ -76,8 +95,9 @@ void AppEngine::init()
                    sizeof(variant::CurrentVariant::kMuxes) /
                    sizeof(variant::CurrentVariant::kMuxes[0]));
 
-    // Calibration data load
-    DataManager calibration("/calibration_data.json");
+    // Calibration data load (Phase 12.01: per-variant filename + legacy migration)
+    MigrateLegacyCalibrationFile();
+    DataManager calibration(variant::CalibrationFilePath());
     calibration.Init();
     if (!calibration.LoadArray(calibrationData_.minVal, "minVal", 16))
     {

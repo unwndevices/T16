@@ -4,6 +4,7 @@
 #include "../Libs/Button.hpp"
 #include "../Libs/TouchSlider.hpp"
 #include "../Libs/DataManager.hpp"
+#include "../variant.hpp"
 #include <FastLED.h>
 
 namespace t16
@@ -120,7 +121,7 @@ void CalibrationService::runCalibration(Key* keys, uint8_t numKeys, Button& touc
     uint16_t minVals[16], maxVals[16];
     adc_.GetCalibration(minVals, maxVals, numKeys);
 
-    DataManager calibration("/calibration_data.json");
+    DataManager calibration(variant::CalibrationFilePath());
     calibration.Init();
     calibration.SaveArray(minVals, "minVal", numKeys);
     calibration.SaveArray(maxVals, "maxVal", numKeys);

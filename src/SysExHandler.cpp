@@ -217,9 +217,9 @@ void SysExHandler::HandleCalibrationReset()
     log_d("Calibration reset requested");
 
     // Delete calibration data -- device will run calibration routine on next boot
-    if (LittleFS.exists("/calibration_data.json"))
+    if (LittleFS.exists(variant::CalibrationFilePath()))
     {
-        LittleFS.remove("/calibration_data.json");
+        LittleFS.remove(variant::CalibrationFilePath());
     }
 
     SendAck(SysEx::CMD_CALIBRATION, SysEx::STATUS_OK);
@@ -239,9 +239,9 @@ void SysExHandler::HandleFactoryReset()
     {
         LittleFS.remove("/configuration_data.json");
     }
-    if (LittleFS.exists("/calibration_data.json"))
+    if (LittleFS.exists(variant::CalibrationFilePath()))
     {
-        LittleFS.remove("/calibration_data.json");
+        LittleFS.remove(variant::CalibrationFilePath());
     }
 
     SendAck(SysEx::CMD_FACTORY_RESET, SysEx::STATUS_OK);
