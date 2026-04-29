@@ -5,6 +5,9 @@
 #include <LittleFS.h>
 #include <StreamUtils.h>
 
+// DataManager is variant-agnostic: array sizes flow from the caller's data
+// types (e.g. kb_cfg[BANK_AMT] → BANK_AMT comes from variant config). No
+// internal variant constants needed.
 class DataManager
 {
 public:

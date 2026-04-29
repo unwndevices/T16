@@ -3,10 +3,11 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include "Libs/DataManager.hpp"
+#include "variant.hpp"
 
 #define configTICK_RATE_HZ 4000
 const uint8_t CC_AMT = 8;
-const uint8_t BANK_AMT = 4;
+inline constexpr uint8_t BANK_AMT = variant::CurrentVariant::kConfig.BANK_AMT;
 
 struct CalibrationData
 {

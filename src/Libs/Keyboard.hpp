@@ -48,6 +48,8 @@ private:
     static uint8_t instances;
 };
 
+// key_amount is supplied by the caller (see AppEngine), which reads
+// variant::CurrentVariant::kConfig.TOTAL_KEYS — no internal literal.
 class KeyboardConfig
 {
 public:
