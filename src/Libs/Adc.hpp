@@ -108,9 +108,12 @@ public:
 
     void SetMuxChannel(uint8_t chn) const; // method to set the mux channel
 private:
+    static constexpr uint8_t kMaxMuxes = 4;   // upper bound; current variants use 1 or 2
     AdcChannelConfig _config;
     std::vector<AdcChannel> _channels;
     uint8_t _mux_pin[4];
+    MultiplexerConfig _muxes[kMaxMuxes];
+    uint8_t _mux_count = 0;
 
     TaskHandle_t _task;
 

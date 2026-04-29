@@ -32,8 +32,8 @@ inline constexpr MultiplexerConfig kMuxes[] = {
         /* useSharedSelect */ false,
     },
     {
-        // Mux 1 — separate commonPin (set in Plan 12.03), shared S0..S3.
-        /* commonPin       */ pinout::t32::COM,
+        // Mux 1 — separate commonPin (COM2), shared S0..S3 (useSharedSelect=true).
+        /* commonPin       */ pinout::t32::COM2,
         /* enablePin       */ -1,
         /* selectPins      */ { pinout::t32::S0, pinout::t32::S1,
                                 pinout::t32::S2, pinout::t32::S3 },

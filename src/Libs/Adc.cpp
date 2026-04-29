@@ -50,38 +50,59 @@ Adc::~Adc()
 void Adc::InitMuxes(const MultiplexerConfig *muxes, uint8_t mux_count)
 {
     if (mux_count == 0) return;
+    if (mux_count > kMaxMuxes) mux_count = kMaxMuxes;
+    _mux_count = mux_count;
 
-    // Drive select pins from the first mux (T32 shares them via useSharedSelect).
-    for (uint8_t i = 0; i < 4; i++)
+    // Store mux configs for ReadValues() to iterate.
+    for (uint8_t m = 0; m < mux_count; ++m)
     {
-        _mux_pin[i] = static_cast<uint8_t>(muxes[0].selectPins[i]);
-        if (_mux_pin[i] != 0)
-        {
-            pinMode(_mux_pin[i], OUTPUT);
-        }
+        _muxes[m] = muxes[m];
     }
 
-    // For Phase 11: scan only the first mux's commonPin. Phase 12 wires up
-    // the full multi-mux scan.
     analogSetAttenuation(ADC_6db);
-    _config._pin = static_cast<uint8_t>(muxes[0].commonPin);
-    pinMode(_config._pin, INPUT);
-    for (uint8_t i = 0; i < 4; i++)
+
+    // Configure select pins ONCE — first mux drives them. Any subsequent mux
+    // with useSharedSelect=true reuses the same lines.
+    for (uint8_t i = 0; i < 4; ++i)
     {
-        _config._mux_pin[i] = _mux_pin[i];
+        uint8_t pin = static_cast<uint8_t>(muxes[0].selectPins[i]);
+        _mux_pin[i] = pin;
+        if (pin != 0) pinMode(pin, OUTPUT);
     }
 
+    // Configure each mux's commonPin (and any non-shared select pins for muxes
+    // that explicitly do NOT share — useSharedSelect=false on a non-first mux).
+    for (uint8_t m = 0; m < mux_count; ++m)
+    {
+        uint8_t com = static_cast<uint8_t>(muxes[m].commonPin);
+        if (com != 0 && static_cast<int8_t>(muxes[m].commonPin) != -1)
+        {
+            pinMode(com, INPUT);
+        }
+        if (m > 0 && !muxes[m].useSharedSelect)
+        {
+            // Non-shared select pins for a secondary mux: configure them.
+            for (uint8_t i = 0; i < 4; ++i)
+            {
+                uint8_t pin = static_cast<uint8_t>(muxes[m].selectPins[i]);
+                if (pin != 0) pinMode(pin, OUTPUT);
+            }
+        }
+        // m == 0 OR useSharedSelect=true → skip (already done above OR inherited).
+    }
+
+    // Mirror first mux pin into legacy _config._pin for Init()-era callers.
+    _config._pin = static_cast<uint8_t>(muxes[0].commonPin);
+    for (uint8_t i = 0; i < 4; ++i) _config._mux_pin[i] = _mux_pin[i];
+
+    // Total channels = sum of keyMapping sizes (= TOTAL_KEYS for the variant).
     _total_channels = 0;
-    for (uint8_t m = 0; m < mux_count; m++)
+    for (uint8_t m = 0; m < mux_count; ++m)
     {
         _total_channels += static_cast<uint8_t>(muxes[m].keyMapping.size());
     }
-
-    // Allocate one AdcChannel per logical key. Only the first
-    // muxes[0].keyMapping.size() channels are scanned in Phase 11; the rest
-    // remain default-constructed (Phase 12 wires them up).
     _channels.clear();
-    for (uint8_t i = 0; i < _total_channels; i++)
+    for (uint8_t i = 0; i < _total_channels; ++i)
     {
         _channels.push_back(AdcChannel());
     }
@@ -246,20 +267,37 @@ uint16_t Adc::ApplyFilter(uint16_t newValue, uint8_t channel)
     return sum / _windowSize;
 }
 
-// Modify the existing ReadValues method to use the filter
+// Phase 12.03: Multi-mux scan + per-channel keyMapping translation.
+// For each electrical channel `iterator` (0..15), set the shared S0..S3 lines
+// once, then sample EVERY mux's commonPin before incrementing the iterator.
+// _channels[] is indexed by *logical key index* via _muxes[m].keyMapping[ch],
+// so callers see one slot per logical key regardless of physical wiring.
+//
+// T16 (one mux, identity keyMapping) collapses to the original behavior:
+// logical_key == iterator, so no semantics change.
 void Adc::ReadValues()
 {
+    // Set select pins once for this channel (shared across all muxes that
+    // declare useSharedSelect=true).
     SetMuxChannel(iterator);
-    uint16_t rawValue = analogRead(_config._pin);
-    uint16_t filteredValue = ApplyFilter(rawValue, iterator);
 
-    _channels[iterator].raw = rawValue;
-    _channels[iterator].filtered = filteredValue;
-    _channels[iterator].value = max(min(map(filteredValue, _channels[iterator].minVal, _channels[iterator].maxVal, 0, 4095) / 4095.0f, 1.0f), 0.0f);
+    // Read every mux's commonPin BEFORE incrementing the channel iterator.
+    for (uint8_t m = 0; m < _mux_count; ++m)
+    {
+        uint8_t logical_key = _muxes[m].keyMapping[iterator];
+        uint8_t com_pin = static_cast<uint8_t>(_muxes[m].commonPin);
+        uint16_t rawValue = analogRead(com_pin);
+        uint16_t filteredValue = ApplyFilter(rawValue, logical_key);
+
+        _channels[logical_key].raw = rawValue;
+        _channels[logical_key].filtered = filteredValue;
+        _channels[logical_key].value = max(
+            min(map(filteredValue,
+                    _channels[logical_key].minVal,
+                    _channels[logical_key].maxVal,
+                    0, 4095) / 4095.0f, 1.0f), 0.0f);
+    }
 
     iterator++;
-    if (iterator >= _channels.size())
-    {
-        iterator = 0;
-    }
+    if (iterator >= 16) iterator = 0;   // 16 = channels per mux, NOT total
 }

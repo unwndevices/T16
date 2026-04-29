@@ -17,7 +17,11 @@ constexpr uint8_t S0 = 4;
 constexpr uint8_t S1 = 5;
 constexpr uint8_t S2 = 6;
 constexpr uint8_t S3 = 7;
-constexpr uint8_t COM = 8;  // TODO Phase 12: T32 has two common pins
+constexpr uint8_t COM  = 8;   // Mux 0 common pin (ADC1_CH7).
+constexpr uint8_t COM2 = 17;  // Mux 1 common pin.
+                              // PLACEHOLDER GPIO — confirm against T32 schematic
+                              // before flashing real hardware (validation_deferred,
+                              // Plan 12.03.5.A). ESP32-S3 ADC2_CH6.
 
 // LED strip
 constexpr uint8_t LED_PIN = 1;
