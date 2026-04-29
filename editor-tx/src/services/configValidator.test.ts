@@ -266,6 +266,36 @@ describe('prepareImport (v200→v201)', () => {
     ).toBe(true)
   })
 
+  it('rejects a non-integer version (WR-04)', () => {
+    const v200_5 = { ...structuredClone(DEFAULT_CONFIG), version: 200.5 } as Record<string, unknown>
+    const result = prepareImport(v200_5)
+    expect(result.valid).toBe(false)
+    expect(result.errors.some(e => e.field === 'version')).toBe(true)
+    expect(result.errors.some(e => /integer/i.test(e.message))).toBe(true)
+  })
+
+  it('rejects a v103 file with banks missing required scalar fields (WR-06)', () => {
+    const v103Broken = {
+      version: 103,
+      mode: 0, sensitivity: 1, brightness: 1, midi_trs: 0,
+      trs_type: 0, passthrough: 0, midi_ble: 0,
+      custom_scale1: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+      custom_scale2: [0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45],
+      // Each bank is missing required fields like vel, at, ids, etc.
+      banks: [
+        { ch: 1, scale: 0 },
+        { ch: 1, scale: 0 },
+        { ch: 1, scale: 0 },
+        { ch: 1, scale: 0 },
+      ],
+    }
+    const result = prepareImport(v103Broken)
+    expect(result.valid).toBe(false)
+    // Migration should fail (returns null) before validation, producing the
+    // version-keyed migration error rather than ajv validation errors.
+    expect(result.errors.some(e => e.field === 'version')).toBe(true)
+  })
+
   it('chains v103 → v200 → v201', () => {
     const v103 = {
       version: 103,

@@ -35,6 +35,22 @@ const GLOBAL_KEYS = [
   'custom_scale1', 'custom_scale2',
 ] as const
 
+// Required global keys for v103 → v200 migration. custom_scale1 and
+// custom_scale2 are excluded — they are filled with defaults below if missing
+// (see WR-05). Splitting the lists makes the predicate's intent explicit and
+// prevents future "simplification" from breaking the default-fill guarantee.
+const REQUIRED_GLOBAL_KEYS_V103 = GLOBAL_KEYS.filter(
+  k => k !== 'custom_scale1' && k !== 'custom_scale2',
+)
+
+// Required scalar fields each bank must carry in a v103 file. If any are missing
+// the migration returns null rather than producing a partially-typed object that
+// would slip past the type cast and only fail later at ajv validation (WR-06).
+const REQUIRED_BANK_KEYS_V103 = [
+  'ch', 'scale', 'oct', 'note', 'vel', 'at',
+  'flip_x', 'flip_y', 'koala_mode', 'chs', 'ids',
+] as const
+
 // migrateV103 produces a v200-shaped object (no `variant` field). Callers are
 // expected to chain it through migrateV200ToV201 to land on a fully valid
 // T16Configuration. The return type is intentionally loose because v200 output
@@ -47,13 +63,24 @@ export type V200Config = {
 
 export function migrateV103(data: Record<string, unknown>): V200Config | null {
   try {
-    // Validate that required flat keys exist for migration
-    const hasGlobalKeys = GLOBAL_KEYS.every(
-      key => key in data || (key === 'custom_scale1' || key === 'custom_scale2'),
-    )
+    // Validate that required (non-scale) flat keys exist for migration. Custom
+    // scales are filled with defaults below, so they are not required here.
+    const hasGlobalKeys = REQUIRED_GLOBAL_KEYS_V103.every(key => key in data)
     const hasBanks = Array.isArray(data.banks) && (data.banks as unknown[]).length === 4
 
     if (!hasGlobalKeys || !hasBanks) {
+      return null
+    }
+
+    // Validate each bank carries the required scalar fields before the cast.
+    // Without this check a v103 file with missing bank fields would produce a
+    // partially-shaped object that the type assertion would silently accept
+    // and ajv would later reject (WR-06).
+    const banks = data.banks as Record<string, unknown>[]
+    const allBanksValid = banks.every(bank =>
+      REQUIRED_BANK_KEYS_V103.every(key => key in bank),
+    )
+    if (!allBanksValid) {
       return null
     }
 
@@ -75,7 +102,7 @@ export function migrateV103(data: Record<string, unknown>): V200Config | null {
     return {
       version: 200,
       global: global as T16Configuration['global'],
-      banks: (data.banks as Record<string, unknown>[]).map((bank, i) => ({
+      banks: banks.map((bank, i) => ({
         ...bank,
         pal: typeof bank.pal === 'number' ? bank.pal : i,
       })) as T16Configuration['banks'],
@@ -116,6 +143,19 @@ export interface ImportResult {
 export function prepareImport(data: unknown): ImportResult {
   const obj = data as Record<string, unknown>
   const version = typeof obj?.version === 'number' ? obj.version : 201
+
+  // Reject non-integer versions explicitly (WR-04). The dispatch below assumes
+  // integer-valued schema versions (200, 201, …); a float like 200.5 would
+  // otherwise fall through every branch into the "unreachable" guard with a
+  // misleading error message.
+  if (!Number.isInteger(version)) {
+    return {
+      valid: false,
+      config: null,
+      errors: [{ field: 'version', message: `Config version ${version} is not a valid schema version (must be an integer)` }],
+      migrated: false,
+    }
+  }
 
   // v201 direct path: validate only
   if (version === 201) {
