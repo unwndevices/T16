@@ -30,7 +30,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 - [ ] **Phase 11: Hardware Abstraction Layer** — `HardwareVariantConfig` constexpr carrier replaces fixed macros; firmware classes consume variant constants
 - [x] **Phase 12: T32 Hardware Bring-Up** — Dual-mux ADC scan and validated key permutation boot the physical T32 with calibration persisted *(code-complete 2026-04-29; hardware bring-up smoke deferred to milestone v1.1 batch)*
 - [x] **Phase 13: Config Schema & Migration** — Schema gains `variant` discriminator with single migration rule from v200; ajv validator enforces per-variant array sizes *(code-complete 2026-04-29; software gates passed; hardware bring-up smoke deferred to milestone v1.1 batch)*
-- [ ] **Phase 14: Editor-tx Variant Awareness** — `ConfigContext` carries variant state; conditional UI renders 4×4 vs 4×8 layouts and the flasher selects the correct `.bin`
+- [x] **Phase 14: Editor-tx Variant Awareness** — `ConfigContext` carries variant state; conditional UI renders 4×4 vs 4×8 layouts and the flasher selects the correct `.bin` *(code-complete 2026-04-30; software gates passed (164/164 vitest, typecheck + build clean); hardware UAT batched to milestone v1.1 close alongside Phase 12)*
 
 ## Phase Details
 
@@ -154,7 +154,7 @@ Plans:
 | 11. Hardware Abstraction Layer | v1.1 | 0/0 | Not started | - |
 | 12. T32 Hardware Bring-Up | v1.1 | 0/0 | Not started | - |
 | 13. Config Schema & Migration | v1.1 | 0/0 | Not started | - |
-| 14. Editor-tx Variant Awareness | v1.1 | 0/0 | Not started | - |
+| 14. Editor-tx Variant Awareness | v1.1 | 5/5 | Complete (software gates) | 2026-04-30 |
 
 ---
 *Roadmap last updated: 2026-04-29 — Phase 10 code complete (4/4 plans); manual T16 smoke test deferred to human verification due to pre-existing third-party lib link conflict*

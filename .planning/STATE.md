@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Variant Support
 status: phase_complete_validation_deferred
-stopped_at: Phase 13 code complete (4/4 plans); hardware bring-up smoke deferred to milestone v1.1 batch alongside Phase 12
-last_updated: "2026-04-29T00:00:00.000Z"
-last_activity: 2026-04-29
+stopped_at: Phase 14 code complete (5/5 plans); hardware UAT batched to milestone v1.1 close alongside Phase 12
+last_updated: "2026-04-30T00:00:00.000Z"
+last_activity: 2026-04-30
 progress:
   total_phases: 6
-  completed_phases: 3
-  total_plans: 16
-  completed_plans: 16
-  percent: 50
+  completed_phases: 4
+  total_plans: 21
+  completed_plans: 21
+  percent: 67
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-29)
 
 **Core value:** Every parameter change reaches the device in under 100ms, and any developer can modify one feature without risking another.
-**Current focus:** Milestone v1.1 — Variant Support (Phase 12 code complete — hardware verification batched to milestone close)
+**Current focus:** Milestone v1.1 — Variant Support (Phases 12, 13, 14 code complete — hardware verification batched to milestone close)
 
 ## Current Position
 
-Phase: 13 — Config Schema & Migration (4/4 plans code-complete; VERIFICATION.md = passed software gates)
+Phase: 14 — Editor-tx Variant Awareness (5/5 plans code-complete; VERIFICATION.md = software gates passed, human UAT items recorded)
 Plan: —
-Status: Schema bumped to v201 with required `variant: enum["T16","T32"]`; firmware writes variant on every save and rejects mismatched configs (LittleFS + SysEx surfaces); editor-tx exports `migrateV200ToV201` + pure `adaptConfigForVariant` for the Phase 14 modal; native test suite extended to 16 cases (all pass) and CI runs them under renamed `[env:native_test]` env. All four firmware envs (t16/t32 × debug/release) compile clean. `editor-tx` typecheck + 103/103 vitest + build all green. Hardware verification batched to milestone v1.1 close alongside Phase 12.
-Last activity: 2026-04-29 — Phase 13 executed end-to-end (2 waves, 4 plans, 14 commits)
+Status: editor-tx now variant-aware end-to-end. ConfigContext carries variant state via precedence chain (handshake > config > localStorage > T16). CMD_CAPABILITIES handshake (0x07) wired into ConfigProvider's shared SysEx path. Parametric <KeyboardGrid> renders 4×4 (T16) or 4×8 (T32); NoteGrid + computeNoteMap parametrized on totalKeys. NavBar VariantIndicator chip with offline picker + CrossVariantAdaptDialog (locked UI-SPEC copy) + adaptConfigForVariant pure service. Upload page variant dropdown with (detected) suffix + FlashOverrideDialog gating cross-variant flash + SliderCard capability hiding. T32 firmware ships as a 2-byte placeholder marked unavailable: true (real binary deferred to Phase 12 hardware tag). Software gates: typecheck clean, 164/164 vitest pass, lint at 22 errors (1 below baseline), build succeeds. Hardware UAT (chip rendering on real T16/T32, cross-variant adapt + override flows, layout responsiveness) batched to milestone v1.1 close alongside Phase 12.
+Last activity: 2026-04-30 — Phase 14 executed end-to-end (5 plans, ~10 commits including SUMMARY + VERIFICATION)
 
-Progress: [██░░░░░░░░] 20% (1/5 v1.1 phases — Phase 13 complete; Phase 12 hardware-deferred)
+Progress: [████░░░░░░] 40% (2/5 v1.1 phases — Phases 13 + 14 complete; Phase 12 hardware-deferred)
 
 ## Performance Metrics
 

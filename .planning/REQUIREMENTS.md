@@ -37,10 +37,10 @@
 
 ### Editor-tx Variant Awareness
 
-- [ ] **EDITOR-01**: `ConfigContext` lifts `variant` to context state, derived from device SysEx handshake response or loaded config file
-- [ ] **EDITOR-02**: Conditional UI for keyboard layout (4×4 for T16, 4×8 for T32) and calibration view branches on `variant`
-- [ ] **EDITOR-03**: Per-key array editors (note maps, scales, CC assignments) render the correct number of keys per variant
-- [ ] **EDITOR-04**: Flasher (`pages/Upload.tsx`) selects the correct `.bin` for the target variant — selection mechanism (user pick vs auto-detect via existing connection) decided in discuss-phase
+- [x] **EDITOR-01**: `ConfigContext` lifts `variant` to context state, derived from device SysEx handshake response or loaded config file (Phase 14, plans 14-01/14-02)
+- [x] **EDITOR-02**: Conditional UI for keyboard layout (4×4 for T16, 4×8 for T32) and calibration view branches on `variant` (Phase 14, plans 14-03/14-04/14-05; calibration view deferred — does not yet exist in editor-tx, will reuse <KeyboardGrid>)
+- [x] **EDITOR-03**: Per-key array editors (note maps, scales, CC assignments) render the correct number of keys per variant (Phase 14, plan 14-03)
+- [x] **EDITOR-04**: Flasher (`pages/Upload.tsx`) selects the correct `.bin` for the target variant — selection mechanism (user pick vs auto-detect via existing connection) decided in discuss-phase (Phase 14, plan 14-05; T32 binary awaits Phase 12 hardware tag)
 
 ---
 
@@ -90,9 +90,9 @@ Explicit exclusions for v1.1 (with reasoning):
 | SCHEMA-02 | Phase 13 | Pending |
 | SCHEMA-03 | Phase 13 | Pending |
 | SCHEMA-04 | Phase 13 | Pending |
-| EDITOR-01 | Phase 14 | Pending |
-| EDITOR-02 | Phase 14 | Pending |
-| EDITOR-03 | Phase 14 | Pending |
-| EDITOR-04 | Phase 14 | Pending |
+| EDITOR-01 | Phase 14 | Complete (software gates passed; hardware UAT batched to v1.1 close) |
+| EDITOR-02 | Phase 14 | Complete (calibration view deferred — pre-existing) |
+| EDITOR-03 | Phase 14 | Complete |
+| EDITOR-04 | Phase 14 | Complete (T32 binary awaits Phase 12 tag) |
 
 **Coverage:** 19/19 v1.1 requirements mapped (no orphans, no duplicates).
