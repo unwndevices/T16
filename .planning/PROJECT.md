@@ -8,6 +8,21 @@ A fully refactored T16 MIDI controller firmware and web configurator. The T16 is
 
 The configurator must feel instant and the firmware must be maintainable — every parameter change should reach the device in under 100ms, and any developer should be able to modify one feature without risking another.
 
+## Current Milestone: v1.1 Variant Support
+
+**Goal:** Add compile-time T16/T32 variant support on top of the v1.0 firmware and editor-tx architecture, leveraging the validated hardware bring-up from `origin/3dot0`.
+
+**Target features:**
+- Per-variant pinout headers + `platformio.ini` build envs (`t16_debug/release`, `t32_debug/release`)
+- `HardwareVariantConfig` constexpr carrier consumed by `Adc`, `Keyboard`, `LedManager`, `DataManager` in place of macros (`BANK_AMT`, `NUM_LEDS`)
+- T32 hardware bring-up: dual-mux ADC scan with shared select pins, validated key permutation, calibration on physical T32
+- Config schema bump with `variant` discriminator field, per-variant array sizing, calibration variant tagging, single migration rule
+- Editor-tx variant awareness: `ConfigContext` variant state, ajv schema update, conditional UI (4×4 vs 4×8 keyboard, calibration view), flasher variant selection in `Upload.tsx`
+
+**Out of scope for v1.1:** T64 variant (no hardware), `ParameterRegistry`, `FeatureFlagManager` bitmask, `UniversalConfiguration`, reversible migrations, new binary SysEx protocol, triple-redundancy/CRC32, web rewrite (editor-tx is at quality bar).
+
+**Research digest:** `.planning/research/v1.1-variant-research.md`
+
 ## Current State
 
 **Shipped:** v1.0 (2026-04-04) — 9 phases, 32 plans, all verified
@@ -101,5 +116,22 @@ The configurator must feel instant and the firmware must be maintainable — eve
 | vite-plugin-pwa with workbox | Standard PWA approach | ✓ Good |
 | Web Bluetooth for BLE MIDI | Standard API, no plugins | ✓ Good |
 
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
 ---
-*Last updated: 2026-04-04 — v1.0 milestone complete (9 phases, 32 plans)*
+*Last updated: 2026-04-29 — v1.1 milestone started (variant support)*
