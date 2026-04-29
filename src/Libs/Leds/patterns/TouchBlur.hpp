@@ -65,7 +65,7 @@ private:
 
 bool TouchBlur::RunPattern()
 {
-    fill_solid(patternleds, 16, CRGB::Black);
+    fill_solid(patternleds, kMatrixWidth * kMatrixHeight, CRGB::Black);
     if (state)
     {
         // Assuming step is set externally before calling this function

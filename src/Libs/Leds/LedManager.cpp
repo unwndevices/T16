@@ -18,8 +18,8 @@ CRGB leds_plus_safety_pixel[NUM_LEDS + 1];
 CRGB *const leds(leds_plus_safety_pixel + 1);
 CRGBSet leds_set(leds, NUM_LEDS);
 CRGBSet stateled(leds_set(0, 0));
-CRGBSet matrixleds(leds_set(1, 16));
-CRGB patternleds[16];
+CRGBSet matrixleds(leds_set(1, kMatrixWidth * kMatrixHeight));
+CRGB patternleds[kMatrixWidth * kMatrixHeight];
 CRGBSet sliderleds(leds_set(17, 23));
 
 #endif
@@ -31,8 +31,8 @@ CRGB *const leds(leds_plus_safety_pixel + 1);
 CRGBSet leds_set(leds, NUM_LEDS);
 CRGBSet stateled(leds_set(0, 0));
 CRGBSet sliderleds(leds_set(1, 7));
-CRGBSet matrixleds(leds_set(8, 16));
-CRGB patternleds[16];
+CRGBSet matrixleds(leds_set(8, kMatrixWidth * kMatrixHeight));
+CRGB patternleds[kMatrixWidth * kMatrixHeight];
 
 #endif
 

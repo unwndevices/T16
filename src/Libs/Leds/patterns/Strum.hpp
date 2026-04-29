@@ -34,7 +34,7 @@ private:
 
 bool Strum::RunPattern()
 {
-    fill_solid(patternleds, 16, CRGB::Black);
+    fill_solid(patternleds, kMatrixWidth * kMatrixHeight, CRGB::Black);
     CRGB noteColor = ColorFromPalette(currentPalette, colorIndex, 255, LINEARBLEND_NOWRAP);
     CRGB noteDimColor = ColorFromPalette(currentPalette, colorIndex, 30, LINEARBLEND_NOWRAP);
 

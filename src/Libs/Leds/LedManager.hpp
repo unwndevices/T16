@@ -4,12 +4,13 @@
 #include <FastLED.h>
 #include <memory>
 #include "pinout.h"
+#include "../../variant.hpp"
 #include "../../Types.hpp"
 
-#define kMatrixWidth 4  // Matrix width [4]
-#define kMatrixHeight 4 // Matrix height [4]
-#define sliderLength 7
-#define NUM_LEDS (kMatrixWidth * kMatrixHeight + sliderLength + 1)
+inline constexpr uint8_t kMatrixWidth  = variant::CurrentVariant::kConfig.MATRIX_WIDTH;
+inline constexpr uint8_t kMatrixHeight = variant::CurrentVariant::kConfig.MATRIX_HEIGHT;
+inline constexpr uint8_t sliderLength  = variant::CurrentVariant::kConfig.SLIDER_LENGTH;
+inline constexpr uint8_t NUM_LEDS      = variant::CurrentVariant::kConfig.LED_COUNT;
 
 // LED arrays -- defined in LedManager.cpp
 extern CRGB leds_plus_safety_pixel[NUM_LEDS + 1];
@@ -17,7 +18,7 @@ extern CRGB *const leds;
 extern CRGBSet leds_set;
 extern CRGBSet stateled;
 extern CRGBSet matrixleds;
-extern CRGB patternleds[16];
+extern CRGB patternleds[kMatrixWidth * kMatrixHeight];
 extern CRGBSet sliderleds;
 
 uint16_t XY(uint8_t x, uint8_t y);

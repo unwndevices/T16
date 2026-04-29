@@ -3,11 +3,13 @@
 #include <Arduino.h>
 #include <FastLED.h>
 #include "../Palettes.hpp"
+#include "../../../variant.hpp"
 
 #define WEIGHT(a, b) ((uint8_t)(((a) * (b) + (a) + (b)) >> 8))
 
 // Declared in LedManager.cpp
-extern CRGB patternleds[16];
+extern CRGB patternleds[variant::CurrentVariant::kConfig.MATRIX_WIDTH *
+                       variant::CurrentVariant::kConfig.MATRIX_HEIGHT];
 extern uint16_t XY(uint8_t x, uint8_t y);
 
 void wu_pixel(uint32_t x, uint32_t y, CRGB *col);
