@@ -1,4 +1,5 @@
 #include "AppEngine.hpp"
+#include "variant.hpp"
 #include "Libs/Leds/Palettes.hpp"
 #include "Libs/DataManager.hpp"
 #include "Scales.hpp"
@@ -71,9 +72,9 @@ void AppEngine::init()
     }
 
     // ADC initialization
-    AdcChannelConfig adc_config;
-    adc_config.InitMux(CurrentPinout::COM, CurrentPinout::S0, CurrentPinout::S1, CurrentPinout::S2, CurrentPinout::S3);
-    adc_.Init(&adc_config, 16);
+    adc_.InitMuxes(variant::CurrentVariant::kMuxes,
+                   sizeof(variant::CurrentVariant::kMuxes) /
+                   sizeof(variant::CurrentVariant::kMuxes[0]));
 
     // Calibration data load
     DataManager calibration("/calibration_data.json");

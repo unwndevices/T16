@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <vector>
+#include "../variant_config.hpp"
 
 struct AdcChannelConfig
 {
@@ -42,6 +43,13 @@ public:
     ~Adc(); // destructor
 
     void Init(AdcChannelConfig *cfg, uint8_t channels); // initialization method
+
+    // Initialize ADC from one or more MultiplexerConfig entries.
+    // Total channels allocated = sum of keyMapping.size() across all configs
+    // (= TOTAL_KEYS for the variant). For Phase 11, only the first mux is
+    // actively scanned (T16 has 1 mux). Phase 12 extends ReadValues() to scan
+    // all configs.
+    void InitMuxes(const MultiplexerConfig *muxes, uint8_t mux_count);
 
     void SetCalibration(uint16_t *min, uint16_t *max, uint8_t channels);
 
@@ -110,5 +118,6 @@ private:
     uint8_t iterator = 0;
     uint8_t avg_iterator = 0;
     uint8_t _windowSize = 16; // Default window size for moving average filter
+    uint8_t _total_channels = 0;
 };
 #endif // ADC_HPP

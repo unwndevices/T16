@@ -47,6 +47,46 @@ Adc::~Adc()
 {
 }
 
+void Adc::InitMuxes(const MultiplexerConfig *muxes, uint8_t mux_count)
+{
+    if (mux_count == 0) return;
+
+    // Drive select pins from the first mux (T32 shares them via useSharedSelect).
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        _mux_pin[i] = static_cast<uint8_t>(muxes[0].selectPins[i]);
+        if (_mux_pin[i] != 0)
+        {
+            pinMode(_mux_pin[i], OUTPUT);
+        }
+    }
+
+    // For Phase 11: scan only the first mux's commonPin. Phase 12 wires up
+    // the full multi-mux scan.
+    analogSetAttenuation(ADC_6db);
+    _config._pin = static_cast<uint8_t>(muxes[0].commonPin);
+    pinMode(_config._pin, INPUT);
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        _config._mux_pin[i] = _mux_pin[i];
+    }
+
+    _total_channels = 0;
+    for (uint8_t m = 0; m < mux_count; m++)
+    {
+        _total_channels += static_cast<uint8_t>(muxes[m].keyMapping.size());
+    }
+
+    // Allocate one AdcChannel per logical key. Only the first
+    // muxes[0].keyMapping.size() channels are scanned in Phase 11; the rest
+    // remain default-constructed (Phase 12 wires them up).
+    _channels.clear();
+    for (uint8_t i = 0; i < _total_channels; i++)
+    {
+        _channels.push_back(AdcChannel());
+    }
+}
+
 void Adc::Init(AdcChannelConfig *cfg, uint8_t channels)
 {
     _config = *cfg;
