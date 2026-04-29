@@ -73,4 +73,26 @@ Explicit exclusions for v1.1 (with reasoning):
 
 ## Traceability
 
-(Filled in by roadmap — each REQ-ID maps to exactly one phase.)
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| BUILD-01 | Phase 10 | Pending |
+| BUILD-02 | Phase 10 | Pending |
+| BUILD-03 | Phase 10 | Pending |
+| HAL-01 | Phase 11 | Pending |
+| HAL-02 | Phase 11 | Pending |
+| HAL-03 | Phase 11 | Pending |
+| HAL-04 | Phase 11 | Pending |
+| T32-01 | Phase 12 | Pending |
+| T32-02 | Phase 12 | Pending |
+| T32-03 | Phase 12 | Pending |
+| T32-04 | Phase 12 | Pending |
+| SCHEMA-01 | Phase 13 | Pending |
+| SCHEMA-02 | Phase 13 | Pending |
+| SCHEMA-03 | Phase 13 | Pending |
+| SCHEMA-04 | Phase 13 | Pending |
+| EDITOR-01 | Phase 14 | Pending |
+| EDITOR-02 | Phase 14 | Pending |
+| EDITOR-03 | Phase 14 | Pending |
+| EDITOR-04 | Phase 14 | Pending |
+
+**Coverage:** 19/19 v1.1 requirements mapped (no orphans, no duplicates).

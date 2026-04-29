@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Variant Support
-status: defining_requirements
-stopped_at: Milestone v1.1 started
+status: roadmap_complete
+stopped_at: v1.1 roadmap drafted (Phases 10-14)
 last_updated: "2026-04-29T00:00:00.000Z"
 last_activity: 2026-04-29
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,22 +21,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-29)
 
 **Core value:** Every parameter change reaches the device in under 100ms, and any developer can modify one feature without risking another.
-**Current focus:** Milestone v1.1 — Variant Support (defining requirements)
+**Current focus:** Milestone v1.1 — Variant Support (Phase 10 ready to plan)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 10 — Build System & Variant Selection (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-04-29 — Milestone v1.1 started
+Status: Roadmap complete, ready for `/gsd-plan-phase 10`
+Last activity: 2026-04-29 — v1.1 roadmap drafted (Phases 10-14)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [░░░░░░░░░░] 0% (0/5 v1.1 phases)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 0
+- Total plans completed: 0 (v1.1)
 - Average duration: -
 - Total execution time: 0 hours
 
@@ -80,6 +80,9 @@ Progress: [░░░░░░░░░░] 0%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- [v1.1 Roadmap]: Five phases derived from natural REQ-ID groupings (BUILD, HAL, T32, SCHEMA, EDITOR) — each ends with both T16 and T32 functional
+- [v1.1 Roadmap]: Phase 11 must keep T16 working when introducing variant constants; T32 build compiles but hardware bring-up deferred to Phase 12
+- [v1.1 Roadmap]: Schema migration is single hand-written transform — `UniversalConfiguration` and reversible migrations explicitly out of scope
 - [Roadmap]: Protocol-first approach -- SysEx contract defined before either codebase is touched
 - [Roadmap]: DataManager rewrite in Phase 1 (prerequisite for per-param sync, prevents flash wear multiplication)
 - [Roadmap]: Phases 2 and 3 both depend on Phase 1, Phase 4 depends on both (diamond dependency)
@@ -123,12 +126,13 @@ None yet.
 
 ### Blockers/Concerns
 
+- [v1.1 Discuss]: 8 open questions in research digest — variant field semantics, firmware distribution (auto-detect vs pick), v103→vNext field diff, per-key array extension semantics, calibration file format, Koala mode on T32, namespace style, T64 placeholder. Resolve in `/gsd-discuss-phase`.
 - [Research]: BLE chunked SysEx -- full config dumps exceed 20-byte BLE MTU. Needs implementation plan before Phase 4.
 - [Research]: Signal::Emit thread safety across ADC/loop core boundary -- verify before Phase 2 extraction.
 - [Research]: ESP32-S3 software bootloader entry sequence for PlatformIO + Arduino Core 2.x -- verify before Phase 4.
 
 ## Session Continuity
 
-Last session: 2026-04-04T18:44:49.182Z
-Stopped at: Completed 09-02-PLAN.md
+Last session: 2026-04-29T00:00:00.000Z
+Stopped at: v1.1 roadmap drafted (Phases 10-14)
 Resume file: None
