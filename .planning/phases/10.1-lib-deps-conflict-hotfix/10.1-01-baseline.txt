@@ -1,0 +1,92 @@
+# Pre-Hotfix Baseline
+
+Captured: 2026-04-29T20:55:39+02:00
+Git SHA: f37393a3b01e9479af90a384f4035c8e143a72f0
+
+## platformio.ini lib_deps (verbatim)
+
+lib_deps =
+	adafruit/Adafruit TinyUSB Library @ 3.3.0
+	h2zero/NimBLE-Arduino@^1.4.0
+	lathoub/BLE-MIDI @ ^2.2.0
+	https://github.com/FortySevenEffects/arduino_midi_library.git#feat/v5.1.0
+	fastled/FastLED @ ^3.6.0
+	bblanchon/StreamUtils@^1.8.0
+	bblanchon/ArduinoJson@^7.0.3
+
+## pio pkg list -e t16_release (pre-fix)
+
+Resolving t16_release dependencies...
+idf_tools.py installation failed (rc=1). Tail:
+Traceback (most recent call last):
+  File "/home/unwn/.platformio/packages/tool-esp_install/tools/idf_tools.py", line 31, in <module>
+    import certifi
+ModuleNotFoundError: No module named 'certifi'
+error: /home/unwn/.platformio/packages/tool-esptoolpy does not appear to be a Python project, as neither `pyproject.toml` nor `setup.py` are present in the directory
+Warning: Failed to install esptool from /home/unwn/.platformio/packages/tool-esptoolpy (exit 2)
+Platform espressif32 @ 55.3.37 (required: espressif32)
+├── contrib-piohome @ 3.4.4 (required: /home/unwn/.platformio/packages/contrib-piohome)
+├── framework-arduinoespressif32 @ 3.3.7 (required: https://github.com/espressif/arduino-esp32/releases/download/3.3.7/esp32-core-3.3.7.tar.xz)
+├── framework-arduinoespressif32-libs @ 5.5.0+sha.87912cd291 (required: https://github.com/espressif/arduino-esp32/releases/download/3.3.7/esp32-core-3.3.7-libs.tar.xz)
+├── tool-esp-rom-elfs @ 2024.10.11 (required: /home/unwn/.platformio/packages/tool-esp-rom-elfs)
+├── tool-esptoolpy @ 5.1.2 (required: https://github.com/pioarduino/registry/releases/download/0.0.1/esptoolpy-v5.1.2.zip)
+└── toolchain-xtensa-esp-elf @ 14.2.0+20251107 (required: /home/unwn/.platformio/packages/toolchain-xtensa-esp-elf)
+
+Libraries
+├── Adafruit TinyUSB Library @ 3.3.0 (required: adafruit/Adafruit TinyUSB Library @ 3.3.0)
+│   ├── Adafruit SPIFlash @ 5.1.1 (required: Adafruit SPIFlash)
+│   │   ├── Adafruit NeoPixel @ 1.15.4 (required: Adafruit NeoPixel)
+│   │   └── SdFat - Adafruit Fork @ 2.3.103 (required: SdFat - Adafruit Fork)
+│   ├── MIDI Library @ 5.0.2 (required: MIDI Library)
+├── ArduinoJson @ 7.4.3 (required: bblanchon/ArduinoJson @ ^7.0.3)
+├── BLE-MIDI @ 2.2.0 (required: lathoub/BLE-MIDI @ ^2.2.0)
+│   ├── ArduinoBLE @ 2.0.1 (required: ArduinoBLE)
+│   │   └── Arduino_SpiNINA @ 0.0.2 (required: Arduino_SpiNINA)
+│   └── NimBLE-Arduino @ 1.4.3 (required: NimBLE-Arduino)
+├── FastLED @ 3.10.3 (required: fastled/FastLED @ ^3.6.0)
+├── MIDI Library @ 5.0.2+sha.7e9222b (required: git+https://github.com/FortySevenEffects/arduino_midi_library.git#feat/v5.1.0)
+└── StreamUtils @ 1.9.2 (required: bblanchon/StreamUtils @ ^1.8.0)
+
+## pio pkg list -e t32_release (pre-fix)
+
+Resolving t32_release dependencies...
+idf_tools.py installation failed (rc=1). Tail:
+Traceback (most recent call last):
+  File "/home/unwn/.platformio/packages/tool-esp_install/tools/idf_tools.py", line 31, in <module>
+    import certifi
+ModuleNotFoundError: No module named 'certifi'
+error: /home/unwn/.platformio/packages/tool-esptoolpy does not appear to be a Python project, as neither `pyproject.toml` nor `setup.py` are present in the directory
+Warning: Failed to install esptool from /home/unwn/.platformio/packages/tool-esptoolpy (exit 2)
+Platform espressif32 @ 55.3.37 (required: espressif32)
+├── contrib-piohome @ 3.4.4 (required: /home/unwn/.platformio/packages/contrib-piohome)
+├── framework-arduinoespressif32 @ 3.3.7 (required: https://github.com/espressif/arduino-esp32/releases/download/3.3.7/esp32-core-3.3.7.tar.xz)
+├── framework-arduinoespressif32-libs @ 5.5.0+sha.87912cd291 (required: https://github.com/espressif/arduino-esp32/releases/download/3.3.7/esp32-core-3.3.7-libs.tar.xz)
+├── tool-esp-rom-elfs @ 2024.10.11 (required: /home/unwn/.platformio/packages/tool-esp-rom-elfs)
+├── tool-esptoolpy @ 5.1.2 (required: https://github.com/pioarduino/registry/releases/download/0.0.1/esptoolpy-v5.1.2.zip)
+└── toolchain-xtensa-esp-elf @ 14.2.0+20251107 (required: /home/unwn/.platformio/packages/toolchain-xtensa-esp-elf)
+
+Libraries
+├── Adafruit TinyUSB Library @ 3.3.0 (required: adafruit/Adafruit TinyUSB Library @ 3.3.0)
+│   ├── Adafruit SPIFlash @ 5.1.1 (required: Adafruit SPIFlash)
+│   │   ├── Adafruit NeoPixel @ 1.15.4 (required: Adafruit NeoPixel)
+│   │   └── SdFat - Adafruit Fork @ 2.3.103 (required: SdFat - Adafruit Fork)
+│   ├── MIDI Library @ 5.0.2 (required: MIDI Library)
+├── ArduinoJson @ 7.4.3 (required: bblanchon/ArduinoJson @ ^7.0.3)
+├── BLE-MIDI @ 2.2.0 (required: lathoub/BLE-MIDI @ ^2.2.0)
+│   ├── ArduinoBLE @ 2.0.1 (required: ArduinoBLE)
+│   │   └── Arduino_SpiNINA @ 0.0.2 (required: Arduino_SpiNINA)
+│   └── NimBLE-Arduino @ 1.4.3 (required: NimBLE-Arduino)
+├── FastLED @ 3.10.3 (required: fastled/FastLED @ ^3.6.0)
+├── MIDI Library @ 5.0.2+sha.7e9222b (required: git+https://github.com/FortySevenEffects/arduino_midi_library.git#feat/v5.1.0)
+└── StreamUtils @ 1.9.2 (required: bblanchon/StreamUtils @ ^1.8.0)
+
+## t16 link error (recorded from CONTEXT)
+
+Adafruit TinyUSB Library 3.3.0 (lib_dep) and Arduino-ESP32 prebuilt
+libarduino_tinyusb.a both export hcd_* host-controller symbols ->
+multiple definition at link time.
+
+## t32 link error (recorded from CONTEXT)
+
+BLE-MIDI 2.2.0 defines BLEMIDI_ESP32_NimBLE::begin(...) in a header
+without inline -> ODR violation when more than one TU includes it.
