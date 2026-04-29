@@ -239,6 +239,11 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
   // Track pending param send timestamps for round-trip measurement
   const pendingParamTimestamps = useRef<Map<string, number>>(new Map())
 
+  // Track outstanding retry timers so we can cancel them on disconnect/unmount
+  // (WR-04): otherwise outer + inner setTimeouts continue firing after the user
+  // disconnects, logging stale "no ACK" warnings against a null sender.
+  const pendingTimers = useRef<Set<ReturnType<typeof setTimeout>>>(new Set())
+
   // Derive the active sender: BLE transport takes priority, fallback to USB output
   const sender = transport ?? output
 
@@ -370,21 +375,26 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
         pendingParamTimestamps.current.set(key, performance.now())
         midiSendParamUpdate(s, domain, bank, field, value)
 
-        // Retry after 500ms if no ACK received
-        setTimeout(() => {
+        // Retry after 500ms if no ACK received. Track timer IDs so the
+        // disconnect-clear effect can cancel them (WR-04).
+        const t1: ReturnType<typeof setTimeout> = setTimeout(() => {
+          pendingTimers.current.delete(t1)
           if (pendingParamTimestamps.current.has(key)) {
             console.debug(`[T16 Sync] Param ${key} no ACK, retrying...`)
             const retryS = senderRef.current
             if (retryS) midiSendParamUpdate(retryS, domain, bank, field, value)
             // Final failure after another 500ms
-            setTimeout(() => {
+            const t2: ReturnType<typeof setTimeout> = setTimeout(() => {
+              pendingTimers.current.delete(t2)
               if (pendingParamTimestamps.current.has(key)) {
                 pendingParamTimestamps.current.delete(key)
                 console.warn(`[T16 Sync] Param ${key} sync failed after retry`)
               }
             }, 500)
+            pendingTimers.current.add(t2)
           }
         }, 500)
+        pendingTimers.current.add(t1)
       }
     },
     [sender],
@@ -400,19 +410,24 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
         pendingParamTimestamps.current.set(key, performance.now())
         midiSendCCParamUpdate(s, bank, ccIndex, channel, id)
 
-        setTimeout(() => {
+        // Retry timers tracked for disconnect cleanup (WR-04).
+        const t1: ReturnType<typeof setTimeout> = setTimeout(() => {
+          pendingTimers.current.delete(t1)
           if (pendingParamTimestamps.current.has(key)) {
             console.debug(`[T16 Sync] CC param ${key} no ACK, retrying...`)
             const retryS = senderRef.current
             if (retryS) midiSendCCParamUpdate(retryS, bank, ccIndex, channel, id)
-            setTimeout(() => {
+            const t2: ReturnType<typeof setTimeout> = setTimeout(() => {
+              pendingTimers.current.delete(t2)
               if (pendingParamTimestamps.current.has(key)) {
                 pendingParamTimestamps.current.delete(key)
                 console.warn(`[T16 Sync] CC param ${key} sync failed after retry`)
               }
             }, 500)
+            pendingTimers.current.add(t2)
           }
         }, 500)
+        pendingTimers.current.add(t1)
       }
     },
     [sender],
@@ -525,11 +540,29 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
         payload: { capabilities: FALLBACK_CAPABILITIES[derivedVariant], fromHandshake: false },
       })
       capabilitiesRequestedRef.current = false
+      // WR-04: cancel outstanding retry timers and drop stale timestamp keys
+      // so post-disconnect timer callbacks do not log against a null sender,
+      // and so RTT measurements are not corrupted across reconnects.
+      pendingTimers.current.forEach(clearTimeout)
+      pendingTimers.current.clear()
+      pendingParamTimestamps.current.clear()
     }
     wasConnectedRef.current = isConnected
     // derivedVariant intentionally omitted — we want the snapshot at disconnect time.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected])
+
+  // WR-04: ensure timers are cleared on full unmount even if no disconnect
+  // transition fires (e.g., provider torn down while connected).
+  useEffect(() => {
+    const timers = pendingTimers.current
+    const stamps = pendingParamTimestamps.current
+    return () => {
+      timers.forEach(clearTimeout)
+      timers.clear()
+      stamps.clear()
+    }
+  }, [])
 
   const value: ConfigContextValue = {
     config: state.config,
