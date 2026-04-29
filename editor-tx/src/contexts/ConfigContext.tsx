@@ -291,20 +291,31 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
 
       // Phase 14-02: Capabilities handshake response — set device variant and capabilities.
       if (isCapabilitiesResponse(msg.cmd, msg.sub)) {
-        // The data parameter we receive here is the full SysEx frame
-        // (status byte + manufacturer + cmd + sub + payload). parseCapabilitiesPayload
-        // expects a buffer where bytes [0]=CMD, [1]=SUB, [2]=status, [3..]=ASCII JSON,
-        // matching firmware src/SysExHandler.cpp emission. Build that view from msg fields.
-        const reframed = new Uint8Array(3 + msg.payload.length)
-        reframed[0] = msg.cmd
-        reframed[1] = msg.sub
-        reframed[2] = msg.payload[0] ?? 0 // status byte (firmware sends 0 = OK before the JSON)
-        reframed.set(msg.payload, 3)
-        // Some firmware builds emit JSON starting at payload[0] (no status byte). Try the
-        // raw payload first if reframed shape yields no parse.
-        const payload =
-          parseCapabilitiesPayload(reframed) ??
-          parseCapabilitiesPayload(buildCapabilitiesView(msg.payload))
+        // parseCapabilitiesPayload expects a buffer shaped as
+        //   [0]=CMD, [1]=SUB, [2]=status, [3..]=ASCII JSON
+        // matching firmware src/SysExHandler.cpp emission.
+        //
+        // Two firmware emission shapes are supported (two-attempt parse):
+        //   (a) payload[0] = status byte, payload[1..] = JSON  (current firmware)
+        //   (b) payload[0..]                       = JSON      (no status byte)
+        //
+        // For (a) we lift payload[0] into the synthesized status slot and copy
+        // the REMAINING bytes (payload.slice(1)) into the JSON window — copying
+        // the full payload here would duplicate the status byte into JSON,
+        // making JSON.parse reject a leading NUL. Fix per WR-01 (Phase 14 review).
+        let payload: ReturnType<typeof parseCapabilitiesPayload> = null
+        if (msg.payload.length > 0) {
+          const reframed = new Uint8Array(3 + (msg.payload.length - 1))
+          reframed[0] = msg.cmd
+          reframed[1] = msg.sub
+          reframed[2] = msg.payload[0] ?? 0
+          reframed.set(msg.payload.slice(1), 3)
+          payload = parseCapabilitiesPayload(reframed)
+        }
+        // Fallback: shape (b) — JSON starts at payload[0] with no status prefix.
+        if (!payload) {
+          payload = parseCapabilitiesPayload(buildCapabilitiesView(msg.payload))
+        }
         if (payload) {
           setVariant(payload.variant)
           setCapabilities(payload.capabilities, true)
