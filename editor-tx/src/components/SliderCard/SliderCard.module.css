@@ -33,3 +33,21 @@
   background-color: var(--color-warning);
   flex-shrink: 0;
 }
+
+.placeholder {
+  background: var(--gray-200);
+  color: var(--gray-500);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.placeholderHeading {
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  margin: 0 0 var(--space-sm) 0;
+}
+
+.placeholderBody {
+  font-size: var(--text-sm);
+  margin: 0;
+}

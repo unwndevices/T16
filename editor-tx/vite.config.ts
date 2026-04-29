@@ -35,6 +35,10 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
+  // Include .bin (already in default Vite list) and .placeholder so the T32
+  // firmware placeholder ships in the bundle until Phase 12 hardware bring-up
+  // produces a tagged binary (Phase 14-05).
+  assetsInclude: ['**/*.bin', '**/*.placeholder'],
   server: {
     watch: { usePolling: true },
   },

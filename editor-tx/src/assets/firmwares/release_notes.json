@@ -2,6 +2,7 @@
   "v1.0.3": {
     "fileName": "t16_v1.0.3.bin",
     "version": 103,
+    "variant": "T16",
     "releaseDate": "29/07/2024",
     "releaseNotes": {
       "Highlights": "Koala Mode!",
@@ -15,6 +16,7 @@
   "v1.0.2": {
     "fileName": "t16_v1.0.2.bin",
     "version": 102,
+    "variant": "T16",
     "releaseDate": "20/07/2024",
     "releaseNotes": {
       "Highlights": "(Moar Bugs fixed + MIDI Monitor)",
@@ -37,6 +39,7 @@
   "v1.0.1": {
     "fileName": "t16_v1.0.1.bin",
     "version": 101,
+    "variant": "T16",
     "releaseDate": "11/07/2024",
     "releaseNotes": {
       "Highlights": "squashed bugs and improved reliability",
@@ -57,9 +60,20 @@
   "v1.0.0": {
     "fileName": "t16_v1.0.0.bin",
     "version": 100,
+    "variant": "T16",
     "releaseDate": "03/06/2024",
     "releaseNotes": {
       "Highlights": "initial release"
+    }
+  },
+  "T32-v1.0.0": {
+    "fileName": "t32_v1.0.0.bin",
+    "version": 100,
+    "variant": "T32",
+    "unavailable": true,
+    "releaseDate": "29/04/2026",
+    "releaseNotes": {
+      "Highlights": "Initial T32 firmware (placeholder pending Phase 12 hardware bring-up tag)."
     }
   }
 }

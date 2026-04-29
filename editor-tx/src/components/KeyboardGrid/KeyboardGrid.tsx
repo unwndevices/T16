@@ -12,7 +12,6 @@ export type KeyboardGridProps = {
 export function KeyboardGrid({ keys, cols, rows, renderKey, ...rest }: KeyboardGridProps) {
   // Defensive: keys must equal cols * rows. Throw in dev for early catch.
   if (cols * rows !== keys && import.meta.env.DEV) {
-    // eslint-disable-next-line no-console
     console.error(`[KeyboardGrid] cols (${cols}) * rows (${rows}) !== keys (${keys})`)
   }
   const cells: ReactNode[] = []
