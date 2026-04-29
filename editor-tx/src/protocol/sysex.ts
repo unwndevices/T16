@@ -8,6 +8,7 @@ export const CMD = {
   CALIBRATION: 0x04,
   BOOTLOADER: 0x05,
   FACTORY_RESET: 0x06,
+  CAPABILITIES: 0x07,
 } as const
 
 export const SUB = {
@@ -64,6 +65,10 @@ export type SysExSender = Output | MidiTransport
 
 export function requestVersion(sender: SysExSender): void {
   sender.sendSysex(MANUFACTURER_ID, [CMD.VERSION, SUB.REQUEST])
+}
+
+export function requestCapabilities(sender: SysExSender): void {
+  sender.sendSysex(MANUFACTURER_ID, [CMD.CAPABILITIES, SUB.REQUEST])
 }
 
 export function requestConfigDump(sender: SysExSender): void {

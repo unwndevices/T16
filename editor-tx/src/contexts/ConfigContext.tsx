@@ -4,18 +4,30 @@ import {
   parseSysExMessage,
   parseConfigDump,
   isConfigResponse,
+  isCapabilitiesResponse,
+  parseCapabilitiesPayload,
+  requestCapabilities,
   sendParamUpdate as midiSendParamUpdate,
   sendCCParamUpdate as midiSendCCParamUpdate,
   sendFullConfig,
   requestConfigDump,
   requestVersion,
+  isVersionResponse,
   isParamAck,
 } from '@/services/midi'
 import { DOMAIN, FIELD_GLOBAL, FIELD_BANK } from '@/protocol/sysex'
 import type { T16Configuration } from '@/types/config'
-import type { ConfigContextValue, ConfigAction } from '@/types/midi'
+import type {
+  ConfigContextValue,
+  ConfigAction,
+  PendingAdaptation,
+} from '@/types/midi'
 import { prepareImport, type ImportResult } from '@/services/configValidator'
+import { adaptConfigForVariant } from '@/services/adaptConfigForVariant'
 import { useConnection } from '@/hooks/useConnection'
+import type { Variant, Capabilities } from '@/types/variant'
+import { isVariant } from '@/types/variant'
+import { FALLBACK_CAPABILITIES, VARIANT_STORAGE_KEY } from '@/constants/capabilities'
 
 // Default configuration matching the device defaults
 const DEFAULT_BANK = {
@@ -87,6 +99,10 @@ interface ConfigReducerState {
   config: T16Configuration
   deviceConfig: T16Configuration | null
   selectedBank: number
+  runtimeVariant: Variant | null
+  capabilities: Capabilities
+  isHandshakeConfirmed: boolean
+  pendingAdaptation: PendingAdaptation | null
 }
 
 // Map global field IDs to config property names
@@ -158,6 +174,23 @@ function configReducer(state: ConfigReducerState, action: ConfigAction): ConfigR
     case 'SET_BANK':
       return { ...state, selectedBank: action.payload }
 
+    case 'SET_VARIANT': {
+      // Variant change does NOT mutate config.variant — that field is a load-time discriminator.
+      // The runtime variant is held alongside config; setVariant is for offline picker + handshake overrides.
+      return { ...state, runtimeVariant: action.payload }
+    }
+    case 'SET_CAPABILITIES': {
+      return {
+        ...state,
+        capabilities: action.payload.capabilities,
+        isHandshakeConfirmed: action.payload.fromHandshake,
+      }
+    }
+    case 'SET_PENDING_ADAPTATION':
+      return { ...state, pendingAdaptation: action.payload }
+    case 'CLEAR_PENDING_ADAPTATION':
+      return { ...state, pendingAdaptation: null }
+
     default:
       return state
   }
@@ -168,7 +201,7 @@ function computeIsSynced(config: T16Configuration, deviceConfig: T16Configuratio
   return JSON.stringify(config) === JSON.stringify(deviceConfig)
 }
 
-const ConfigContext = createContext<ConfigContextValue | null>(null)
+export const ConfigContext = createContext<ConfigContextValue | null>(null)
 
 interface ConfigProviderProps {
   children: ReactNode
@@ -181,9 +214,27 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
     config: DEFAULT_CONFIG,
     deviceConfig: null,
     selectedBank: 0,
+    runtimeVariant: null,
+    capabilities: FALLBACK_CAPABILITIES.T16,
+    isHandshakeConfirmed: false,
+    pendingAdaptation: null,
   })
 
   const isSynced = computeIsSynced(state.config, state.deviceConfig)
+
+  // D14.1 priority: handshake (runtimeVariant set fromHandshake) > config.variant > localStorage > 'T16'
+  const derivedVariant: Variant = (() => {
+    if (state.runtimeVariant && state.isHandshakeConfirmed) return state.runtimeVariant
+    if (isVariant(state.config.variant)) return state.config.variant
+    if (state.runtimeVariant) return state.runtimeVariant
+    try {
+      const stored = window.localStorage.getItem(VARIANT_STORAGE_KEY)
+      if (isVariant(stored)) return stored
+    } catch {
+      // localStorage unavailable (private mode, quota, SSR) — fall through.
+    }
+    return 'T16'
+  })()
 
   // Track pending param send timestamps for round-trip measurement
   const pendingParamTimestamps = useRef<Map<string, number>>(new Map())
@@ -195,35 +246,99 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
   const senderRef = useRef(sender)
   senderRef.current = sender
 
-  // Shared SysEx message handler used by both USB and BLE receive paths
-  const handleSysexData = useCallback((data: Uint8Array) => {
-    const msg = parseSysExMessage(data)
-    if (!msg) return
+  // Track whether we've requested capabilities for the current connection (Phase 14-02).
+  // Reset on each isConnected transition.
+  const capabilitiesRequestedRef = useRef(false)
 
-    if (isConfigResponse(msg.cmd, msg.sub)) {
+  const setVariant = useCallback(
+    (v: Variant) => {
+      dispatch({ type: 'SET_VARIANT', payload: v })
       try {
-        const config = parseConfigDump(msg.payload)
-        dispatch({ type: 'SET_CONFIG', payload: config })
-        dispatch({ type: 'SET_DEVICE_CONFIG', payload: config })
-      } catch (err) {
-        console.error('Failed to parse config dump:', err)
+        window.localStorage.setItem(VARIANT_STORAGE_KEY, v)
+      } catch {
+        // Silent — variant still applies in-session, just won't persist.
       }
-    }
+      // Update fallback capabilities when no handshake has occurred so capability-driven UI updates.
+      if (!state.isHandshakeConfirmed) {
+        dispatch({
+          type: 'SET_CAPABILITIES',
+          payload: { capabilities: FALLBACK_CAPABILITIES[v], fromHandshake: false },
+        })
+      }
+    },
+    [state.isHandshakeConfirmed],
+  )
 
-    // Measure per-parameter sync round-trip time
-    if (isParamAck(msg.cmd, msg.sub)) {
-      const timestamps = pendingParamTimestamps.current
-      if (timestamps.size > 0) {
-        const entry = timestamps.entries().next()
-        if (!entry.done) {
-          const [key, sendTime] = entry.value
-          const roundTrip = performance.now() - sendTime
-          console.debug(`[T16 Sync] Param ${key} round-trip: ${roundTrip.toFixed(1)}ms`)
-          timestamps.delete(key)
+  const setCapabilities = useCallback((caps: Capabilities, fromHandshake: boolean) => {
+    dispatch({ type: 'SET_CAPABILITIES', payload: { capabilities: caps, fromHandshake } })
+  }, [])
+
+  // Shared SysEx message handler used by both USB and BLE receive paths
+  const handleSysexData = useCallback(
+    (data: Uint8Array) => {
+      const msg = parseSysExMessage(data)
+      if (!msg) return
+
+      if (isConfigResponse(msg.cmd, msg.sub)) {
+        try {
+          const config = parseConfigDump(msg.payload)
+          dispatch({ type: 'SET_CONFIG', payload: config })
+          dispatch({ type: 'SET_DEVICE_CONFIG', payload: config })
+        } catch (err) {
+          console.error('Failed to parse config dump:', err)
         }
       }
-    }
-  }, [])
+
+      // Phase 14-02: Capabilities handshake response — set device variant and capabilities.
+      if (isCapabilitiesResponse(msg.cmd, msg.sub)) {
+        // The data parameter we receive here is the full SysEx frame
+        // (status byte + manufacturer + cmd + sub + payload). parseCapabilitiesPayload
+        // expects a buffer where bytes [0]=CMD, [1]=SUB, [2]=status, [3..]=ASCII JSON,
+        // matching firmware src/SysExHandler.cpp emission. Build that view from msg fields.
+        const reframed = new Uint8Array(3 + msg.payload.length)
+        reframed[0] = msg.cmd
+        reframed[1] = msg.sub
+        reframed[2] = msg.payload[0] ?? 0 // status byte (firmware sends 0 = OK before the JSON)
+        reframed.set(msg.payload, 3)
+        // Some firmware builds emit JSON starting at payload[0] (no status byte). Try the
+        // raw payload first if reframed shape yields no parse.
+        const payload =
+          parseCapabilitiesPayload(reframed) ??
+          parseCapabilitiesPayload(buildCapabilitiesView(msg.payload))
+        if (payload) {
+          setVariant(payload.variant)
+          setCapabilities(payload.capabilities, true)
+        } else {
+          console.warn('[Phase 14] capabilities payload unparseable; using fallback')
+        }
+        return
+      }
+
+      // Phase 14-02: After version response, request capabilities once.
+      if (isVersionResponse(msg.cmd, msg.sub)) {
+        const s = senderRef.current
+        if (s && !capabilitiesRequestedRef.current) {
+          capabilitiesRequestedRef.current = true
+          requestCapabilities(s)
+        }
+      }
+
+      // Measure per-parameter sync round-trip time
+      if (isParamAck(msg.cmd, msg.sub)) {
+        const timestamps = pendingParamTimestamps.current
+        if (timestamps.size > 0) {
+          const entry = timestamps.entries().next()
+          if (!entry.done) {
+            const [key, sendTime] = entry.value
+            const roundTrip = performance.now() - sendTime
+            console.debug(`[T16 Sync] Param ${key} round-trip: ${roundTrip.toFixed(1)}ms`)
+            timestamps.delete(key)
+          }
+        }
+      }
+    },
+    [setVariant, setCapabilities],
+  )
 
   const setBank = useCallback((bank: number) => {
     dispatch({ type: 'SET_BANK', payload: bank })
@@ -296,15 +411,25 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
     (data: unknown): ImportResult => {
       const result = prepareImport(data)
       if (result.valid && result.config) {
-        dispatch({ type: 'SET_CONFIG', payload: result.config })
-        const s = senderRef.current
-        if (s) {
-          sendFullConfig(s, result.config)
+        const fileVariant = result.config.variant
+        const runtimeVariant = derivedVariant
+        if (fileVariant !== runtimeVariant) {
+          // Phase 14-04: variant mismatch — surface the adapt modal, do not auto-apply.
+          dispatch({
+            type: 'SET_PENDING_ADAPTATION',
+            payload: { fileConfig: result.config, fileVariant, deviceVariant: runtimeVariant },
+          })
+        } else {
+          dispatch({ type: 'SET_CONFIG', payload: result.config })
+          const s = senderRef.current
+          if (s) {
+            sendFullConfig(s, result.config)
+          }
         }
       }
       return result
     },
-    [sender],
+    [sender, derivedVariant],
   )
 
   const exportConfig = useCallback(() => {
@@ -322,10 +447,31 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
     URL.revokeObjectURL(url)
   }, [state.config])
 
+  const confirmAdaptation = useCallback(() => {
+    if (!state.pendingAdaptation) return
+    const adapted = adaptConfigForVariant(
+      state.pendingAdaptation.fileConfig,
+      state.pendingAdaptation.deviceVariant,
+    )
+    dispatch({ type: 'SET_CONFIG', payload: adapted })
+    dispatch({ type: 'CLEAR_PENDING_ADAPTATION' })
+    const s = senderRef.current
+    if (s) {
+      sendFullConfig(s, adapted)
+    }
+    // Toast emission lives at the consumer mounting CrossVariantAdaptDialog (App.tsx),
+    // because Toast primitive needs the ToastContext provider.
+  }, [state.pendingAdaptation])
+
+  const cancelAdaptation = useCallback(() => {
+    dispatch({ type: 'CLEAR_PENDING_ADAPTATION' })
+  }, [])
+
   // Request config dump and version when a sender becomes available
   useEffect(() => {
     const s = transport ?? output
     if (!s || !isConnected) return
+    capabilitiesRequestedRef.current = false
     requestConfigDump(s)
     requestVersion(s)
   }, [output, transport, isConnected])
@@ -359,7 +505,15 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
   useEffect(() => {
     if (!isConnected) {
       dispatch({ type: 'SET_DEVICE_CONFIG', payload: null })
+      // Clear handshake confirmation on disconnect; offline picker takes over.
+      dispatch({
+        type: 'SET_CAPABILITIES',
+        payload: { capabilities: FALLBACK_CAPABILITIES[derivedVariant], fromHandshake: false },
+      })
+      capabilitiesRequestedRef.current = false
     }
+    // derivedVariant intentionally omitted — we want the snapshot at disconnect time.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected])
 
   const value: ConfigContextValue = {
@@ -373,9 +527,29 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
     setConfig,
     importConfig,
     exportConfig,
+    variant: derivedVariant,
+    capabilities: state.capabilities,
+    isHandshakeConfirmed: state.isHandshakeConfirmed,
+    setVariant,
+    setCapabilities,
+    pendingAdaptation: state.pendingAdaptation,
+    confirmAdaptation,
+    cancelAdaptation,
   }
 
   return <ConfigContext.Provider value={value}>{children}</ConfigContext.Provider>
+}
+
+// Build a "header-less" view of the capabilities payload for the case where the
+// firmware emits the JSON immediately at payload[0] without a leading status byte.
+// parseCapabilitiesPayload expects [cmd, sub, status, ...json] — synthesize that.
+function buildCapabilitiesView(payload: Uint8Array): Uint8Array {
+  const view = new Uint8Array(3 + payload.length)
+  view[0] = 0x07 // CMD_CAPABILITIES
+  view[1] = 0x02 // SUB.RESPONSE
+  view[2] = 0x00 // status OK
+  view.set(payload, 3)
+  return view
 }
 
 export default ConfigContext

@@ -102,20 +102,9 @@ export function migrateV200ToV201(
   return next
 }
 
-// adaptConfigForVariant is the pure cross-variant adapter consumed by Phase 14's
-// load modal (D13.1). For v201 today this is a discriminator rewrite — banks
-// are 4 in both variants and custom_scales are 16 in both. When Phase 14
-// introduces variant-bound per-key arrays (`keyMap`, `scales`, `ccConfig`),
-// branch here:
-//   - T16 → T32: pad arrays from 16 to 32 with default values
-//   - T32 → T16: truncate arrays from 32 to 16; caller must show data-loss warning per D13.1
-export function adaptConfigForVariant(
-  config: T16Configuration,
-  targetVariant: 'T16' | 'T32',
-): T16Configuration {
-  if (config.variant === targetVariant) return config
-  return { ...config, variant: targetVariant }
-}
+// adaptConfigForVariant moved to ./adaptConfigForVariant.ts (Phase 14-04). Re-export
+// here for backward compatibility with existing imports.
+export { adaptConfigForVariant } from './adaptConfigForVariant'
 
 export interface ImportResult {
   valid: boolean

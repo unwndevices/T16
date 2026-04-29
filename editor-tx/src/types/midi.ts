@@ -1,6 +1,7 @@
 import type { Input, Output } from 'webmidi'
 import type { T16Configuration } from '@/types/config'
 import type { ImportResult } from '@/services/configValidator'
+import type { Variant, Capabilities } from '@/types/variant'
 
 export interface ConnectionState {
   input: Input | null
@@ -31,6 +32,20 @@ export interface ConfigContextValue extends ConfigState {
   setConfig(config: T16Configuration): void
   importConfig(data: unknown): ImportResult
   exportConfig(): void
+  variant: Variant
+  capabilities: Capabilities
+  isHandshakeConfirmed: boolean
+  setVariant: (v: Variant) => void
+  setCapabilities: (caps: Capabilities, fromHandshake: boolean) => void
+  pendingAdaptation: PendingAdaptation | null
+  confirmAdaptation: () => void
+  cancelAdaptation: () => void
+}
+
+export interface PendingAdaptation {
+  fileConfig: T16Configuration
+  fileVariant: Variant
+  deviceVariant: Variant
 }
 
 export interface MidiTransport {
@@ -46,3 +61,7 @@ export type ConfigAction =
   | { type: 'UPDATE_PARAM'; domain: number; bank: number; field: number; value: number }
   | { type: 'UPDATE_CC_PARAM'; bank: number; ccIndex: number; channel: number; id: number }
   | { type: 'SET_BANK'; payload: number }
+  | { type: 'SET_VARIANT'; payload: Variant }
+  | { type: 'SET_CAPABILITIES'; payload: { capabilities: Capabilities; fromHandshake: boolean } }
+  | { type: 'SET_PENDING_ADAPTATION'; payload: PendingAdaptation }
+  | { type: 'CLEAR_PENDING_ADAPTATION' }

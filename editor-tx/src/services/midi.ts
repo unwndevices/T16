@@ -9,6 +9,7 @@ import {
   type SysExSender,
   requestVersion as sysexRequestVersion,
   requestConfigDump as sysexRequestConfigDump,
+  requestCapabilities as sysexRequestCapabilities,
   sendParamUpdate as sysexSendParamUpdate,
   sendCCParamUpdate as sysexSendCCParamUpdate,
   sendFullConfig as sysexSendFullConfig,
@@ -16,6 +17,8 @@ import {
   requestFactoryReset as sysexRequestFactoryReset,
 } from '@/protocol/sysex'
 import type { T16Configuration } from '@/types/config'
+import type { Variant, Capabilities } from '@/types/variant'
+import { isVariant } from '@/types/variant'
 
 const DEVICE_NAME = 'Topo T16'
 
@@ -57,6 +60,13 @@ export function requestConfigDump(sender: SysExSender): void {
  */
 export function requestVersion(sender: SysExSender): void {
   sysexRequestVersion(sender)
+}
+
+/**
+ * Request the device's variant + capabilities (Phase 11 firmware handshake).
+ */
+export function requestCapabilities(sender: SysExSender): void {
+  sysexRequestCapabilities(sender)
 }
 
 /**
@@ -167,4 +177,54 @@ export function isVersionResponse(cmd: number, sub: number): boolean {
  */
 export function isParamAck(cmd: number, sub: number): boolean {
   return cmd === CMD.PARAM && sub === SUB.ACK
+}
+
+/**
+ * Check if a SysEx message is a CMD_CAPABILITIES response.
+ * Mirrors the (cmd, sub) signature of isConfigResponse / isVersionResponse.
+ */
+export function isCapabilitiesResponse(cmd: number, sub: number): boolean {
+  return cmd === CMD.CAPABILITIES && sub === SUB.RESPONSE
+}
+
+/**
+ * Parse the JSON payload from a CMD_CAPABILITIES response.
+ * Layout: bytes [0]=CMD, [1]=SUB, [2]=status, [3..]=ASCII JSON.
+ * Returns null on any parse failure or unknown variant string —
+ * caller treats null as "handshake unavailable, use fallback".
+ */
+export function parseCapabilitiesPayload(
+  data: Uint8Array,
+): { variant: Variant; capabilities: Capabilities } | null {
+  if (data.length < 4) return null
+  try {
+    const json = String.fromCharCode(...Array.from(data.slice(3)))
+    const parsed: unknown = JSON.parse(json)
+    if (
+      typeof parsed !== 'object' ||
+      parsed === null ||
+      !('variant' in parsed) ||
+      !('capabilities' in parsed)
+    )
+      return null
+    const v = (parsed as { variant: unknown }).variant
+    const c = (parsed as { capabilities: unknown }).capabilities
+    if (!isVariant(v)) return null
+    if (
+      typeof c !== 'object' ||
+      c === null ||
+      typeof (c as { touchSlider?: unknown }).touchSlider !== 'boolean' ||
+      typeof (c as { koalaMode?: unknown }).koalaMode !== 'boolean'
+    )
+      return null
+    return {
+      variant: v,
+      capabilities: {
+        touchSlider: (c as { touchSlider: boolean }).touchSlider,
+        koalaMode: (c as { koalaMode: boolean }).koalaMode,
+      },
+    }
+  } catch {
+    return null
+  }
 }
