@@ -26,7 +26,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 
 ### 🚧 v1.1 Variant Support (Phases 10-14)
 
-- [ ] **Phase 10: Build System & Variant Selection** — Per-variant pinout headers and PlatformIO build envs select T16 vs T32 at compile time
+- [⚠] **Phase 10: Build System & Variant Selection** — Per-variant pinout headers and PlatformIO build envs select T16 vs T32 at compile time (CODE COMPLETE — hardware smoke test deferred, see VERIFICATION.md)
 - [ ] **Phase 11: Hardware Abstraction Layer** — `HardwareVariantConfig` constexpr carrier replaces fixed macros; firmware classes consume variant constants
 - [ ] **Phase 12: T32 Hardware Bring-Up** — Dual-mux ADC scan and validated key permutation boot the physical T32 with calibration persisted
 - [ ] **Phase 13: Config Schema & Migration** — Schema gains `variant` discriminator with single migration rule from v200; ajv validator enforces per-variant array sizes
@@ -44,10 +44,10 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
   3. `#include "pinout.h"` resolves `CurrentPinout` to the T16 or T32 pinout namespace based on `-DT16` / `-DT32`
   4. Existing T16 firmware behavior is identical after the rename (smoke test on hardware)
 **Plans**: 4 plans
-  - [ ] 10-01-PLAN.md — Add four PlatformIO envs (t16/t32 × debug/release) and set default_envs = t16_release
-  - [ ] 10-02-PLAN.md — Create namespaced pinout headers (pinout_t16.h, pinout_t32.h) and rewrite pinout.h as variant selector with CurrentPinout alias
-  - [ ] 10-03-PLAN.md — Migrate all firmware call sites from PIN_* macros to CurrentPinout::* (AppEngine, LedManager, ButtonHandler) and verify both variants compile
-  - [ ] 10-04-PLAN.md — Update CI to matrix over four envs, split native tests into sibling job, and run manual T16 hardware smoke test
+  - [x] 10-01-PLAN.md — Add four PlatformIO envs (t16/t32 × debug/release) and set default_envs = t16_release — completed 2026-04-29
+  - [x] 10-02-PLAN.md — Create namespaced pinout headers (pinout_t16.h, pinout_t32.h) and rewrite pinout.h as variant selector with CurrentPinout alias — completed 2026-04-29
+  - [x] 10-03-PLAN.md — Migrate all firmware call sites from PIN_* macros to CurrentPinout::* (AppEngine, LedManager, ButtonHandler) and verify both variants compile — completed 2026-04-29 (per-TU compile clean; firmware.elf link blocked by pre-existing third-party lib conflict)
+  - [x] 10-04-PLAN.md — Update CI to matrix over four envs, split native tests into sibling job, and run manual T16 hardware smoke test — Task 1 completed 2026-04-29; Task 2 (hardware smoke test) deferred to human verification
 
 ### Phase 11: Hardware Abstraction Layer
 **Goal**: Firmware classes consume `HardwareVariantConfig` constexpr constants instead of fixed macros, with no behavior change on T16.
@@ -111,11 +111,11 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 | 7. Firmware Bug & Tech Debt | v1.0 | 2/2 | Complete | 2026-04-04 |
 | 8. BLE MIDI Bridging | v1.0 | 2/2 | Complete | 2026-04-04 |
 | 9. UI Wiring Gap Closure | v1.0 | 2/2 | Complete | 2026-04-04 |
-| 10. Build System & Variant Selection | v1.1 | 0/0 | Not started | - |
+| 10. Build System & Variant Selection | v1.1 | 4/4 | Code complete (smoke test deferred) | 2026-04-29 |
 | 11. Hardware Abstraction Layer | v1.1 | 0/0 | Not started | - |
 | 12. T32 Hardware Bring-Up | v1.1 | 0/0 | Not started | - |
 | 13. Config Schema & Migration | v1.1 | 0/0 | Not started | - |
 | 14. Editor-tx Variant Awareness | v1.1 | 0/0 | Not started | - |
 
 ---
-*Roadmap last updated: 2026-04-29 — v1.1 milestone roadmap drafted (Phases 10-14)*
+*Roadmap last updated: 2026-04-29 — Phase 10 code complete (4/4 plans); manual T16 smoke test deferred to human verification due to pre-existing third-party lib link conflict*
