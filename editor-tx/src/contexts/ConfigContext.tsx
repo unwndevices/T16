@@ -62,7 +62,8 @@ const DEFAULT_SCALE: [
 ] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 
 export const DEFAULT_CONFIG: T16Configuration = {
-  version: 200,
+  version: 201,
+  variant: 'T16',
   global: {
     mode: 0,
     sensitivity: 1,
@@ -309,7 +310,7 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
   const exportConfig = useCallback(() => {
     const exportData = {
       ...state.config,
-      _schema_version: 200,
+      _schema_version: 201,
       _exported_at: new Date().toISOString(),
     }
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
