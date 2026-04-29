@@ -1,5 +1,6 @@
 #include "ConfigManager.hpp"
 #include <LittleFS.h>
+#include <string.h>
 
 void ConfigManager::Init()
 {
@@ -167,6 +168,19 @@ bool ConfigManager::DeserializeFromBuffer(const char* buffer, size_t length)
         return false;
     }
 
+    // Defensive variant check (D13.4). Editor-tx already runs adaptConfigForVariant
+    // before sending; this rejects any payload that slipped past. If `variant` is
+    // missing entirely (e.g. an older editor sending a v200-shaped payload), skip
+    // the rejection — the migration path will catch a missing variant if version
+    // is too low.
+    const char* fileVariant = doc["variant"] | "";
+    if (fileVariant[0] != '\0' && strcmp(fileVariant, variant::CurrentVariant::kConfig.NAME) != 0)
+    {
+        log_d("SysEx config variant mismatch (msg=%s, device=%s) — rejecting",
+              fileVariant, variant::CurrentVariant::kConfig.NAME);
+        return false;  // Reject without overwriting on-disk config
+    }
+
     PopulateStructsFromDoc(doc);
     MarkDirty();
     return true;
@@ -204,32 +218,66 @@ bool ConfigManager::MigrateIfNeeded()
 
     if (version == CURRENT_VERSION)
     {
-        // Already v200, no migration needed
+        // v201: verify the on-disk variant matches this binary's variant
+        const char* fileVariant = doc["variant"] | "";
+        if (strcmp(fileVariant, variant::CurrentVariant::kConfig.NAME) != 0)
+        {
+            log_d("Variant mismatch on load (file=%s, device=%s) — using defaults",
+                  fileVariant, variant::CurrentVariant::kConfig.NAME);
+            global_ = ConfigurationData{};
+            global_.version = CURRENT_VERSION;
+            for (uint8_t i = 0; i < BANK_AMT; ++i)
+            {
+                banks_[i] = KeyModeData{};
+                cc_[i] = ControlChangeData{};
+            }
+            SaveToFlash();
+            return false;
+        }
+        // Variant matches; no migration needed.
         return false;
     }
 
-    if (version >= 100 && version < 200)
+    if (version == 200)
     {
-        // v1xx format (102, 103, etc.) -- migrate to v200
-        MigrateV103ToV200(doc);
-
-        // Save migrated doc directly to flash
+        // v200 → v201: inject variant, bump version, save, reload structs
+        MigrateV200ToV201(doc);
         File outFile = LittleFS.open(CONFIG_FILE, "w");
         if (outFile)
         {
             serializeJson(doc, outFile);
             outFile.close();
         }
-
-        // Reload structs from migrated doc
         PopulateStructsFromDoc(doc);
-        log_d("Migration complete");
+        log_d("Migration v200 → v201 complete");
         return true;
     }
 
-    // Unknown version -- treat as fresh install
-    log_d("Unknown config version %d, saving defaults", version);
+    if (version >= 100 && version < 200)
+    {
+        // v1xx → v200 → v201 (chain through both migrations)
+        MigrateV103ToV200(doc);
+        MigrateV200ToV201(doc);
+        File outFile = LittleFS.open(CONFIG_FILE, "w");
+        if (outFile)
+        {
+            serializeJson(doc, outFile);
+            outFile.close();
+        }
+        PopulateStructsFromDoc(doc);
+        log_d("Migration v1xx → v200 → v201 complete");
+        return true;
+    }
+
+    // Future or unknown version — fall back to defaults (D13.2 forward-incompat)
+    log_d("Unknown or future config version %d, saving defaults", version);
+    global_ = ConfigurationData{};
     global_.version = CURRENT_VERSION;
+    for (uint8_t i = 0; i < BANK_AMT; ++i)
+    {
+        banks_[i] = KeyModeData{};
+        cc_[i] = ControlChangeData{};
+    }
     SaveToFlash();
     return false;
 }
@@ -282,12 +330,25 @@ bool ConfigManager::MigrateV103ToV200(JsonDocument& doc)
     doc.remove("custom_scale1");
     doc.remove("custom_scale2");
 
-    // Update version
-    doc["version"] = CURRENT_VERSION;
+    // Update version to v200 (the immediate target). Chain caller invokes
+    // MigrateV200ToV201 next to land on CURRENT_VERSION.
+    doc["version"] = 200;
 
     // Banks array stays as-is (same structure in both versions)
 
     log_d("Migrated config from v103 to v200");
+    return true;
+}
+
+bool ConfigManager::MigrateV200ToV201(JsonDocument& doc)
+{
+    // v200 had no `variant` field. Default-inject from this binary's compile-time variant.
+    // Per D13.2: v200 only existed in T16 builds, so default-injecting kConfig.NAME is safe
+    // (a T16 binary injects "T16"; a T32 binary running fresh would never read a v200 file
+    //  because Phase 12 was T16-only — see Phase 13 RESEARCH.md A1).
+    doc["variant"] = variant::CurrentVariant::kConfig.NAME;
+    doc["version"] = CURRENT_VERSION;
+    log_d("Migrated config v200 → v201 (variant=%s)", variant::CurrentVariant::kConfig.NAME);
     return true;
 }
 
@@ -415,6 +476,7 @@ void ConfigManager::PopulateStructsFromDoc(const JsonDocument& doc)
 void ConfigManager::PopulateDocFromStructs(JsonDocument& doc)
 {
     doc["version"] = CURRENT_VERSION;
+    doc["variant"] = variant::CurrentVariant::kConfig.NAME;
 
     // Global fields under "global" key (v200 format)
     JsonObject globalObj = doc["global"].to<JsonObject>();
