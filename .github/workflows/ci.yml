@@ -47,7 +47,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.platformio
-          key: pio-${{ hashFiles('platformio.ini') }}-native
+          key: pio-${{ hashFiles('platformio.ini') }}-native_test
           restore-keys: pio-${{ hashFiles('platformio.ini') }}-
 
       - name: Set up Python
@@ -59,7 +59,7 @@ jobs:
         run: pip install platformio
 
       - name: Run firmware unit tests
-        run: pio test -e native
+        run: pio test -e native_test
 
   firmware-format:
     runs-on: ubuntu-latest
