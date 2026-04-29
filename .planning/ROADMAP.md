@@ -49,6 +49,16 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
   - [x] 10-03-PLAN.md — Migrate all firmware call sites from PIN_* macros to CurrentPinout::* (AppEngine, LedManager, ButtonHandler) and verify both variants compile — completed 2026-04-29 (per-TU compile clean; firmware.elf link blocked by pre-existing third-party lib conflict)
   - [x] 10-04-PLAN.md — Update CI to matrix over four envs, split native tests into sibling job, and run manual T16 hardware smoke test — Task 1 completed 2026-04-29; Task 2 (hardware smoke test) deferred to human verification
 
+### Phase 10.1: Lib_deps Conflict Hotfix (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 10
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 10.1 to break down)
+
 ### Phase 11: Hardware Abstraction Layer
 **Goal**: Firmware classes consume `HardwareVariantConfig` constexpr constants instead of fixed macros, with no behavior change on T16.
 **Depends on**: Phase 10

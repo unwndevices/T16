@@ -7,11 +7,11 @@ stopped_at: Phase 10 code complete (4/4 plans); hardware smoke test deferred to 
 last_updated: "2026-04-29T00:00:00.000Z"
 last_activity: 2026-04-29
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 0
   total_plans: 4
   completed_plans: 4
-  percent: 20
+  percent: 17
 ---
 
 # Project State
@@ -123,6 +123,10 @@ Recent decisions affecting current work:
 ### Pending Todos
 
 None yet.
+
+### Roadmap Evolution
+
+- Phase 10.1 inserted after Phase 10: Lib_deps Conflict Hotfix (URGENT) — pin compatible third-party lib versions so all 4 envs link; unblocks deferred T16 hardware smoke test from Phase 10.
 
 ### Blockers/Concerns
 
