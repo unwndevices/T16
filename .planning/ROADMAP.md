@@ -28,7 +28,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 
 - [⚠] **Phase 10: Build System & Variant Selection** — Per-variant pinout headers and PlatformIO build envs select T16 vs T32 at compile time (CODE COMPLETE — hardware smoke test deferred, see VERIFICATION.md)
 - [ ] **Phase 11: Hardware Abstraction Layer** — `HardwareVariantConfig` constexpr carrier replaces fixed macros; firmware classes consume variant constants
-- [ ] **Phase 12: T32 Hardware Bring-Up** — Dual-mux ADC scan and validated key permutation boot the physical T32 with calibration persisted
+- [x] **Phase 12: T32 Hardware Bring-Up** — Dual-mux ADC scan and validated key permutation boot the physical T32 with calibration persisted *(code-complete 2026-04-29; hardware bring-up smoke deferred to milestone v1.1 batch)*
 - [ ] **Phase 13: Config Schema & Migration** — Schema gains `variant` discriminator with single migration rule from v200; ajv validator enforces per-variant array sizes
 - [ ] **Phase 14: Editor-tx Variant Awareness** — `ConfigContext` carries variant state; conditional UI renders 4×4 vs 4×8 layouts and the flasher selects the correct `.bin`
 

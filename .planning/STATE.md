@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Variant Support
-status: phase_complete_human_needed
-stopped_at: Phase 10 code complete (4/4 plans); hardware smoke test deferred to human verification
+status: phase_complete_validation_deferred
+stopped_at: Phase 12 code complete (4/4 plans); hardware bring-up smoke deferred to milestone v1.1 batch
 last_updated: "2026-04-29T00:00:00.000Z"
 last_activity: 2026-04-29
 progress:
   total_phases: 6
-  completed_phases: 0
-  total_plans: 4
-  completed_plans: 4
-  percent: 17
+  completed_phases: 2
+  total_plans: 12
+  completed_plans: 12
+  percent: 33
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-29)
 
 **Core value:** Every parameter change reaches the device in under 100ms, and any developer can modify one feature without risking another.
-**Current focus:** Milestone v1.1 — Variant Support (Phase 10 code complete — human verification needed before advancing)
+**Current focus:** Milestone v1.1 — Variant Support (Phase 12 code complete — hardware verification batched to milestone close)
 
 ## Current Position
 
-Phase: 10 — Build System & Variant Selection (4/4 plans code-complete; VERIFICATION.md = human_needed)
+Phase: 12 — T32 Hardware Bring-Up (4/4 plans code-complete; VERIFICATION.md = validation_deferred)
 Plan: —
-Status: Code refactor done; firmware.elf link blocked by pre-existing third-party library conflict (TinyUSB/BLE-MIDI), which makes the Plan-04 T16 hardware smoke test impossible until that lib_deps issue is resolved. See `.planning/phases/10-build-system-variant-selection/10-VERIFICATION.md` for next-step options.
-Last activity: 2026-04-29 — Phase 10 planned (RESEARCH.md + 4 PLAN.md files)
+Status: All four envs (t16_debug, t16_release, t32_debug, t32_release) build clean. static_assert in variant_t32.hpp validates the 3dot0 inversion at compile time (caught a typo in the plan's hand-derived expected values; corrected before merge). Hardware bring-up smoke (T16 regression + T32 dual-mux + scan-time ≤ 2× T16 baseline + persistence + COM2 schematic confirmation) batched to milestone v1.1 close.
+Last activity: 2026-04-29 — Phase 12 executed end-to-end (3 waves, 4 plans, 9 commits)
 
 Progress: [░░░░░░░░░░] 0% (0/5 v1.1 phases)
 
