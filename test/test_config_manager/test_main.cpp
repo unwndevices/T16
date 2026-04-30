@@ -49,7 +49,7 @@ void test_init_default_brightness(void)
 void test_init_default_version(void)
 {
     cm.Init();
-    TEST_ASSERT_EQUAL_UINT8(200, cm.Global().version);
+    TEST_ASSERT_EQUAL_UINT16(201, cm.Global().version);
 }
 
 // --- SetGlobalParam ---
@@ -104,15 +104,14 @@ void test_set_bank_param_invalid_bank(void)
 
 // --- SerializeToBuffer ---
 
-void test_serialize_contains_version_200(void)
+void test_serialize_contains_version_201(void)
 {
     cm.Init();
     char buffer[2048];
     size_t len = cm.SerializeToBuffer(buffer, sizeof(buffer));
     TEST_ASSERT_GREATER_THAN(0, len);
 
-    // Check the buffer contains "version":200
-    TEST_ASSERT_NOT_NULL(strstr(buffer, "\"version\":200"));
+    TEST_ASSERT_NOT_NULL(strstr(buffer, "\"version\":201"));
 }
 
 void test_serialize_contains_global_key(void)
@@ -221,7 +220,7 @@ int main(int argc, char **argv)
     RUN_TEST(test_set_bank_param_channel);
     RUN_TEST(test_set_bank_param_sets_dirty);
     RUN_TEST(test_set_bank_param_invalid_bank);
-    RUN_TEST(test_serialize_contains_version_200);
+    RUN_TEST(test_serialize_contains_version_201);
     RUN_TEST(test_serialize_contains_global_key);
     RUN_TEST(test_serialize_contains_banks_key);
     RUN_TEST(test_deserialize_valid_json);
