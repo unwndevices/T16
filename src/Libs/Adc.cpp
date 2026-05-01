@@ -234,7 +234,11 @@ void Adc::Update(void *parameter)
     while (1)
     {
         adcInstance->ReadValues();
-        // vTaskDelay(1);
+        // Yield each tick so the same-core, same-priority Arduino loopTask
+        // (board JSON sets ARDUINO_RUNNING_CORE=1, matching this task's pin)
+        // gets CPU. Without this the LED render loop runs at ~1 Hz on T32,
+        // where _mux_count=2 doubles per-call work vs T16.
+        vTaskDelay(1);
     }
 }
 
