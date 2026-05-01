@@ -11,12 +11,12 @@ namespace variant::t32 {
 inline constexpr HardwareVariantConfig kConfig{
     /* TOTAL_KEYS          */ 32,
     /* MUX_COUNT           */ 2,
-    /* LED_COUNT           */ 40,   // 8 prefix LEDs + 32 key LEDs (two 4x4 serpentine blocks); confirmed on hardware 2026-05-01
+    /* LED_COUNT           */ 40,   // 1 state + 7 slider + 32 key LEDs; confirmed on hardware 2026-05-01
     /* MATRIX_WIDTH        */ 8,
     /* MATRIX_HEIGHT       */ 4,
-    /* SLIDER_LENGTH       */ 0,
+    /* SLIDER_LENGTH       */ 7,
     /* BANK_AMT            */ 4,
-    /* HAS_TOUCH_SLIDER    */ false,
+    /* HAS_TOUCH_SLIDER    */ true,
     /* SUPPORTS_KOALA_MODE */ false,
     /* NAME                */ "T32",
 };
