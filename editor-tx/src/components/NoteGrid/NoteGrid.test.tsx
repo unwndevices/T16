@@ -6,6 +6,7 @@ import { ConnectionProvider } from '@/contexts/ConnectionContext'
 import { ConfigProvider } from '@/contexts/ConfigContext'
 import { NoteGrid } from '@/components/NoteGrid/NoteGrid'
 import { useVariant } from '@/hooks/useVariant'
+import type { T16Configuration } from '@/types/config'
 
 vi.mock('@/services/midi', () => ({
   enableMidi: vi.fn().mockResolvedValue(undefined),
@@ -33,7 +34,9 @@ vi.mock('@/services/configValidator', () => ({
     errors: [],
     migrated: false,
   }),
-  adaptConfigForVariant: vi.fn((c, v) => ({ ...c, variant: v })),
+  adaptConfigForVariant: vi.fn(
+    (c: T16Configuration, v: 'T16' | 'T32'): T16Configuration => ({ ...c, variant: v }),
+  ),
 }))
 
 function Providers({ children }: { children: ReactNode }) {
@@ -85,9 +88,7 @@ describe('NoteGrid (variant-aware)', () => {
         <NoteGrid />
       </Providers>,
     )
-    expect(
-      await findByRole('grid', { name: 'Keyboard layout: T32, 32 keys' }),
-    ).toBeInTheDocument()
+    expect(await findByRole('grid', { name: 'Keyboard layout: T32, 32 keys' })).toBeInTheDocument()
   })
 
   it('T16 grid renders MIDI note labels (e.g., C0 from default config)', () => {

@@ -43,9 +43,7 @@ describe('KeyboardGrid', () => {
         aria-label="Keyboard layout: T32, 32 keys"
       />,
     )
-    expect(
-      screen.getByRole('grid', { name: 'Keyboard layout: T32, 32 keys' }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('grid', { name: 'Keyboard layout: T32, 32 keys' })).toBeInTheDocument()
   })
 
   it('cols invariant: T32 still renders with repeat(4, 1fr)', () => {
@@ -91,8 +89,7 @@ describe('KeyboardGrid', () => {
     )
     const matched = errSpy.mock.calls.some(
       (call) =>
-        typeof call[0] === 'string' &&
-        call[0].includes('cols (4) * rows (8) !== keys (16)'),
+        typeof call[0] === 'string' && call[0].includes('cols (4) * rows (8) !== keys (16)'),
     )
     expect(matched).toBe(true)
     errSpy.mockRestore()

@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import {
-  frameSysExForBLE,
-  BLESysExReassembler,
-  BLEMidiTransport,
-} from './bleBridge'
+import { frameSysExForBLE, BLESysExReassembler, BLEMidiTransport } from './bleBridge'
 
 describe('frameSysExForBLE', () => {
   it('produces a single BLE MIDI packet for short SysEx', () => {
@@ -43,7 +39,7 @@ describe('frameSysExForBLE', () => {
     const packets = frameSysExForBLE(0x7d, data)
     expect(packets[0][0] & 0x80).toBe(0x80) // header
     expect(packets[0][1] & 0x80).toBe(0x80) // timestamp
-    expect(packets[0][2]).toBe(0xf0)         // SysEx start
+    expect(packets[0][2]).toBe(0xf0) // SysEx start
   })
 
   it('continuation packets have header then data (byte 1 bit 7 clear)', () => {
@@ -52,7 +48,7 @@ describe('frameSysExForBLE', () => {
     // Middle packets (not first, not last)
     for (let p = 1; p < packets.length - 1; p++) {
       expect(packets[p][0] & 0x80).toBe(0x80) // header
-      expect(packets[p][1] & 0x80).toBe(0)    // data byte, bit 7 clear
+      expect(packets[p][1] & 0x80).toBe(0) // data byte, bit 7 clear
     }
   })
 
@@ -134,7 +130,10 @@ describe('BLEMidiTransport', () => {
     transport.addSysexListener(handler)
 
     // Get the notification handler that was registered
-    const [eventName, notifHandler] = mockCharacteristic.addEventListener.mock.calls[0]
+    const [eventName, notifHandler] = mockCharacteristic.addEventListener.mock.calls[0] as [
+      string,
+      (e: { target: { value: DataView } }) => void,
+    ]
     expect(eventName).toBe('characteristicvaluechanged')
 
     // Simulate a BLE MIDI notification with a complete SysEx
@@ -156,7 +155,10 @@ describe('BLEMidiTransport', () => {
     transport.removeSysexListener(handler)
 
     // Simulate notification
-    const [, notifHandler] = mockCharacteristic.addEventListener.mock.calls[0]
+    const [, notifHandler] = mockCharacteristic.addEventListener.mock.calls[0] as [
+      string,
+      (e: { target: { value: DataView } }) => void,
+    ]
     const blePacket = new DataView(
       new Uint8Array([0x80, 0x80, 0xf0, 0x7d, 0x01, 0x80, 0xf7]).buffer,
     )

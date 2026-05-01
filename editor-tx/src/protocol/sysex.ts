@@ -93,8 +93,13 @@ export function sendCCParamUpdate(
   id: number,
 ): void {
   sender.sendSysex(MANUFACTURER_ID, [
-    CMD.PARAM, SUB.REQUEST,
-    DOMAIN.BANK_CC, bankIndex, ccIndex, channel, id
+    CMD.PARAM,
+    SUB.REQUEST,
+    DOMAIN.BANK_CC,
+    bankIndex,
+    ccIndex,
+    channel,
+    id,
   ])
 }
 

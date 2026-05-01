@@ -30,10 +30,7 @@ export function useBootloader() {
 
       // Wait for MIDI device to disconnect (ESP32 restarts into download mode)
       await new Promise<void>((resolve, reject) => {
-        const timeout = setTimeout(
-          () => reject(new Error('Bootloader entry timeout')),
-          5000,
-        )
+        const timeout = setTimeout(() => reject(new Error('Bootloader entry timeout')), 5000)
         const check = setInterval(() => {
           if (!output.connection || output.connection === 'closed') {
             clearInterval(check)
@@ -47,27 +44,33 @@ export function useBootloader() {
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
       // Try to auto-connect via Web Serial (previously granted port)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const ports = await (navigator as any).serial.getPorts()
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let port = ports.find((p: any) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      interface SerialPortInfo {
+        usbVendorId?: number
+        usbProductId?: number
+      }
+      interface WebSerialPort {
+        getInfo(): SerialPortInfo
+      }
+      interface WebSerial {
+        getPorts(): Promise<WebSerialPort[]>
+        requestPort(opts?: { filters?: { usbVendorId: number }[] }): Promise<WebSerialPort>
+      }
+      const nav = navigator as Navigator & { serial: WebSerial }
+      const ports = await nav.serial.getPorts()
+      let port = ports.find((p) => {
         const info = p.getInfo()
         // ESP32-S3 USB Serial/JTAG: VID 0x303A, PID 0x1001
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        return info.usbVendorId === 0x303A && info.usbProductId === 0x1001
+        return info.usbVendorId === 0x303a && info.usbProductId === 0x1001
       })
 
       if (!port) {
         // Fallback: prompt user to select the port
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-        port = await (navigator as any).serial.requestPort({
-          filters: [{ usbVendorId: 0x303A }],
+        port = await nav.serial.requestPort({
+          filters: [{ usbVendorId: 0x303a }],
         })
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      const transport = new Transport(port)
+      const transport = new Transport(port as ConstructorParameters<typeof Transport>[0])
       const esploader = new ESPLoader({ transport, baudrate: 921600 })
       await esploader.main()
       await esploader.flashId()
@@ -77,8 +80,7 @@ export function useBootloader() {
     } catch (error) {
       console.error('Bootloader entry failed:', error)
       toast({
-        title:
-          'Could not enter update mode. Try the manual method: hold BOOT while plugging in.',
+        title: 'Could not enter update mode. Try the manual method: hold BOOT while plugging in.',
         variant: 'error',
       })
       setState('error')
@@ -105,26 +107,20 @@ export function useBootloader() {
           flashFreq: 'keep',
           eraseAll: false,
           compress: true,
-          reportProgress: (
-            _fileIndex: number,
-            written: number,
-            total: number,
-          ) => {
+          reportProgress: (_fileIndex: number, written: number, total: number) => {
             setProgress(Math.floor((written / total) * 100))
           },
         })
 
         toast({
-          title:
-            'Firmware updated successfully. Your T16 will restart.',
+          title: 'Firmware updated successfully. Your T16 will restart.',
           variant: 'success',
         })
         setState('success')
       } catch (error) {
         console.error('Upload failed:', error)
         toast({
-          title:
-            'Upload failed. Unplug the device, plug it back in, and try again.',
+          title: 'Upload failed. Unplug the device, plug it back in, and try again.',
           variant: 'error',
         })
         setState('error')

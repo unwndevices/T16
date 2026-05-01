@@ -1,11 +1,5 @@
 import { useEffect, useRef } from 'react'
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-  Button,
-} from '@/design-system'
+import { Dialog, DialogContent, DialogTitle, DialogDescription, Button } from '@/design-system'
 import type { Variant } from '@/types/variant'
 import styles from './FlashOverrideDialog.module.css'
 
@@ -48,11 +42,7 @@ export function FlashOverrideDialog({
           <Button variant="secondary" onClick={onCancel} ref={cancelRef}>
             {`Keep ${deviceVariant}`}
           </Button>
-          <Button
-            variant="primary"
-            className={styles.destructive}
-            onClick={onConfirm}
-          >
+          <Button variant="primary" className={styles.destructive} onClick={onConfirm}>
             {`Flash ${targetVariant} anyway`}
           </Button>
         </div>

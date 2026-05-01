@@ -10,16 +10,19 @@ import { createRoot } from 'react-dom/client'
 import { ToastProvider } from '@/contexts/ToastContext'
 import { ConnectionProvider } from '@/contexts/ConnectionContext'
 import { ConfigProvider } from '@/contexts/ConfigContext'
+import { TooltipProvider } from '@/design-system/Tooltip'
 import App from './App'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ToastProvider>
-      <ConnectionProvider>
-        <ConfigProvider>
-          <App />
-        </ConfigProvider>
-      </ConnectionProvider>
-    </ToastProvider>
+    <TooltipProvider>
+      <ToastProvider>
+        <ConnectionProvider>
+          <ConfigProvider>
+            <App />
+          </ConfigProvider>
+        </ConnectionProvider>
+      </ToastProvider>
+    </TooltipProvider>
   </StrictMode>,
 )

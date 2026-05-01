@@ -25,89 +25,89 @@ export function NavBar() {
 
   return (
     <>
-    <nav className={styles.nav}>
-      <div className={styles.inner}>
-        <div className={styles.links}>
-          <Tooltip>
-            <TooltipTrigger>
-              <NavLink
-                to="/"
-                className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
-                aria-label="Editor"
-              >
-                <MdTune size={22} />
-              </NavLink>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">Editor</TooltipContent>
-          </Tooltip>
+      <nav className={styles.nav}>
+        <div className={styles.inner}>
+          <div className={styles.links}>
+            <Tooltip>
+              <TooltipTrigger>
+                <NavLink
+                  to="/"
+                  className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
+                  aria-label="Editor"
+                >
+                  <MdTune size={22} />
+                </NavLink>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Editor</TooltipContent>
+            </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger>
-              <NavLink
-                to="/upload"
-                className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
-                aria-label="Update"
-              >
-                <MdSystemUpdate size={22} />
-              </NavLink>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">Update</TooltipContent>
-          </Tooltip>
+            <Tooltip>
+              <TooltipTrigger>
+                <NavLink
+                  to="/upload"
+                  className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
+                  aria-label="Update"
+                >
+                  <MdSystemUpdate size={22} />
+                </NavLink>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Update</TooltipContent>
+            </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger>
-              <NavLink
-                to="/monitor"
-                className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
-                aria-label="Monitor"
-              >
-                <MdEqualizer size={22} />
-              </NavLink>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">Monitor</TooltipContent>
-          </Tooltip>
+            <Tooltip>
+              <TooltipTrigger>
+                <NavLink
+                  to="/monitor"
+                  className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
+                  aria-label="Monitor"
+                >
+                  <MdEqualizer size={22} />
+                </NavLink>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Monitor</TooltipContent>
+            </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger>
-              <NavLink
-                to="/manual"
-                className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
-                aria-label="Manual"
-              >
-                <MdMenuBook size={22} />
-              </NavLink>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">Manual</TooltipContent>
-          </Tooltip>
-        </div>
+            <Tooltip>
+              <TooltipTrigger>
+                <NavLink
+                  to="/manual"
+                  className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
+                  aria-label="Manual"
+                >
+                  <MdMenuBook size={22} />
+                </NavLink>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Manual</TooltipContent>
+            </Tooltip>
+          </div>
 
-        <h1 className={styles.title}>T16 Editor</h1>
+          <h1 className={styles.title}>T16 Editor</h1>
 
-        <div className={styles.actions}>
-          <SyncIndicator />
-          <VariantIndicator />
-          {isConnected ? (
-            <Button variant="secondary" size="sm" onClick={disconnect}>
-              Disconnect
-            </Button>
-          ) : (
-            <div className={styles.connectGroup}>
-              <Button variant="primary" size="sm" onClick={connect}>
-                <MdUsb size={16} /> USB
+          <div className={styles.actions}>
+            <SyncIndicator />
+            <VariantIndicator />
+            {isConnected ? (
+              <Button variant="secondary" size="sm" onClick={disconnect}>
+                Disconnect
               </Button>
-              <Button variant="secondary" size="sm" onClick={connectBLE}>
-                <MdBluetooth size={16} /> BLE
-              </Button>
-            </div>
-          )}
+            ) : (
+              <div className={styles.connectGroup}>
+                <Button variant="primary" size="sm" onClick={connect}>
+                  <MdUsb size={16} /> USB
+                </Button>
+                <Button variant="secondary" size="sm" onClick={connectBLE}>
+                  <MdBluetooth size={16} /> BLE
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </nav>
-    {isOffline && (
-      <div className={styles.offlineBanner} role="status" aria-live="polite">
-        You're offline. Device communication requires a connection.
-      </div>
-    )}
+      </nav>
+      {isOffline && (
+        <div className={styles.offlineBanner} role="status" aria-live="polite">
+          You're offline. Device communication requires a connection.
+        </div>
+      )}
     </>
   )
 }

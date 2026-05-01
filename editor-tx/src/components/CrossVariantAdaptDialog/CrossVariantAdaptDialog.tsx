@@ -1,11 +1,5 @@
 import { useEffect, useRef } from 'react'
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-  Button,
-} from '@/design-system'
+import { Dialog, DialogContent, DialogTitle, DialogDescription, Button } from '@/design-system'
 import type { T16Configuration } from '@/types/config'
 import type { Variant } from '@/types/variant'
 import styles from './CrossVariantAdaptDialog.module.css'

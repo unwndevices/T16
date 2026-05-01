@@ -49,9 +49,7 @@ describe('useVariant', () => {
 
   it('throws when used outside a ConfigProvider', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    expect(() => renderHook(() => useVariant())).toThrow(
-      'must be used inside a ConfigProvider',
-    )
+    expect(() => renderHook(() => useVariant())).toThrow('must be used inside a ConfigProvider')
     spy.mockRestore()
   })
 

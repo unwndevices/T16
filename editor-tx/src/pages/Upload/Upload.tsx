@@ -130,8 +130,14 @@ export function Upload() {
   const [overrideOpen, setOverrideOpen] = useState(false)
   const userPickedRef = useRef(false)
   const handshakeAppliedRef = useRef(false)
-  const { state, progress, enterBootloader, uploadFirmware, reset, isConnected: isMidiConnected } =
-    useBootloader()
+  const {
+    state,
+    progress,
+    enterBootloader,
+    uploadFirmware,
+    reset,
+    isConnected: isMidiConnected,
+  } = useBootloader()
   const { toast } = useToast()
 
   // Sync selectedVariant with handshake the first time a confirmed variant arrives —
@@ -182,13 +188,11 @@ export function Upload() {
     () => [
       {
         value: 'T16',
-        label:
-          isHandshakeConfirmed && deviceVariant === 'T16' ? 'T16 (detected)' : 'T16',
+        label: isHandshakeConfirmed && deviceVariant === 'T16' ? 'T16 (detected)' : 'T16',
       },
       {
         value: 'T32',
-        label:
-          isHandshakeConfirmed && deviceVariant === 'T32' ? 'T32 (detected)' : 'T32',
+        label: isHandshakeConfirmed && deviceVariant === 'T32' ? 'T32 (detected)' : 'T32',
       },
     ],
     [isHandshakeConfirmed, deviceVariant],

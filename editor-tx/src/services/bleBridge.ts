@@ -196,10 +196,7 @@ export class BLEMidiTransport implements MidiTransport {
         }
       }
     }
-    this.characteristic.addEventListener(
-      'characteristicvaluechanged',
-      this.notificationHandler,
-    )
+    this.characteristic.addEventListener('characteristicvaluechanged', this.notificationHandler)
   }
 
   /**
@@ -227,10 +224,7 @@ export class BLEMidiTransport implements MidiTransport {
   }
 
   dispose(): void {
-    this.characteristic.removeEventListener(
-      'characteristicvaluechanged',
-      this.notificationHandler,
-    )
+    this.characteristic.removeEventListener('characteristicvaluechanged', this.notificationHandler)
     this.listeners.clear()
     this.reassembler.reset()
   }

@@ -18,26 +18,58 @@ const T16_FIXTURE: T16Configuration = {
   },
   banks: [
     {
-      ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0,
-      flip_x: 0, flip_y: 0, koala_mode: 0, pal: 0,
+      ch: 1,
+      scale: 0,
+      oct: 0,
+      note: 0,
+      vel: 0,
+      at: 0,
+      flip_x: 0,
+      flip_y: 0,
+      koala_mode: 0,
+      pal: 0,
       chs: [1, 1, 1, 1, 1, 1, 1, 1],
       ids: [13, 14, 15, 16, 17, 18, 19, 20],
     },
     {
-      ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0,
-      flip_x: 0, flip_y: 0, koala_mode: 0, pal: 1,
+      ch: 1,
+      scale: 0,
+      oct: 0,
+      note: 0,
+      vel: 0,
+      at: 0,
+      flip_x: 0,
+      flip_y: 0,
+      koala_mode: 0,
+      pal: 1,
       chs: [1, 1, 1, 1, 1, 1, 1, 1],
       ids: [21, 22, 23, 24, 25, 26, 27, 28],
     },
     {
-      ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0,
-      flip_x: 0, flip_y: 0, koala_mode: 0, pal: 2,
+      ch: 1,
+      scale: 0,
+      oct: 0,
+      note: 0,
+      vel: 0,
+      at: 0,
+      flip_x: 0,
+      flip_y: 0,
+      koala_mode: 0,
+      pal: 2,
       chs: [1, 1, 1, 1, 1, 1, 1, 1],
       ids: [21, 22, 23, 24, 25, 26, 27, 28],
     },
     {
-      ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0,
-      flip_x: 0, flip_y: 0, koala_mode: 0, pal: 3,
+      ch: 1,
+      scale: 0,
+      oct: 0,
+      note: 0,
+      vel: 0,
+      at: 0,
+      flip_x: 0,
+      flip_y: 0,
+      koala_mode: 0,
+      pal: 3,
       chs: [1, 1, 1, 1, 1, 1, 1, 1],
       ids: [31, 32, 33, 34, 35, 36, 37, 38],
     },
@@ -63,7 +95,7 @@ describe('adaptConfigForVariant', () => {
   })
 
   it('No mutation of input config across multiple calls', () => {
-    const snapshot = JSON.parse(JSON.stringify(T16_FIXTURE))
+    const snapshot: unknown = JSON.parse(JSON.stringify(T16_FIXTURE))
     adaptConfigForVariant(T16_FIXTURE, 'T32')
     adaptConfigForVariant(T16_FIXTURE, 'T16')
     expect(JSON.parse(JSON.stringify(T16_FIXTURE))).toEqual(snapshot)

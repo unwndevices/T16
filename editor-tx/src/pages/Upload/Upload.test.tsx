@@ -7,6 +7,7 @@ import { ConfigProvider } from '@/contexts/ConfigContext'
 import { ToastProvider } from '@/contexts/ToastContext'
 import { Upload } from '@/pages/Upload/Upload'
 import { useVariant } from '@/hooks/useVariant'
+import type { T16Configuration } from '@/types/config'
 
 const uploadFirmwareMock = vi.fn().mockResolvedValue(undefined)
 const enterBootloaderMock = vi.fn().mockResolvedValue(undefined)
@@ -44,7 +45,9 @@ vi.mock('@/services/midi', () => ({
 
 vi.mock('@/services/configValidator', () => ({
   prepareImport: vi.fn(),
-  adaptConfigForVariant: vi.fn((c, v) => ({ ...c, variant: v })),
+  adaptConfigForVariant: vi.fn(
+    (c: T16Configuration, v: 'T16' | 'T32'): T16Configuration => ({ ...c, variant: v }),
+  ),
 }))
 
 function Providers({ children }: { children: ReactNode }) {
@@ -94,7 +97,11 @@ describe('Upload page — variant dropdown', () => {
   it('Defaults to detected variant when handshake confirms T32', async () => {
     render(
       <Providers>
-        <ForceVariant variant="T32" caps={{ touchSlider: false, koalaMode: false }} fromHandshake={true} />
+        <ForceVariant
+          variant="T32"
+          caps={{ touchSlider: false, koalaMode: false }}
+          fromHandshake={true}
+        />
         <Upload />
       </Providers>,
     )
@@ -106,7 +113,11 @@ describe('Upload page — variant dropdown', () => {
   it('Shows T32 firmware unavailable warning copy when T32 is selected (placeholder only)', async () => {
     render(
       <Providers>
-        <ForceVariant variant="T32" caps={{ touchSlider: false, koalaMode: false }} fromHandshake={true} />
+        <ForceVariant
+          variant="T32"
+          caps={{ touchSlider: false, koalaMode: false }}
+          fromHandshake={true}
+        />
         <Upload />
       </Providers>,
     )
@@ -120,15 +131,17 @@ describe('Upload page — variant dropdown', () => {
   it('Override modal does NOT fire when matching variant + flash clicked', async () => {
     render(
       <Providers>
-        <ForceVariant variant="T16" caps={{ touchSlider: true, koalaMode: true }} fromHandshake={true} />
+        <ForceVariant
+          variant="T16"
+          caps={{ touchSlider: true, koalaMode: true }}
+          fromHandshake={true}
+        />
         <Upload />
       </Providers>,
     )
     const flashBtn = await screen.findByRole('button', { name: 'Flash T16 firmware' })
     fireEvent.click(flashBtn)
-    expect(
-      screen.queryByRole('button', { name: 'Flash T16 anyway' }),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Flash T16 anyway' })).not.toBeInTheDocument()
     expect(uploadFirmwareMock).toHaveBeenCalledTimes(1)
   })
 
@@ -143,9 +156,7 @@ describe('Upload page — variant dropdown', () => {
     const flashBtn = await screen.findByRole('button', { name: 'Flash T16 firmware' })
     fireEvent.click(flashBtn)
     // Modal should not be present.
-    expect(
-      screen.queryByText('Flash a different variant?'),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByText('Flash a different variant?')).not.toBeInTheDocument()
     expect(uploadFirmwareMock).toHaveBeenCalledTimes(1)
   })
 })

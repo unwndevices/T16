@@ -16,10 +16,7 @@ import { TOTAL_KEYS_BY_VARIANT } from '@/constants/capabilities'
  * When v202+ introduces per-key note maps / scales, pad/truncate logic
  * lands HERE — adapt site is single-point-of-change.
  */
-export function adaptConfigForVariant(
-  config: T16Configuration,
-  target: Variant,
-): T16Configuration {
+export function adaptConfigForVariant(config: T16Configuration, target: Variant): T16Configuration {
   if (config.variant === target) return config
 
   const targetKeys = TOTAL_KEYS_BY_VARIANT[target]

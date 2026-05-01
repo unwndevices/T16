@@ -17,11 +17,7 @@ import {
 } from '@/services/midi'
 import { DOMAIN, FIELD_GLOBAL, FIELD_BANK } from '@/protocol/sysex'
 import type { T16Configuration } from '@/types/config'
-import type {
-  ConfigContextValue,
-  ConfigAction,
-  PendingAdaptation,
-} from '@/types/midi'
+import type { ConfigContextValue, ConfigAction, PendingAdaptation } from '@/types/midi'
 import { prepareImport, type ImportResult } from '@/services/configValidator'
 import { adaptConfigForVariant } from '@/services/adaptConfigForVariant'
 import { useConnection } from '@/hooks/useConnection'

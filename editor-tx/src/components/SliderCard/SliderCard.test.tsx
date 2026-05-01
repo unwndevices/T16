@@ -6,6 +6,7 @@ import { ConnectionProvider } from '@/contexts/ConnectionContext'
 import { ConfigProvider } from '@/contexts/ConfigContext'
 import { SliderCard } from '@/components/SliderCard/SliderCard'
 import { useVariant } from '@/hooks/useVariant'
+import type { T16Configuration } from '@/types/config'
 
 vi.mock('@/services/midi', () => ({
   enableMidi: vi.fn().mockResolvedValue(undefined),
@@ -28,7 +29,9 @@ vi.mock('@/services/midi', () => ({
 
 vi.mock('@/services/configValidator', () => ({
   prepareImport: vi.fn(),
-  adaptConfigForVariant: vi.fn((c, v) => ({ ...c, variant: v })),
+  adaptConfigForVariant: vi.fn(
+    (c: T16Configuration, v: 'T16' | 'T32'): T16Configuration => ({ ...c, variant: v }),
+  ),
 }))
 
 function Providers({ children }: { children: ReactNode }) {
@@ -98,7 +101,11 @@ describe('SliderCard capability hiding (touchSlider)', () => {
   it('Placeholder body says "will be confirmed when a device connects" when offline (no handshake)', async () => {
     render(
       <Providers>
-        <Force variant="T32" caps={{ touchSlider: false, koalaMode: false }} fromHandshake={false} />
+        <Force
+          variant="T32"
+          caps={{ touchSlider: false, koalaMode: false }}
+          fromHandshake={false}
+        />
         <SliderCard
           label="Sensitivity"
           value={5}
@@ -110,7 +117,9 @@ describe('SliderCard capability hiding (touchSlider)', () => {
       </Providers>,
     )
     expect(
-      await screen.findByText('Touch slider availability will be confirmed when a device connects.'),
+      await screen.findByText(
+        'Touch slider availability will be confirmed when a device connects.',
+      ),
     ).toBeInTheDocument()
   })
 

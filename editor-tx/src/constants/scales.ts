@@ -9,22 +9,22 @@
 /** Intervals for each of the 19 scales, indexed by Scale enum value. */
 export const SCALE_INTERVALS: readonly (readonly number[])[] = [
   [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], // CHROMATIC
-  [0, 2, 4, 5, 7, 9, 11],                   // IONIAN
-  [0, 2, 3, 5, 7, 9, 10],                   // DORIAN
-  [0, 1, 3, 5, 7, 8, 10],                   // PHRYGIAN
-  [0, 2, 4, 6, 7, 9, 11],                   // LYDIAN
-  [0, 2, 4, 5, 7, 9, 10],                   // MIXOLYDIAN
-  [0, 2, 3, 5, 7, 8, 10],                   // AEOLIAN
-  [0, 1, 3, 5, 6, 8, 10],                   // LOCRIAN
-  [0, 2, 4, 7, 9],                           // MAJOR_PENTATONIC
-  [0, 3, 5, 7, 10],                          // MINOR_PENTATONIC
-  [0, 3, 5, 6, 7, 10],                       // BLUES
-  [0, 2, 4, 6, 8, 10],                       // WHOLE_TONE
-  [0, 3, 4, 7, 8, 11],                       // AUGMENTED
-  [0, 2, 3, 5, 6, 8, 9, 11],                // DIMINISHED
-  [0, 2, 3, 5, 7, 8, 11],                   // HARMONIC_MINOR
-  [0, 2, 3, 5, 7, 9, 11],                   // MELODIC_MINOR
-  [0, 1, 5, 7, 8],                           // JAPANESE
+  [0, 2, 4, 5, 7, 9, 11], // IONIAN
+  [0, 2, 3, 5, 7, 9, 10], // DORIAN
+  [0, 1, 3, 5, 7, 8, 10], // PHRYGIAN
+  [0, 2, 4, 6, 7, 9, 11], // LYDIAN
+  [0, 2, 4, 5, 7, 9, 10], // MIXOLYDIAN
+  [0, 2, 3, 5, 7, 8, 10], // AEOLIAN
+  [0, 1, 3, 5, 6, 8, 10], // LOCRIAN
+  [0, 2, 4, 7, 9], // MAJOR_PENTATONIC
+  [0, 3, 5, 7, 10], // MINOR_PENTATONIC
+  [0, 3, 5, 6, 7, 10], // BLUES
+  [0, 2, 4, 6, 8, 10], // WHOLE_TONE
+  [0, 3, 4, 7, 8, 11], // AUGMENTED
+  [0, 2, 3, 5, 6, 8, 9, 11], // DIMINISHED
+  [0, 2, 3, 5, 7, 8, 11], // HARMONIC_MINOR
+  [0, 2, 3, 5, 7, 9, 11], // MELODIC_MINOR
+  [0, 1, 5, 7, 8], // JAPANESE
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // CUSTOM1
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // CUSTOM2
 ] as const
@@ -54,7 +54,18 @@ export const SCALES: readonly string[] = [
 
 /** Chromatic note names (C = 0, B = 11). */
 export const NOTE_NAMES: readonly string[] = [
-  'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B',
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
 ] as const
 
 /**
@@ -144,7 +155,7 @@ export function getScaleDegree(
   // their pitch class. Without this, indexOf(0..11) misses any interval
   // value >= 12 and the NoteGrid renders in-scale notes as out-of-scale
   // (gray/muted), losing the hue ramp. Fix per WR-02 (Phase 14 review).
-  const semitoneFromRoot = ((midiNote - rootNote) % 12 + 12) % 12
+  const semitoneFromRoot = (((midiNote - rootNote) % 12) + 12) % 12
   const degree = intervals.findIndex((iv) => ((iv % 12) + 12) % 12 === semitoneFromRoot)
   return degree === -1 ? null : degree
 }

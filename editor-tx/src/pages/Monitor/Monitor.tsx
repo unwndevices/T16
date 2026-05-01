@@ -114,9 +114,7 @@ export function Monitor() {
           {paused ? <MdPlayArrow size={16} /> : <MdPause size={16} />}
           {paused ? 'Resume' : 'Pause'}
         </Button>
-        <span className={styles.messageCount}>
-          {messages.length} messages
-        </span>
+        <span className={styles.messageCount}>{messages.length} messages</span>
         {paused && <span className={styles.pausedBadge}>Paused</span>}
       </div>
 
@@ -128,11 +126,7 @@ export function Monitor() {
           </p>
         </div>
       ) : (
-        <div
-          className={styles.messageList}
-          role="log"
-          aria-live={paused ? 'off' : 'polite'}
-        >
+        <div className={styles.messageList} role="log" aria-live={paused ? 'off' : 'polite'}>
           {messages.map((msg) => (
             <MessageRow key={msg.id} msg={msg} />
           ))}

@@ -31,37 +31,17 @@ describe('CrossVariantAdaptDialog', () => {
   }
 
   it('Title is exactly "Variant mismatch"', () => {
-    render(
-      <CrossVariantAdaptDialog
-        {...baseProps}
-        fileVariant="T16"
-        deviceVariant="T32"
-      />,
-    )
+    render(<CrossVariantAdaptDialog {...baseProps} fileVariant="T16" deviceVariant="T32" />)
     expect(screen.getByText('Variant mismatch')).toBeInTheDocument()
   })
 
   it('Body line 1 interpolates variants ("This config is for T16. You\'re connected to T32.")', () => {
-    render(
-      <CrossVariantAdaptDialog
-        {...baseProps}
-        fileVariant="T16"
-        deviceVariant="T32"
-      />,
-    )
-    expect(
-      screen.getByText("This config is for T16. You're connected to T32."),
-    ).toBeInTheDocument()
+    render(<CrossVariantAdaptDialog {...baseProps} fileVariant="T16" deviceVariant="T32" />)
+    expect(screen.getByText("This config is for T16. You're connected to T32.")).toBeInTheDocument()
   })
 
   it('T16 → T32: body line 2 is exact pad copy', () => {
-    render(
-      <CrossVariantAdaptDialog
-        {...baseProps}
-        fileVariant="T16"
-        deviceVariant="T32"
-      />,
-    )
+    render(<CrossVariantAdaptDialog {...baseProps} fileVariant="T16" deviceVariant="T32" />)
     expect(
       screen.getByText(
         'Adapting will pad per-key settings (notes, scales, CC) from 16 to 32 keys with default values for keys 17–32. Global settings are preserved.',
@@ -71,11 +51,7 @@ describe('CrossVariantAdaptDialog', () => {
 
   it('T32 → T16: body line 2 is exact truncate copy in destructive style', () => {
     const { container } = render(
-      <CrossVariantAdaptDialog
-        {...baseProps}
-        fileVariant="T32"
-        deviceVariant="T16"
-      />,
+      <CrossVariantAdaptDialog {...baseProps} fileVariant="T32" deviceVariant="T16" />,
     )
     const p = screen.getByText(
       'Adapting will discard per-key settings for keys 17–32. This cannot be undone for the loaded file.',
@@ -86,13 +62,7 @@ describe('CrossVariantAdaptDialog', () => {
   })
 
   it('Cancel autoFocused after dialog opens', async () => {
-    render(
-      <CrossVariantAdaptDialog
-        {...baseProps}
-        fileVariant="T16"
-        deviceVariant="T32"
-      />,
-    )
+    render(<CrossVariantAdaptDialog {...baseProps} fileVariant="T16" deviceVariant="T32" />)
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Cancel' })).toHaveFocus()
     })

@@ -42,13 +42,17 @@ function toSelectOptions(arr: readonly string[]) {
 
 // --- Empty state ---
 
-function EmptyState({ onConnect, onConnectBLE }: { onConnect: () => void; onConnectBLE: () => void }) {
+function EmptyState({
+  onConnect,
+  onConnectBLE,
+}: {
+  onConnect: () => void
+  onConnectBLE: () => void
+}) {
   return (
     <div className={styles.emptyState}>
       <h2 className={styles.emptyHeading}>No Device Connected</h2>
-      <p className={styles.emptyBody}>
-        Connect your T16 via USB or Bluetooth to start editing.
-      </p>
+      <p className={styles.emptyBody}>Connect your T16 via USB or Bluetooth to start editing.</p>
       <div className={styles.connectActions}>
         <Button variant="primary" onClick={onConnect}>
           Connect USB
@@ -296,7 +300,7 @@ function SettingsTab() {
     const reader = new FileReader()
     reader.onload = () => {
       try {
-        const data = JSON.parse(reader.result as string)
+        const data: unknown = JSON.parse(reader.result as string)
         const result = importConfig(data)
         if (!result.valid && result.errors) {
           setImportErrors(result.errors.map((e) => `${e.field}: ${e.message}`))

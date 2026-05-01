@@ -19,7 +19,7 @@ describe('validateConfig', () => {
     const bad = { version: 201, variant: 'T16', banks: DEFAULT_CONFIG.banks }
     const result = validateConfig(bad)
     expect(result.valid).toBe(false)
-    expect(result.errors.some(e => e.field === 'global')).toBe(true)
+    expect(result.errors.some((e) => e.field === 'global')).toBe(true)
   })
 
   it('returns field-path errors for invalid bank field value', () => {
@@ -28,7 +28,7 @@ describe('validateConfig', () => {
     ;(bad.banks[0] as Record<string, unknown>).scale = 'not-a-number'
     const result = validateConfig(bad)
     expect(result.valid).toBe(false)
-    expect(result.errors.some(e => e.field.includes('banks'))).toBe(true)
+    expect(result.errors.some((e) => e.field.includes('banks'))).toBe(true)
   })
 
   it('returns invalid for a completely wrong object', () => {
@@ -53,7 +53,7 @@ describe('validateConfig', () => {
     ;(config.banks[0] as Record<string, unknown>).pal = 10
     const result = validateConfig(config)
     expect(result.valid).toBe(false)
-    expect(result.errors.some(e => e.field.includes('banks'))).toBe(true)
+    expect(result.errors.some((e) => e.field.includes('banks'))).toBe(true)
   })
 
   it('rejects a config missing the variant field', () => {
@@ -61,7 +61,7 @@ describe('validateConfig', () => {
     delete bad.variant
     const result = validateConfig(bad)
     expect(result.valid).toBe(false)
-    expect(result.errors.some(e => e.field === 'variant')).toBe(true)
+    expect(result.errors.some((e) => e.field === 'variant')).toBe(true)
   })
 
   it('rejects a config with an out-of-enum variant', () => {
@@ -69,7 +69,9 @@ describe('validateConfig', () => {
     bad.variant = 'T64'
     const result = validateConfig(bad)
     expect(result.valid).toBe(false)
-    expect(result.errors.some(e => e.field === 'variant' || e.field.includes('variant'))).toBe(true)
+    expect(result.errors.some((e) => e.field === 'variant' || e.field.includes('variant'))).toBe(
+      true,
+    )
   })
 
   it('accepts a valid v201 T32 config', () => {
@@ -94,10 +96,62 @@ describe('migrateV103', () => {
     custom_scale1: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
     custom_scale2: [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45],
     banks: [
-      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 0, chs: [1,1,1,1,1,1,1,1], ids: [13,14,15,16,17,18,19,20] },
-      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 1, chs: [1,1,1,1,1,1,1,1], ids: [21,22,23,24,25,26,27,28] },
-      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 2, chs: [1,1,1,1,1,1,1,1], ids: [21,22,23,24,25,26,27,28] },
-      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 3, chs: [1,1,1,1,1,1,1,1], ids: [31,32,33,34,35,36,37,38] },
+      {
+        ch: 1,
+        scale: 0,
+        oct: 0,
+        note: 0,
+        vel: 0,
+        at: 0,
+        flip_x: 0,
+        flip_y: 0,
+        koala_mode: 0,
+        pal: 0,
+        chs: [1, 1, 1, 1, 1, 1, 1, 1],
+        ids: [13, 14, 15, 16, 17, 18, 19, 20],
+      },
+      {
+        ch: 1,
+        scale: 0,
+        oct: 0,
+        note: 0,
+        vel: 0,
+        at: 0,
+        flip_x: 0,
+        flip_y: 0,
+        koala_mode: 0,
+        pal: 1,
+        chs: [1, 1, 1, 1, 1, 1, 1, 1],
+        ids: [21, 22, 23, 24, 25, 26, 27, 28],
+      },
+      {
+        ch: 1,
+        scale: 0,
+        oct: 0,
+        note: 0,
+        vel: 0,
+        at: 0,
+        flip_x: 0,
+        flip_y: 0,
+        koala_mode: 0,
+        pal: 2,
+        chs: [1, 1, 1, 1, 1, 1, 1, 1],
+        ids: [21, 22, 23, 24, 25, 26, 27, 28],
+      },
+      {
+        ch: 1,
+        scale: 0,
+        oct: 0,
+        note: 0,
+        vel: 0,
+        at: 0,
+        flip_x: 0,
+        flip_y: 0,
+        koala_mode: 0,
+        pal: 3,
+        chs: [1, 1, 1, 1, 1, 1, 1, 1],
+        ids: [31, 32, 33, 34, 35, 36, 37, 38],
+      },
     ],
   }
 
@@ -117,14 +171,15 @@ describe('migrateV103', () => {
     expect(result).not.toBeNull()
     expect(result!.banks).toHaveLength(4)
     expect(result!.banks[0].ch).toBe(1)
-    expect(result!.banks[0].ids).toEqual([13,14,15,16,17,18,19,20])
-    expect(result!.banks[3].ids).toEqual([31,32,33,34,35,36,37,38])
+    expect(result!.banks[0].ids).toEqual([13, 14, 15, 16, 17, 18, 19, 20])
+    expect(result!.banks[3].ids).toEqual([31, 32, 33, 34, 35, 36, 37, 38])
   })
 
   it('migrateV103 adds pal defaults to banks', () => {
     // Create a v103 config without pal in banks
     const noPalConfig = {
       ...v103Config,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       banks: v103Config.banks.map(({ pal: _pal, ...rest }) => rest),
     }
     const result = migrateV103(noPalConfig)
@@ -211,10 +266,62 @@ describe('prepareImport', () => {
     custom_scale1: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
     custom_scale2: [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45],
     banks: [
-      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 0, chs: [1,1,1,1,1,1,1,1], ids: [13,14,15,16,17,18,19,20] },
-      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 1, chs: [1,1,1,1,1,1,1,1], ids: [21,22,23,24,25,26,27,28] },
-      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 2, chs: [1,1,1,1,1,1,1,1], ids: [21,22,23,24,25,26,27,28] },
-      { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 3, chs: [1,1,1,1,1,1,1,1], ids: [31,32,33,34,35,36,37,38] },
+      {
+        ch: 1,
+        scale: 0,
+        oct: 0,
+        note: 0,
+        vel: 0,
+        at: 0,
+        flip_x: 0,
+        flip_y: 0,
+        koala_mode: 0,
+        pal: 0,
+        chs: [1, 1, 1, 1, 1, 1, 1, 1],
+        ids: [13, 14, 15, 16, 17, 18, 19, 20],
+      },
+      {
+        ch: 1,
+        scale: 0,
+        oct: 0,
+        note: 0,
+        vel: 0,
+        at: 0,
+        flip_x: 0,
+        flip_y: 0,
+        koala_mode: 0,
+        pal: 1,
+        chs: [1, 1, 1, 1, 1, 1, 1, 1],
+        ids: [21, 22, 23, 24, 25, 26, 27, 28],
+      },
+      {
+        ch: 1,
+        scale: 0,
+        oct: 0,
+        note: 0,
+        vel: 0,
+        at: 0,
+        flip_x: 0,
+        flip_y: 0,
+        koala_mode: 0,
+        pal: 2,
+        chs: [1, 1, 1, 1, 1, 1, 1, 1],
+        ids: [21, 22, 23, 24, 25, 26, 27, 28],
+      },
+      {
+        ch: 1,
+        scale: 0,
+        oct: 0,
+        note: 0,
+        vel: 0,
+        at: 0,
+        flip_x: 0,
+        flip_y: 0,
+        koala_mode: 0,
+        pal: 3,
+        chs: [1, 1, 1, 1, 1, 1, 1, 1],
+        ids: [31, 32, 33, 34, 35, 36, 37, 38],
+      },
     ],
   }
 
@@ -239,8 +346,8 @@ describe('prepareImport', () => {
     const broken = { version: 103 }
     const result = prepareImport(broken)
     expect(result.valid).toBe(false)
-    expect(result.errors.some(e => e.field === 'version')).toBe(true)
-    expect(result.errors.some(e => e.message.includes('103'))).toBe(true)
+    expect(result.errors.some((e) => e.field === 'version')).toBe(true)
+    expect(result.errors.some((e) => e.message.includes('103'))).toBe(true)
   })
 })
 
@@ -260,9 +367,9 @@ describe('prepareImport (v200→v201)', () => {
     const v202 = { ...structuredClone(DEFAULT_CONFIG), version: 202 } as Record<string, unknown>
     const result = prepareImport(v202)
     expect(result.valid).toBe(false)
-    expect(result.errors.some(e => e.field === 'version')).toBe(true)
+    expect(result.errors.some((e) => e.field === 'version')).toBe(true)
     expect(
-      result.errors.some(e => /202/.test(e.message) && /not supported/i.test(e.message)),
+      result.errors.some((e) => /202/.test(e.message) && /not supported/i.test(e.message)),
     ).toBe(true)
   })
 
@@ -270,17 +377,22 @@ describe('prepareImport (v200→v201)', () => {
     const v200_5 = { ...structuredClone(DEFAULT_CONFIG), version: 200.5 } as Record<string, unknown>
     const result = prepareImport(v200_5)
     expect(result.valid).toBe(false)
-    expect(result.errors.some(e => e.field === 'version')).toBe(true)
-    expect(result.errors.some(e => /integer/i.test(e.message))).toBe(true)
+    expect(result.errors.some((e) => e.field === 'version')).toBe(true)
+    expect(result.errors.some((e) => /integer/i.test(e.message))).toBe(true)
   })
 
   it('rejects a v103 file with banks missing required scalar fields (WR-06)', () => {
     const v103Broken = {
       version: 103,
-      mode: 0, sensitivity: 1, brightness: 1, midi_trs: 0,
-      trs_type: 0, passthrough: 0, midi_ble: 0,
-      custom_scale1: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
-      custom_scale2: [0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45],
+      mode: 0,
+      sensitivity: 1,
+      brightness: 1,
+      midi_trs: 0,
+      trs_type: 0,
+      passthrough: 0,
+      midi_ble: 0,
+      custom_scale1: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+      custom_scale2: [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45],
       // Each bank is missing required fields like vel, at, ids, etc.
       banks: [
         { ch: 1, scale: 0 },
@@ -293,7 +405,7 @@ describe('prepareImport (v200→v201)', () => {
     expect(result.valid).toBe(false)
     // Migration should fail (returns null) before validation, producing the
     // version-keyed migration error rather than ajv validation errors.
-    expect(result.errors.some(e => e.field === 'version')).toBe(true)
+    expect(result.errors.some((e) => e.field === 'version')).toBe(true)
   })
 
   it('chains v103 → v200 → v201', () => {
@@ -309,10 +421,62 @@ describe('prepareImport (v200→v201)', () => {
       custom_scale1: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
       custom_scale2: [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45],
       banks: [
-        { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 0, chs: [1,1,1,1,1,1,1,1], ids: [13,14,15,16,17,18,19,20] },
-        { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 1, chs: [1,1,1,1,1,1,1,1], ids: [21,22,23,24,25,26,27,28] },
-        { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 2, chs: [1,1,1,1,1,1,1,1], ids: [21,22,23,24,25,26,27,28] },
-        { ch: 1, scale: 0, oct: 0, note: 0, vel: 0, at: 0, flip_x: 0, flip_y: 0, koala_mode: 0, pal: 3, chs: [1,1,1,1,1,1,1,1], ids: [31,32,33,34,35,36,37,38] },
+        {
+          ch: 1,
+          scale: 0,
+          oct: 0,
+          note: 0,
+          vel: 0,
+          at: 0,
+          flip_x: 0,
+          flip_y: 0,
+          koala_mode: 0,
+          pal: 0,
+          chs: [1, 1, 1, 1, 1, 1, 1, 1],
+          ids: [13, 14, 15, 16, 17, 18, 19, 20],
+        },
+        {
+          ch: 1,
+          scale: 0,
+          oct: 0,
+          note: 0,
+          vel: 0,
+          at: 0,
+          flip_x: 0,
+          flip_y: 0,
+          koala_mode: 0,
+          pal: 1,
+          chs: [1, 1, 1, 1, 1, 1, 1, 1],
+          ids: [21, 22, 23, 24, 25, 26, 27, 28],
+        },
+        {
+          ch: 1,
+          scale: 0,
+          oct: 0,
+          note: 0,
+          vel: 0,
+          at: 0,
+          flip_x: 0,
+          flip_y: 0,
+          koala_mode: 0,
+          pal: 2,
+          chs: [1, 1, 1, 1, 1, 1, 1, 1],
+          ids: [21, 22, 23, 24, 25, 26, 27, 28],
+        },
+        {
+          ch: 1,
+          scale: 0,
+          oct: 0,
+          note: 0,
+          vel: 0,
+          at: 0,
+          flip_x: 0,
+          flip_y: 0,
+          koala_mode: 0,
+          pal: 3,
+          chs: [1, 1, 1, 1, 1, 1, 1, 1],
+          ids: [31, 32, 33, 34, 35, 36, 37, 38],
+        },
       ],
     }
     const result = prepareImport(v103)

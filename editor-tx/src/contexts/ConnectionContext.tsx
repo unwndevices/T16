@@ -24,7 +24,9 @@ export function ConnectionProvider({ children }: ConnectionProviderProps) {
   const stateChangeHandlerRef = useRef<((e: Event) => void) | null>(null)
   // Ref for transport to avoid stale closure in disconnect callback
   const transportRef = useRef<MidiTransport | null>(null)
-  transportRef.current = transport
+  useEffect(() => {
+    transportRef.current = transport
+  }, [transport])
 
   const setDemo = useCallback((demo: boolean) => {
     setIsDemo(demo)

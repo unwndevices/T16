@@ -7,6 +7,7 @@ import { ConfigProvider } from '@/contexts/ConfigContext'
 import { VariantIndicator } from '@/components/VariantIndicator'
 import { useVariant } from '@/hooks/useVariant'
 import { TooltipProvider } from '@/design-system/Tooltip'
+import type { T16Configuration } from '@/types/config'
 
 vi.mock('@/services/midi', () => ({
   enableMidi: vi.fn().mockResolvedValue(undefined),
@@ -29,7 +30,9 @@ vi.mock('@/services/midi', () => ({
 
 vi.mock('@/services/configValidator', () => ({
   prepareImport: vi.fn(),
-  adaptConfigForVariant: vi.fn((c, v) => ({ ...c, variant: v })),
+  adaptConfigForVariant: vi.fn(
+    (c: T16Configuration, v: 'T16' | 'T32'): T16Configuration => ({ ...c, variant: v }),
+  ),
 }))
 
 function Providers({ children }: { children: ReactNode }) {
@@ -114,8 +117,6 @@ describe('VariantIndicator', () => {
         <VariantIndicator />
       </Providers>,
     )
-    expect(
-      screen.getByText('Connect a device to override this automatically.'),
-    ).toBeInTheDocument()
+    expect(screen.getByText('Connect a device to override this automatically.')).toBeInTheDocument()
   })
 })

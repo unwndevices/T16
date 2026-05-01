@@ -20,19 +20,25 @@ export function validateConfig(data: unknown): ValidationResult {
   if (valid) return { valid: true, errors: [] }
   return {
     valid: false,
-    errors: (validate.errors ?? []).map(err => ({
+    errors: (validate.errors ?? []).map((err) => ({
       field: err.instancePath
         ? err.instancePath.slice(1).replace(/\//g, '.')
-        : (err.params?.missingProperty as string) ?? 'root',
+        : ((err.params?.missingProperty as string) ?? 'root'),
       message: err.message ?? 'validation failed',
     })),
   }
 }
 
 const GLOBAL_KEYS = [
-  'mode', 'sensitivity', 'brightness', 'midi_trs',
-  'trs_type', 'passthrough', 'midi_ble',
-  'custom_scale1', 'custom_scale2',
+  'mode',
+  'sensitivity',
+  'brightness',
+  'midi_trs',
+  'trs_type',
+  'passthrough',
+  'midi_ble',
+  'custom_scale1',
+  'custom_scale2',
 ] as const
 
 // Required global keys for v103 → v200 migration. custom_scale1 and
@@ -40,15 +46,24 @@ const GLOBAL_KEYS = [
 // (see WR-05). Splitting the lists makes the predicate's intent explicit and
 // prevents future "simplification" from breaking the default-fill guarantee.
 const REQUIRED_GLOBAL_KEYS_V103 = GLOBAL_KEYS.filter(
-  k => k !== 'custom_scale1' && k !== 'custom_scale2',
+  (k) => k !== 'custom_scale1' && k !== 'custom_scale2',
 )
 
 // Required scalar fields each bank must carry in a v103 file. If any are missing
 // the migration returns null rather than producing a partially-typed object that
 // would slip past the type cast and only fail later at ajv validation (WR-06).
 const REQUIRED_BANK_KEYS_V103 = [
-  'ch', 'scale', 'oct', 'note', 'vel', 'at',
-  'flip_x', 'flip_y', 'koala_mode', 'chs', 'ids',
+  'ch',
+  'scale',
+  'oct',
+  'note',
+  'vel',
+  'at',
+  'flip_x',
+  'flip_y',
+  'koala_mode',
+  'chs',
+  'ids',
 ] as const
 
 // migrateV103 produces a v200-shaped object (no `variant` field). Callers are
@@ -65,7 +80,7 @@ export function migrateV103(data: Record<string, unknown>): V200Config | null {
   try {
     // Validate that required (non-scale) flat keys exist for migration. Custom
     // scales are filled with defaults below, so they are not required here.
-    const hasGlobalKeys = REQUIRED_GLOBAL_KEYS_V103.every(key => key in data)
+    const hasGlobalKeys = REQUIRED_GLOBAL_KEYS_V103.every((key) => key in data)
     const hasBanks = Array.isArray(data.banks) && (data.banks as unknown[]).length === 4
 
     if (!hasGlobalKeys || !hasBanks) {
@@ -77,9 +92,7 @@ export function migrateV103(data: Record<string, unknown>): V200Config | null {
     // partially-shaped object that the type assertion would silently accept
     // and ajv would later reject (WR-06).
     const banks = data.banks as Record<string, unknown>[]
-    const allBanksValid = banks.every(bank =>
-      REQUIRED_BANK_KEYS_V103.every(key => key in bank),
-    )
+    const allBanksValid = banks.every((bank) => REQUIRED_BANK_KEYS_V103.every((key) => key in bank))
     if (!allBanksValid) {
       return null
     }
@@ -152,7 +165,12 @@ export function prepareImport(data: unknown): ImportResult {
     return {
       valid: false,
       config: null,
-      errors: [{ field: 'version', message: `Config version ${version} is not a valid schema version (must be an integer)` }],
+      errors: [
+        {
+          field: 'version',
+          message: `Config version ${version} is not a valid schema version (must be an integer)`,
+        },
+      ],
       migrated: false,
     }
   }
@@ -173,7 +191,9 @@ export function prepareImport(data: unknown): ImportResult {
     return {
       valid: false,
       config: null,
-      errors: [{ field: 'version', message: `Config version ${version} is not supported by this editor` }],
+      errors: [
+        { field: 'version', message: `Config version ${version} is not supported by this editor` },
+      ],
       migrated: false,
     }
   }
@@ -182,7 +202,12 @@ export function prepareImport(data: unknown): ImportResult {
   if (version === 200) {
     const v201 = migrateV200ToV201(obj)
     if (!v201) {
-      return { valid: false, config: null, errors: [{ field: 'version', message: 'Failed to migrate v200 → v201' }], migrated: false }
+      return {
+        valid: false,
+        config: null,
+        errors: [{ field: 'version', message: 'Failed to migrate v200 → v201' }],
+        migrated: false,
+      }
     }
     const result = validateConfig(v201)
     return {
@@ -197,11 +222,21 @@ export function prepareImport(data: unknown): ImportResult {
   if (version < 200) {
     const v200 = migrateV103(obj)
     if (!v200) {
-      return { valid: false, config: null, errors: [{ field: 'version', message: `Config version ${version} could not be migrated` }], migrated: false }
+      return {
+        valid: false,
+        config: null,
+        errors: [{ field: 'version', message: `Config version ${version} could not be migrated` }],
+        migrated: false,
+      }
     }
     const v201 = migrateV200ToV201(v200 as unknown as Record<string, unknown>)
     if (!v201) {
-      return { valid: false, config: null, errors: [{ field: 'version', message: 'Failed v200 → v201 step' }], migrated: false }
+      return {
+        valid: false,
+        config: null,
+        errors: [{ field: 'version', message: 'Failed v200 → v201 step' }],
+        migrated: false,
+      }
     }
     const result = validateConfig(v201)
     return {
@@ -213,5 +248,10 @@ export function prepareImport(data: unknown): ImportResult {
   }
 
   // Unreachable, but keep TypeScript exhaustive
-  return { valid: false, config: null, errors: [{ field: 'version', message: 'Unhandled version' }], migrated: false }
+  return {
+    valid: false,
+    config: null,
+    errors: [{ field: 'version', message: 'Unhandled version' }],
+    migrated: false,
+  }
 }
