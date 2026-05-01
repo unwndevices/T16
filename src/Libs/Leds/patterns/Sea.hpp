@@ -20,10 +20,14 @@ public:
     };
     bool RunPattern() override
     {
-        fadeToBlackBy(matrixleds, 16, 8);
+        // Route through patternleds (logical row-major) so CombineBuffers
+        // applies the variant-specific physical translation. Writing
+        // directly to matrixleds bypassed marker composition and was
+        // incorrect for T32's two-block strip layout.
+        fadeToBlackBy(patternleds, kMatrixSize, 8);
         if (state)
         {
-            fill_2dnoise8(matrixleds, kMatrixWidth, kMatrixHeight, true, octaves, x, xscale, y, yscale, v_time,
+            fill_2dnoise8(patternleds, kMatrixWidth, kMatrixHeight, true, octaves, x, xscale, y, yscale, v_time,
                           hue_octaves, hxy, hue_scale, hxy, hue_scale, hue_time, true);
         }
 
