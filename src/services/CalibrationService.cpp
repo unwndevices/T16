@@ -57,7 +57,7 @@ void CalibrationService::runCalibration(Key* keys, uint8_t numKeys, Button& touc
                                         Button& modeBtn, Keyboard& keyboard, TouchSlider& slider)
 {
     const uint16_t CALIBRATION_DELAY = 5;
-    const uint8_t PRESSES_REQUIRED = 4;
+    const uint8_t PRESSES_REQUIRED = 2;
     const uint16_t PRESS_THRESHOLD_OFFSET = 1520;
 
     // Initialize calibration
