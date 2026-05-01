@@ -51,7 +51,7 @@ void InputProcessor::processKey(int idx, Key::State state)
     {
         uint8_t velocity = keyboard_.GetVelocity(idx);
         midiProvider_.SendNoteOn(idx, note, velocity, kb.channel);
-        ledManager_.SetPosition((uint8_t)(idx % 4), (uint8_t)(idx / 4));
+        ledManager_.SetPosition((uint8_t)(idx % kMatrixWidth), (uint8_t)(idx / kMatrixWidth));
         ledManager_.SetColor(255 - velocity * 2);
         ledManager_.SetSpeed((127 - velocity) / 2);
     }

@@ -37,24 +37,24 @@ private:
 
     void GenerateLut()
     {
-        // generate brightness lookup table for the blur (using blur2d), in a 4x4 grid.
-        CRGB lumaleds[16];
-        fill_solid(lumaleds, 16, CRGB::Black);
+        // Brightness LUT seeded at (0,0); kept anchored each frame so the blur
+        // produces a stable radial falloff that we sample at |dx| + |dy|*W.
+        CRGB lumaleds[kMatrixSize];
+        fill_solid(lumaleds, kMatrixSize, CRGB::Black);
         lumaleds[0] = CRGB::White;
 
-        // blur, then store luma values inside the luma array for each led
         for (int j = 0; j < 10; j++)
         {
-            blur2d(lumaleds, 4, 4, 2 + j * 4);
+            blur2d(lumaleds, kMatrixWidth, kMatrixHeight, 2 + j * 4);
             lumaleds[0] = CRGB::White;
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < kMatrixSize; i++)
             {
                 luma[j][i] = brighten8_raw(lumaleds[i].getLuma());
             }
         }
     };
 
-    uint8_t luma[10][16] = {0};
+    uint8_t luma[10][kMatrixSize] = {0};
     uint8_t speed = 10;
     ulong lastMillis = 0;
 };
@@ -76,11 +76,11 @@ bool NoBlur::RunPattern()
         }
         else
         {
-            for (int x = 0; x < 4; x++)
+            for (int x = 0; x < kMatrixWidth; x++)
             {
-                for (int y = 0; y < 4; y++)
+                for (int y = 0; y < kMatrixHeight; y++)
                 {
-                    uint8_t luma_value = luma[step][abs(x - (uint8_t)pos_x) + abs(y - (uint8_t)pos_y) * 4];
+                    uint8_t luma_value = luma[step][abs(x - (int)pos_x) + abs(y - (int)pos_y) * kMatrixWidth];
                     patternleds[XY(x, y)] |= ColorFromPalette(currentPalette, colorIndex, luma_value, LINEARBLEND_NOWRAP);
                 }
             }
