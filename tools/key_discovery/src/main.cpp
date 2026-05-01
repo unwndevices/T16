@@ -106,16 +106,16 @@ void setAllLeds(CRGB c) {
 // physical LED index on the strip. The T32 keypad is wired as TWO sequential
 // 4×4 serpentines (left block first = cols 0..3, right block second = cols
 // 4..7). Within each 4×4 block the data line enters at the top-left and
-// snakes column-by-column: col 0 top→bottom, col 1 bottom→top, col 2
-// top→bottom, col 3 bottom→top. The first kKeyLedOffset (=8) LEDs on the
-// strip are not key LEDs and are skipped.
+// snakes row-by-row: row 0 left→right, row 1 right→left, row 2 left→right,
+// row 3 right→left. The first kKeyLedOffset (=8) LEDs on the strip are not
+// key LEDs and are skipped.
 uint8_t keyToLedIndex(uint8_t keyIdx) {
     const uint8_t row     = keyIdx / 8;             // 0..3
     const uint8_t col     = keyIdx % 8;             // 0..7
     const uint8_t block   = (col < 4) ? 0 : 1;      // left vs right 4×4
     const uint8_t subCol  = col - block * 4;        // 0..3 within block
-    const uint8_t rowInCol = (subCol & 1) ? (3 - row) : row;
-    const uint8_t ledInBlock = subCol * 4 + rowInCol;
+    const uint8_t colInRow = (row & 1) ? (3 - subCol) : subCol;
+    const uint8_t ledInBlock = row * 4 + colInRow;
     return kKeyLedOffset + block * 16 + ledInBlock;
 }
 
