@@ -11,6 +11,8 @@ inline constexpr HardwareVariantConfig kConfig{
     /* LED_COUNT           */ 24,   // 4*4 matrix + 7 slider + 1 state pixel
     /* MATRIX_WIDTH        */ 4,
     /* MATRIX_HEIGHT       */ 4,
+    /* MATRIX_BLOCK_WIDTH  */ 4,
+    /* MATRIX_BLOCK_COUNT  */ 1,
     /* SLIDER_LENGTH       */ 7,
     /* BANK_AMT            */ 4,
     /* HAS_TOUCH_SLIDER    */ true,

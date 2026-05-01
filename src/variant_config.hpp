@@ -10,9 +10,15 @@ struct HardwareVariantConfig {
     uint8_t     TOTAL_KEYS;          // 16 (T16) / 32 (T32)
     uint8_t     MUX_COUNT;           // 1  (T16) / 2  (T32)
     uint8_t     LED_COUNT;           // matrix + slider + state pixel
-    uint8_t     MATRIX_WIDTH;        // replaces former kMatrixWidth
-    uint8_t     MATRIX_HEIGHT;       // replaces former kMatrixHeight
-    uint8_t     SLIDER_LENGTH;       // 7 (T16) / 0 (T32)
+    uint8_t     MATRIX_WIDTH;        // logical matrix width (T16: 4, T32: 8)
+    uint8_t     MATRIX_HEIGHT;       // logical matrix height (T16: 4, T32: 4)
+    uint8_t     MATRIX_BLOCK_WIDTH;  // width of one wired LED block (T16: 4, T32: 4)
+    uint8_t     MATRIX_BLOCK_COUNT;  // horizontally-tiled blocks (T16: 1, T32: 2)
+                                     // Invariant: MATRIX_WIDTH == BLOCK_WIDTH * BLOCK_COUNT.
+                                     // Block layout: each block is BLOCK_WIDTH x MATRIX_HEIGHT,
+                                     // wired row-major left-to-right; blocks are walked in order
+                                     // along the LED strip.
+    uint8_t     SLIDER_LENGTH;       // 7 (both variants)
     uint8_t     BANK_AMT;            // 4 — invariant today, modeled here so
                                      // Configuration / ConfigManager stop
                                      // depending on a global #define

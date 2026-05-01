@@ -14,6 +14,8 @@ inline constexpr HardwareVariantConfig kConfig{
     /* LED_COUNT           */ 40,   // 1 state + 7 slider + 32 key LEDs; confirmed on hardware 2026-05-01
     /* MATRIX_WIDTH        */ 8,
     /* MATRIX_HEIGHT       */ 4,
+    /* MATRIX_BLOCK_WIDTH  */ 4,
+    /* MATRIX_BLOCK_COUNT  */ 2,
     /* SLIDER_LENGTH       */ 7,
     /* BANK_AMT            */ 4,
     /* HAS_TOUCH_SLIDER    */ true,
