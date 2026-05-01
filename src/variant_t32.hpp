@@ -11,7 +11,7 @@ namespace variant::t32 {
 inline constexpr HardwareVariantConfig kConfig{
     /* TOTAL_KEYS          */ 32,
     /* MUX_COUNT           */ 2,
-    /* LED_COUNT           */ 33,   // 32 matrix + 0 slider + 1 state pixel (Phase 12 confirms layout)
+    /* LED_COUNT           */ 40,   // 8 prefix LEDs + 32 key LEDs (two 4x4 serpentine blocks); confirmed on hardware 2026-05-01
     /* MATRIX_WIDTH        */ 8,
     /* MATRIX_HEIGHT       */ 4,
     /* SLIDER_LENGTH       */ 0,
