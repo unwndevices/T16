@@ -7,10 +7,16 @@
 #include "../../variant.hpp"
 #include "../../Types.hpp"
 
-inline constexpr uint8_t kMatrixWidth  = variant::CurrentVariant::kConfig.MATRIX_WIDTH;
-inline constexpr uint8_t kMatrixHeight = variant::CurrentVariant::kConfig.MATRIX_HEIGHT;
-inline constexpr uint8_t sliderLength  = variant::CurrentVariant::kConfig.SLIDER_LENGTH;
-inline constexpr uint8_t NUM_LEDS      = variant::CurrentVariant::kConfig.LED_COUNT;
+inline constexpr uint8_t kMatrixWidth      = variant::CurrentVariant::kConfig.MATRIX_WIDTH;
+inline constexpr uint8_t kMatrixHeight     = variant::CurrentVariant::kConfig.MATRIX_HEIGHT;
+inline constexpr uint8_t kMatrixBlockWidth = variant::CurrentVariant::kConfig.MATRIX_BLOCK_WIDTH;
+inline constexpr uint8_t kMatrixBlockCount = variant::CurrentVariant::kConfig.MATRIX_BLOCK_COUNT;
+inline constexpr uint8_t kMatrixSize       = kMatrixWidth * kMatrixHeight;
+inline constexpr uint8_t sliderLength      = variant::CurrentVariant::kConfig.SLIDER_LENGTH;
+inline constexpr uint8_t NUM_LEDS          = variant::CurrentVariant::kConfig.LED_COUNT;
+
+static_assert(kMatrixWidth == kMatrixBlockWidth * kMatrixBlockCount,
+              "variant config: MATRIX_WIDTH must equal BLOCK_WIDTH * BLOCK_COUNT");
 
 // LED arrays -- defined in LedManager.cpp
 extern CRGB leds_plus_safety_pixel[NUM_LEDS + 1];

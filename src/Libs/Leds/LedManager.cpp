@@ -45,11 +45,24 @@ uint16_t XY(uint8_t x, uint8_t y)
     if (y >= kMatrixHeight)
         return -1;
 
-    uint16_t i;
-
-    i = (y * kMatrixWidth) + x;
-
-    return i;
+    if constexpr (kMatrixBlockCount == 1)
+    {
+        // Single-block layout (T16): naive row-major mapping. Byte-identical
+        // to the pre-T32 implementation — `if constexpr` collapses to this
+        // single expression when MATRIX_BLOCK_COUNT == 1.
+        return y * kMatrixWidth + x;
+    }
+    else
+    {
+        // Multi-block layout (T32: two 4x4 blocks tiled horizontally).
+        // The LED strip walks the leftmost block fully (row-major,
+        // top-to-bottom) before moving on to the next block, so logical
+        // (x=4, y=0) sits at LED index 16, not 4.
+        const uint8_t  block      = x / kMatrixBlockWidth;
+        const uint8_t  localX     = x - block * kMatrixBlockWidth;
+        const uint16_t blockBase  = block * (kMatrixBlockWidth * kMatrixHeight);
+        return blockBase + y * kMatrixBlockWidth + localX;
+    }
 }
 
 // --- LedManager implementation ---
