@@ -18,6 +18,7 @@
 // =============================================================================
 
 #include <Arduino.h>
+#include <Adafruit_TinyUSB.h>  // brings up TinyUSB CDC so Serial enumerates over USB
 #include <FastLED.h>
 
 #include "pinout_t32.h"
@@ -278,7 +279,12 @@ void emitArray() {
 
 void setup() {
     Serial.begin(115200);
-    delay(200);
+    // Wait briefly for the host to open the CDC port so the banner and
+    // discovery prompts aren't lost before pio device monitor attaches.
+    const uint32_t serialWaitStart = millis();
+    while (!Serial && millis() - serialWaitStart < 2000) {
+        delay(10);
+    }
     Serial.println();
     Serial.println(F("=== T32 Key Discovery Firmware ==="));
 
