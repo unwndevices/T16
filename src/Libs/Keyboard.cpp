@@ -97,6 +97,38 @@ void Key::SetATThreshold(float threshold)
     at_threshold = threshold;
 }
 
+// --- PopulateKeyMuxMapping ---
+
+void PopulateKeyMuxMapping(Key *keys, uint8_t key_amount,
+                           const MultiplexerConfig *muxes, uint8_t mux_count)
+{
+    for (uint8_t i = 0; i < key_amount; ++i)
+    {
+        uint8_t logical = keys[i].mux_idx; // logical key index this Key reads
+        bool found = false;
+        for (uint8_t m = 0; m < mux_count && !found; ++m)
+        {
+            for (uint8_t ch = 0; ch < 16; ++ch)
+            {
+                if (muxes[m].keyMapping[ch] == logical)
+                {
+                    keys[i].mux_id = m;
+                    keys[i].mux_channel = ch;
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (!found)
+        {
+            // Should not happen for well-formed variant configs; fall back
+            // to mux 0 with the low 4 bits of the logical index as channel.
+            keys[i].mux_id = 0;
+            keys[i].mux_channel = logical & 0x0F;
+        }
+    }
+}
+
 // --- KeyboardConfig implementation ---
 
 void KeyboardConfig::Init(Key *keys, uint8_t key_amount)

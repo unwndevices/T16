@@ -95,6 +95,14 @@ void AppEngine::init()
                    sizeof(variant::CurrentVariant::kMuxes) /
                    sizeof(variant::CurrentVariant::kMuxes[0]));
 
+    // Backfill Key::mux_id / Key::mux_channel from the variant's mux configs.
+    // Required so calibration (which samples per-mux commonPin) and the hardware
+    // self-test target the correct mux for each logical key on multi-mux variants.
+    PopulateKeyMuxMapping(keys_, variant::CurrentVariant::kConfig.TOTAL_KEYS,
+                          variant::CurrentVariant::kMuxes,
+                          sizeof(variant::CurrentVariant::kMuxes) /
+                          sizeof(variant::CurrentVariant::kMuxes[0]));
+
     // Calibration data load (Phase 12.01: per-variant filename + legacy migration)
     MigrateLegacyCalibrationFile();
     DataManager calibration(variant::CalibrationFilePath());

@@ -30,7 +30,9 @@ public:
     static void SetATThreshold(float threshold);
 
     uint8_t idx;
-    uint8_t mux_idx;
+    uint8_t mux_idx;          // logical key index — used by Update via adc->GetMux(0, mux_idx)
+    uint8_t mux_id = 0;       // which mux this key belongs to (0..MUX_COUNT-1). Default 0 for T16.
+    uint8_t mux_channel = 0;  // channel-within-mux (0..15) for SetMuxChannel during calibration.
     State state = IDLE;
     float value = 0.0f;
     float velocity = 0.0f;
@@ -60,6 +62,14 @@ public:
     uint8_t _key_amount;
     Key *_keys;
 };
+
+// Backfill `mux_id` and `mux_channel` on each Key after Adc::InitMuxes has run.
+// For each Key, scans the variant's mux configs for an entry where
+// keyMapping[ch] == keys[i].mux_idx (the logical key this Key reads), then
+// stores the owning mux index and the 0..15 channel-within-mux. On T16 (single
+// mux, identity mapping) this collapses to mux_id=0, mux_channel=mux_idx.
+void PopulateKeyMuxMapping(Key *keys, uint8_t key_amount,
+                           const MultiplexerConfig *muxes, uint8_t mux_count);
 
 typedef struct Vec2
 {
