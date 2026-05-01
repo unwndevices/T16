@@ -1,27 +1,18 @@
 #pragma once
 
-// =============================================================================
-// PHASE 10 PLACEHOLDER
-// Values mirror T16 REV_B for the sole purpose of letting -DT32 builds compile
-// during Phase 10 (Build System & Variant Selection). Phase 12 (T32 Hardware
-// Bring-Up) will replace these with validated T32 dual-mux pin assignments.
-// DO NOT flash a -DT32 binary onto T32 hardware until Phase 12 lands.
-// =============================================================================
+// T32 pin assignments — validated on hardware via the proven 3dot0 firmware.
 
 #include <cstdint>
 
 namespace pinout::t32 {
 
-// Multiplexer (T32 uses dual mux — Phase 12 will add second mux constants)
+// Multiplexer (dual mux: shared S0..S3 select lines, separate common pins)
 constexpr uint8_t S0 = 4;
 constexpr uint8_t S1 = 5;
 constexpr uint8_t S2 = 6;
 constexpr uint8_t S3 = 7;
 constexpr uint8_t COM  = 8;   // Mux 0 common pin (ADC1_CH7).
-constexpr uint8_t COM2 = 17;  // Mux 1 common pin.
-                              // PLACEHOLDER GPIO — confirm against T32 schematic
-                              // before flashing real hardware (validation_deferred,
-                              // Plan 12.03.5.A). ESP32-S3 ADC2_CH6.
+constexpr uint8_t COM2 = 17;  // Mux 1 common pin (ADC2_CH6).
 
 // LED strip
 constexpr uint8_t LED_PIN = 1;
