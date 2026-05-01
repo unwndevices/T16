@@ -6,15 +6,18 @@ electrical mux channel (`mux*16 + ch`) on a T32 board. Flash it, follow the
 LED prompts, and copy the printed `k3dot0Keys[32]` array into
 `src/variant_t32.hpp`.
 
-This tool is fully standalone — it does NOT modify the repo, share a build
-environment with the main firmware, or pull in TinyUSB/BLE-MIDI/MIDI/JSON
-dependencies. FastLED is the only library.
+The build environment lives in the root `platformio.ini` as
+`[env:t32_key_discovery]` and extends the main firmware's `env_common`,
+so it inherits the same TinyUSB CDC stack, espressif32 platform pin, and
+pre-build script that the main firmware uses. Only `tools/key_discovery/src/main.cpp`
+is compiled (the rest of `src/` is excluded via `build_src_filter`).
 
 ## Build & flash
 
+From the repo root:
+
 ```sh
-cd tools/key_discovery
-pio run -t upload
+pio run -e t32_key_discovery -t upload
 ```
 
 The board flashes the same `unwn_s3` board definition the main firmware uses
@@ -24,7 +27,7 @@ board at the same time.
 ## Monitor
 
 ```sh
-pio device monitor
+pio device monitor -e t32_key_discovery
 ```
 
 Baud is 115200 with the `esp32_exception_decoder` filter. After upload the
