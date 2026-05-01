@@ -24,11 +24,14 @@ void CalibrationService::runHardwareTest(Key* keys, uint8_t numKeys)
 
     bool anyFailed = false;
 
-    // Test each key with a 3-second timeout per key (FWBUG-04 fix)
+    // Test each key with a 3-second timeout per key (FWBUG-04 fix).
+    // Multi-mux-aware: drive shared S0..S3 with the channel-within-mux, then
+    // sample the owning mux's commonPin (T16: mux_id always 0; T32: keys
+    // 16..31 land on mux 1 / GPIO17).
     for (uint8_t i = 0; i < numKeys; i++)
     {
-        adc_.SetMuxChannel(keys[i].mux_idx);
-        uint16_t value = adc_.GetRaw();
+        adc_.SetMuxChannel(keys[i].mux_channel);
+        uint16_t value = adc_.GetRawForMux(keys[i].mux_id);
         if (value > 4000 || value < 50)
         {
             ledManager_.SetLed(i, true);
@@ -66,10 +69,17 @@ void CalibrationService::runCalibration(Key* keys, uint8_t numKeys, Button& touc
     constexpr uint8_t kMaxKeys = variant::CurrentVariant::kConfig.TOTAL_KEYS;
     uint16_t minVal[kMaxKeys], maxVal[kMaxKeys];
 
+    // Indexing convention: `i` and the first arg to CalibrateMin/Max are the
+    // *logical key index* (= _channels[] index, matching SetCalibration /
+    // GetCalibration which iterate _channels[0..numKeys-1]). `keys[i].mux_id`
+    // selects which mux's commonPin to sample, and `keys[i].mux_channel`
+    // (0..15) drives the shared S0..S3 select lines via SetMuxChannel.
+
     // Calibrate minimum values for all keys
     for (int i = 0; i < numKeys; i++)
     {
-        minVal[i] = adc_.CalibrateMin(i);
+        adc_.SetMuxChannel(keys[i].mux_channel);
+        minVal[i] = adc_.CalibrateMin(i, keys[i].mux_id);
     }
 
     delay(500);
@@ -81,19 +91,19 @@ void CalibrationService::runCalibration(Key* keys, uint8_t numKeys, Button& touc
         ledManager_.SetSliderOff();
         FastLED.show();
 
-        uint16_t press_threshold = minVal[keys[i].mux_idx] + PRESS_THRESHOLD_OFFSET;
+        uint16_t press_threshold = minVal[i] + PRESS_THRESHOLD_OFFSET;
         uint8_t press_count = 0;
         bool was_pressed = false;
-        adc_.SetMuxChannel(keys[i].mux_idx);
+        adc_.SetMuxChannel(keys[i].mux_channel);
 
         while (press_count < PRESSES_REQUIRED)
         {
-            uint16_t filteredValue = adc_.GetRaw();
+            uint16_t filteredValue = adc_.GetRawForMux(keys[i].mux_id);
 
             if (filteredValue > press_threshold)
             {
                 was_pressed = true;
-                maxVal[keys[i].mux_idx] = adc_.CalibrateMax(keys[i].mux_idx);
+                maxVal[i] = adc_.CalibrateMax(i, keys[i].mux_id);
                 ledManager_.SetSliderLed(press_count, 255, 2);
                 FastLED.show();
             }
@@ -105,7 +115,7 @@ void CalibrationService::runCalibration(Key* keys, uint8_t numKeys, Button& touc
 
             adc_.GetCalibration(minVal, maxVal, numKeys);
             Serial.printf("Key %d. Current: %d, Min: %d, Max: %d, Threshold: %d, Presses: %d\n",
-                          i, filteredValue, minVal[keys[i].mux_idx], maxVal[keys[i].mux_idx],
+                          i, filteredValue, minVal[i], maxVal[i],
                           press_threshold, press_count);
 
             delay(CALIBRATION_DELAY);
@@ -113,8 +123,8 @@ void CalibrationService::runCalibration(Key* keys, uint8_t numKeys, Button& touc
         }
 
         adc_.GetCalibration(minVal, maxVal, numKeys);
-        Serial.printf("Key %d calibrated. Min: %d, Max: %d\n", i, minVal[keys[i].mux_idx],
-                      maxVal[keys[i].mux_idx]);
+        Serial.printf("Key %d calibrated. Min: %d, Max: %d\n", i, minVal[i],
+                      maxVal[i]);
         delay(500);
     }
 
