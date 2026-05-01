@@ -30,7 +30,8 @@ namespace {
 // -----------------------------------------------------------------------------
 
 constexpr uint8_t  kNumKeys        = 32;
-constexpr uint8_t  kNumLeds        = 32;     // matrix only
+constexpr uint8_t  kKeyLedOffset   = 8;      // first 8 LEDs on the strip are not key LEDs
+constexpr uint8_t  kNumLeds        = kKeyLedOffset + kNumKeys;  // 40 total
 constexpr uint8_t  kNumMuxChannels = 16;
 constexpr uint8_t  kNumMuxes       = 2;
 constexpr uint8_t  kNumChannels    = kNumMuxes * kNumMuxChannels;  // 32
@@ -101,9 +102,26 @@ void setAllLeds(CRGB c) {
     for (uint8_t i = 0; i < kNumLeds; ++i) leds[i] = c;
 }
 
-void showOnlyLed(uint8_t i, CRGB c) {
+// Map a key index (0..31, top-left → bottom-right, 4 rows × 8 cols) to the
+// physical LED index on the strip. The T32 keypad is wired as TWO sequential
+// 4×4 serpentines (left block first = cols 0..3, right block second = cols
+// 4..7). Within each 4×4 block the data line enters at the top-left and
+// snakes column-by-column: col 0 top→bottom, col 1 bottom→top, col 2
+// top→bottom, col 3 bottom→top. The first kKeyLedOffset (=8) LEDs on the
+// strip are not key LEDs and are skipped.
+uint8_t keyToLedIndex(uint8_t keyIdx) {
+    const uint8_t row     = keyIdx / 8;             // 0..3
+    const uint8_t col     = keyIdx % 8;             // 0..7
+    const uint8_t block   = (col < 4) ? 0 : 1;      // left vs right 4×4
+    const uint8_t subCol  = col - block * 4;        // 0..3 within block
+    const uint8_t rowInCol = (subCol & 1) ? (3 - row) : row;
+    const uint8_t ledInBlock = subCol * 4 + rowInCol;
+    return kKeyLedOffset + block * 16 + ledInBlock;
+}
+
+void showOnlyKey(uint8_t keyIdx, CRGB c) {
     setAllLeds(CRGB::Black);
-    if (i < kNumLeds) leds[i] = c;
+    if (keyIdx < kNumKeys) leds[keyToLedIndex(keyIdx)] = c;
     FastLED.show();
 }
 
@@ -225,14 +243,14 @@ void runDiscovery() {
     for (uint8_t i = 0; i < kNumKeys; ++i) {
         uint8_t electrical = 0xFF;
         while (electrical == 0xFF) {
-            showOnlyLed(i, CRGB::Red);
+            showOnlyKey(i, CRGB::Red);
             Serial.print(F("Waiting for key "));
             Serial.println(i);
             electrical = waitForPress(i);
         }
 
         discovered[i] = electrical;
-        showOnlyLed(i, CRGB::Green);
+        showOnlyKey(i, CRGB::Green);
 
         const uint8_t mux = electrical / kNumMuxChannels;
         const uint8_t ch  = electrical % kNumMuxChannels;

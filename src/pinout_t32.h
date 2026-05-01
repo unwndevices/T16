@@ -12,7 +12,7 @@ constexpr uint8_t S1 = 5;
 constexpr uint8_t S2 = 6;
 constexpr uint8_t S3 = 7;
 constexpr uint8_t COM  = 8;   // Mux 0 common pin (ADC1_CH7).
-constexpr uint8_t COM2 = 17;  // Mux 1 common pin (ADC2_CH6).
+constexpr uint8_t COM2 = 2;   // Mux 1 common pin (ADC1_CH1) — confirmed on T32 hardware 2026-05-01.
 
 // LED strip
 constexpr uint8_t LED_PIN = 1;
