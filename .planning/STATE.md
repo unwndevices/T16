@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-29)
 Phase: 14 — Editor-tx Variant Awareness (5/5 plans code-complete; VERIFICATION.md = software gates passed, human UAT items recorded)
 Plan: —
 Status: editor-tx now variant-aware end-to-end. ConfigContext carries variant state via precedence chain (handshake > config > localStorage > T16). CMD_CAPABILITIES handshake (0x07) wired into ConfigProvider's shared SysEx path. Parametric <KeyboardGrid> renders 4×4 (T16) or 4×8 (T32); NoteGrid + computeNoteMap parametrized on totalKeys. NavBar VariantIndicator chip with offline picker + CrossVariantAdaptDialog (locked UI-SPEC copy) + adaptConfigForVariant pure service. Upload page variant dropdown with (detected) suffix + FlashOverrideDialog gating cross-variant flash + SliderCard capability hiding. T32 firmware ships as a 2-byte placeholder marked unavailable: true (real binary deferred to Phase 12 hardware tag). Software gates: typecheck clean, 164/164 vitest pass, lint at 22 errors (1 below baseline), build succeeds. Hardware UAT (chip rendering on real T16/T32, cross-variant adapt + override flows, layout responsiveness) batched to milestone v1.1 close alongside Phase 12.
-Last activity: 2026-04-30 — Phase 14 executed end-to-end (5 plans, ~10 commits including SUMMARY + VERIFICATION)
+Last activity: 2026-05-01 — Completed quick task 260501-nl5: T32 key-discovery firmware
 
 Progress: [████░░░░░░] 40% (2/5 v1.1 phases — Phases 13 + 14 complete; Phase 12 hardware-deferred)
 
@@ -134,6 +134,12 @@ None yet.
 - [Research]: BLE chunked SysEx -- full config dumps exceed 20-byte BLE MTU. Needs implementation plan before Phase 4.
 - [Research]: Signal::Emit thread safety across ADC/loop core boundary -- verify before Phase 2 extraction.
 - [Research]: ESP32-S3 software bootloader entry sequence for PlatformIO + Arduino Core 2.x -- verify before Phase 4.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260501-nl5 | Create T32 key-discovery firmware at tools/key_discovery/ | 2026-05-01 | 956981f | [260501-nl5-create-t32-key-discovery-firmware-at-too](./quick/260501-nl5-create-t32-key-discovery-firmware-at-too/) |
 
 ## Session Continuity
 
