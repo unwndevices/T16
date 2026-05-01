@@ -31,12 +31,14 @@ private:
 
 bool Strips::RunPattern()
 {
-    fill_solid(patternleds, 16, CRGB::Black);
+    fill_solid(patternleds, kMatrixSize, CRGB::Black);
     if (state)
     {
 
         CRGB color = ColorFromPalette(currentPalette, colorIndex, 255, LINEARBLEND_NOWRAP);
 
+        // TODO(T32): redesign for 8-wide matrix; currently lights only the
+        // 4 strips of the left block.
         for (uint8_t i = 0; i < 4; i++)
         {
             wu_pixel_1d(i, static_cast<uint32_t>(strips[i] * (1 << 8)), &color);

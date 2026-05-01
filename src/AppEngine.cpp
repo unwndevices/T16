@@ -170,7 +170,7 @@ void AppEngine::update()
     slider_.Update();
 
     keyboard_.Update();
-    fill_solid(matrixleds, 16, CRGB::Black);
+    fill_solid(matrixleds, kMatrixSize, CRGB::Black);
 
     renderModeVisuals();
 

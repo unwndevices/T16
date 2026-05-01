@@ -38,26 +38,37 @@ CRGB patternleds[kMatrixWidth * kMatrixHeight];
 
 // --- XY helper ---
 
+// XY() is the LOGICAL pattern-space mapping: row-major across the full
+// MATRIX_WIDTH × MATRIX_HEIGHT grid. patternleds[] is laid out in this
+// logical space, so FastLED 2D helpers (blur2d, fill_2dnoise8, ...) work
+// correctly across both variants. The variant-specific physical strip
+// translation lives in physicalLedIndex() and is applied only when
+// composing onto matrixleds.
 uint16_t XY(uint8_t x, uint8_t y)
 {
     if (x >= kMatrixWidth)
         return -1;
     if (y >= kMatrixHeight)
         return -1;
+    return y * kMatrixWidth + x;
+}
 
+// Translate a logical pattern-space index (0..kMatrixSize-1) to the
+// physical position within matrixleds. T16 is a single 4×4 block and the
+// mapping is the identity; T32 is two horizontally-tiled 4×4 blocks where
+// the LED strip walks the leftmost block fully before continuing into the
+// next block, so logical column 4 (top of the right block) maps to
+// physical position 16 rather than 4.
+uint16_t physicalLedIndex(uint16_t logicalIdx)
+{
     if constexpr (kMatrixBlockCount == 1)
     {
-        // Single-block layout (T16): naive row-major mapping. Byte-identical
-        // to the pre-T32 implementation — `if constexpr` collapses to this
-        // single expression when MATRIX_BLOCK_COUNT == 1.
-        return y * kMatrixWidth + x;
+        return logicalIdx;
     }
     else
     {
-        // Multi-block layout (T32: two 4x4 blocks tiled horizontally).
-        // The LED strip walks the leftmost block fully (row-major,
-        // top-to-bottom) before moving on to the next block, so logical
-        // (x=4, y=0) sits at LED index 16, not 4.
+        const uint8_t  x          = logicalIdx % kMatrixWidth;
+        const uint8_t  y          = logicalIdx / kMatrixWidth;
         const uint8_t  block      = x / kMatrixBlockWidth;
         const uint8_t  localX     = x - block * kMatrixBlockWidth;
         const uint16_t blockBase  = block * (kMatrixBlockWidth * kMatrixHeight);
@@ -92,24 +103,25 @@ void LedManager::SetMarker(uint8_t idx, bool state)
 
 void LedManager::SetLed(uint8_t idx, bool state)
 {
+    const uint16_t p = physicalLedIndex(idx);
     if (state)
-        matrixleds[idx] = CHSV(HUE_ORANGE, 240, 70);
+        matrixleds[p] = CHSV(HUE_ORANGE, 240, 70);
     else
-        matrixleds[idx] = CRGB::Black;
+        matrixleds[p] = CRGB::Black;
 }
 
 void LedManager::DrawMarkers()
 {
-    for (uint8_t i = 0; i < 16; i++)
+    for (uint8_t i = 0; i < kMatrixSize; i++)
     {
+        const uint16_t p = physicalLedIndex(i);
         if (is_marker[i])
         {
-            matrixleds[i] = ColorFromPalette(Pattern::currentPalette, 0, 64);
+            matrixleds[p] = ColorFromPalette(Pattern::currentPalette, 0, 64);
         }
-
         else
         {
-            matrixleds[i] = CRGB::Black;
+            matrixleds[p] = CRGB::Black;
         }
     }
 }
@@ -314,17 +326,20 @@ void LedManager::OffAll()
 
 void LedManager::CombineBuffers()
 {
-    for (uint8_t i = 0; i < 16; i++)
+    // Compose pattern-space buffer (logical row-major) onto the physical
+    // strip view (variant-specific). On T16 this is a 1:1 OR; on T32 the
+    // logical-to-physical translation reorders cells across the two blocks.
+    for (uint8_t i = 0; i < kMatrixSize; i++)
     {
-        matrixleds[i] |= patternleds[i];
+        matrixleds[physicalLedIndex(i)] |= patternleds[i];
     }
 }
 
 void LedManager::StartupAnimation()
 {
-    for (uint8_t i = 0; i < 16; i++)
+    for (uint8_t i = 0; i < kMatrixSize; i++)
     {
-        matrixleds[i] = CHSV(HUE_ORANGE, 240, 70);
+        matrixleds[physicalLedIndex(i)] = CHSV(HUE_ORANGE, 240, 70);
         FastLED.show();
         delay(10);
     }

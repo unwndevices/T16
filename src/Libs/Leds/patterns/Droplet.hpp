@@ -41,7 +41,7 @@ bool Drops::RunPattern()
 
     CRGB color = ColorFromPalette(currentPalette, colorIndex, 255, LINEARBLEND_NOWRAP);
 
-    fadeToBlackBy(patternleds, NUM_LEDS, 2);
+    fadeToBlackBy(patternleds, kMatrixSize, 2);
 
     if (state)
     {

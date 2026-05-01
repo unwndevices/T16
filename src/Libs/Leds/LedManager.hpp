@@ -27,7 +27,13 @@ extern CRGBSet matrixleds;
 extern CRGB patternleds[kMatrixWidth * kMatrixHeight];
 extern CRGBSet sliderleds;
 
+// Logical pattern-space mapping: y * MATRIX_WIDTH + x.
+// patternleds[] uses this layout, so blur2d/fill_2dnoise8 work as expected.
 uint16_t XY(uint8_t x, uint8_t y);
+
+// Logical → physical translation for matrixleds[]. Identity on T16; on
+// T32 maps the row-major logical index to the two-block strip layout.
+uint16_t physicalLedIndex(uint16_t logicalIdx);
 
 // Forward declare Pattern to avoid including all pattern headers
 class Pattern;
@@ -89,5 +95,5 @@ private:
     void StartupAnimation();
 
     uint8_t slider_color = HUE_ORANGE;
-    bool is_marker[16] = {false};
+    bool is_marker[kMatrixSize] = {false};
 };

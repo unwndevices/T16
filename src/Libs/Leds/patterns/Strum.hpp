@@ -34,13 +34,15 @@ private:
 
 bool Strum::RunPattern()
 {
-    fill_solid(patternleds, kMatrixWidth * kMatrixHeight, CRGB::Black);
+    fill_solid(patternleds, kMatrixSize, CRGB::Black);
     CRGB noteColor = ColorFromPalette(currentPalette, colorIndex, 255, LINEARBLEND_NOWRAP);
     CRGB noteDimColor = ColorFromPalette(currentPalette, colorIndex, 30, LINEARBLEND_NOWRAP);
 
     CRGB chordColor = ColorFromPalette(currentPalette, 1, 255, LINEARBLEND_NOWRAP);
     CRGB chordDimColor = ColorFromPalette(currentPalette, 1, 30, LINEARBLEND_NOWRAP);
 
+    // TODO(T32): redesign for 8-wide matrix; currently fills only the left
+    // 4x4 block (notes 0..11, chords 12..15) and leaves the right block dark.
     for (int i = 0; i < 16; i++)
     {
         if (i < 12)

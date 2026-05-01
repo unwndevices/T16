@@ -35,7 +35,9 @@ private:
 
 bool QuickSettings::RunPattern()
 {
-    fill_solid(patternleds, 16, CRGB::Black);
+    // TODO(T32): redesign for 8-wide matrix; currently fills only the
+    // left 4x4 block (option row + 12 value cells).
+    fill_solid(patternleds, kMatrixSize, CRGB::Black);
     CRGB optionColor = ColorFromPalette(currentPalette, 1, 255, LINEARBLEND_NOWRAP);
     CRGB optionDimColor = ColorFromPalette(currentPalette, 40, 20, LINEARBLEND_NOWRAP);
 
