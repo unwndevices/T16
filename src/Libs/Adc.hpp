@@ -54,8 +54,18 @@ public:
     void SetCalibration(uint16_t *min, uint16_t *max, uint8_t channels);
 
     void CalibrationRoutine();          // method to calibrate the ADC
-    uint16_t CalibrateMin(uint8_t chn); // method to calibrate the ADC
-    uint16_t CalibrateMax(uint8_t chn); // method to calibrate the ADC
+    uint16_t CalibrateMin(uint8_t chn); // single-mux wrapper: SetMuxChannel(chn) + CalibrateMin(chn, 0)
+    uint16_t CalibrateMax(uint8_t chn); // single-mux wrapper: SetMuxChannel(chn) + CalibrateMax(chn, 0)
+
+    // Multi-mux-aware calibration. `logical_key` indexes into _channels[]
+    // (0..TOTAL_KEYS-1). `mux_id` selects which mux's commonPin to sample.
+    // Caller is responsible for SetMuxChannel(channel_within_mux) before calling.
+    uint16_t CalibrateMin(uint8_t logical_key, uint8_t mux_id);
+    uint16_t CalibrateMax(uint8_t logical_key, uint8_t mux_id);
+
+    // Read raw analog value from a specific mux's commonPin. Falls back to
+    // _config._pin if mux_count == 0 (legacy InitSingle path).
+    uint16_t GetRawForMux(uint8_t mux_id) const;
 
     void GetCalibration(uint16_t *min, uint16_t *max, uint8_t channels); // method to get the calibration values
     void Start();                                                        // method to start the task (and ADC

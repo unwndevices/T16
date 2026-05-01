@@ -149,32 +149,61 @@ void Adc::SetCalibration(uint16_t *min, uint16_t *max, uint8_t channels)
 
 uint16_t Adc::CalibrateMin(uint8_t chn)
 {
+    // Legacy single-mux wrapper: handle channel select internally and sample mux 0.
     SetMuxChannel(chn);
-    uint i_v = 0;
-    for (uint8_t j = 0; j < 16; j++)
-    {
-        i_v += analogRead(_config._pin);
-        delay(5);
-    }
-    i_v /= 16;
-
-    _channels[chn].minVal = constrain(i_v, 0, 4095);
-    return _channels[chn].minVal;
+    return CalibrateMin(chn, 0);
 }
 
 uint16_t Adc::CalibrateMax(uint8_t chn)
 {
+    // Legacy single-mux wrapper: handle channel select internally and sample mux 0.
     SetMuxChannel(chn);
+    return CalibrateMax(chn, 0);
+}
+
+uint16_t Adc::CalibrateMin(uint8_t logical_key, uint8_t mux_id)
+{
+    // NOTE: caller must already have called SetMuxChannel(channel_within_mux).
+    uint8_t com_pin = (_mux_count > 0 && mux_id < _mux_count)
+        ? static_cast<uint8_t>(_muxes[mux_id].commonPin)
+        : _config._pin;
     uint i_v = 0;
     for (uint8_t j = 0; j < 16; j++)
     {
-        i_v += analogRead(_config._pin);
+        i_v += analogRead(com_pin);
         delay(5);
     }
     i_v /= 16;
 
-    _channels[chn].maxVal = max((uint16_t)constrain(i_v, 0, 4095), _channels[chn].maxVal);
-    return _channels[chn].maxVal;
+    _channels[logical_key].minVal = constrain(i_v, 0, 4095);
+    return _channels[logical_key].minVal;
+}
+
+uint16_t Adc::CalibrateMax(uint8_t logical_key, uint8_t mux_id)
+{
+    // NOTE: caller must already have called SetMuxChannel(channel_within_mux).
+    uint8_t com_pin = (_mux_count > 0 && mux_id < _mux_count)
+        ? static_cast<uint8_t>(_muxes[mux_id].commonPin)
+        : _config._pin;
+    uint i_v = 0;
+    for (uint8_t j = 0; j < 16; j++)
+    {
+        i_v += analogRead(com_pin);
+        delay(5);
+    }
+    i_v /= 16;
+
+    _channels[logical_key].maxVal = max((uint16_t)constrain(i_v, 0, 4095), _channels[logical_key].maxVal);
+    return _channels[logical_key].maxVal;
+}
+
+uint16_t Adc::GetRawForMux(uint8_t mux_id) const
+{
+    if (_mux_count > 0 && mux_id < _mux_count)
+    {
+        return analogRead(static_cast<uint8_t>(_muxes[mux_id].commonPin));
+    }
+    return analogRead(_config._pin);
 }
 
 void Adc::GetCalibration(uint16_t *min, uint16_t *max, uint8_t channels)
