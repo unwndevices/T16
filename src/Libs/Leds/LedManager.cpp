@@ -135,7 +135,14 @@ void LedManager::RunPattern()
 {
     if (!currentPattern_->RunPattern())
     {
-        currentPattern_ = std::move(nextPattern_);
+        // Only advance if a successor was queued. Without this guard a
+        // transition with no queued follow-up (e.g. UpdateTransition() entering
+        // the else-branch with nextPattern_ already null) leaves currentPattern_
+        // null on the next frame and dereferencing it panics the device.
+        if (nextPattern_)
+        {
+            currentPattern_ = std::move(nextPattern_);
+        }
     }
     CombineBuffers();
 }
@@ -287,10 +294,14 @@ void LedManager::UpdateTransition()
     {
         currentPattern_ = std::move(nextPattern_);
     }
-    else
+    else if (nextPattern_)
     {
+        // A transition with a queued follow-up: kick off the wipe.
         currentPattern_ = std::make_unique<WaveTransition>(Direction::DOWN);
     }
+    // else: nothing queued — leave currentPattern_ alone. Starting a
+    // transition with no successor would leave RunPattern() with nothing to
+    // advance to once the wipe finishes (previous behaviour: null deref).
 }
 
 void LedManager::SetSliderHue(uint8_t hue)
