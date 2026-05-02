@@ -3,6 +3,10 @@
 #define ADC_BUFFER 512
 #define ADC_NUM_BYTES 64 // 256 samples of 16 bits
 
+// Set to 1 to log calibration table at boot and idle ADC values at ~2 Hz.
+// Used to compare host-dependent key sensitivity (laptop vs Raspberry Pi).
+#define DEBUG_KEY_PRESS 1
+
 // Build with `pio run -e t32_debug --project-option="build_flags=-DSCAN_TIMING_LOG"`
 // (or add SCAN_TIMING_LOG to a custom env's build_flags) to enable per-pass
 // timing logs over Serial. Operationalizes T32-01 success gate (CONTEXT D12.4).
@@ -145,6 +149,16 @@ void Adc::SetCalibration(uint16_t *min, uint16_t *max, uint8_t channels)
         _channels[i].maxVal = max[i];
         _channels[i].minVal = min[i];
     }
+#if DEBUG_KEY_PRESS
+    Serial.printf("--- CAL DUMP (channels=%u) ---\n", channels);
+    for (uint8_t i = 0; i < channels; i++)
+    {
+        Serial.printf("CAL ch=%2u min=%4u max=%4u span=%4u\n",
+                      i, _channels[i].minVal, _channels[i].maxVal,
+                      (uint16_t)(_channels[i].maxVal - _channels[i].minVal));
+    }
+    Serial.printf("--- END CAL DUMP ---\n");
+#endif
 }
 
 uint16_t Adc::CalibrateMin(uint8_t chn)
@@ -346,6 +360,29 @@ void Adc::ReadValues()
 
     iterator++;
     if (iterator >= 16) iterator = 0;   // 16 = channels per mux, NOT total
+
+#if DEBUG_KEY_PRESS
+    // Throttled idle dump — once every ~500 ms, after a full pass completes.
+    if (iterator == 0)
+    {
+        static unsigned long last_dump_ms = 0;
+        unsigned long now = millis();
+        if (now - last_dump_ms >= 500)
+        {
+            last_dump_ms = now;
+            for (uint8_t i = 0; i < _total_channels; ++i)
+            {
+                Serial.printf("IDLE ch=%2u raw=%4u filt=%4u min=%4u max=%4u norm=%.3f\n",
+                              i,
+                              _channels[i].raw,
+                              _channels[i].filtered,
+                              _channels[i].minVal,
+                              _channels[i].maxVal,
+                              _channels[i].value);
+            }
+        }
+    }
+#endif
 
 #ifdef SCAN_TIMING_LOG
     if (iterator == 0) {

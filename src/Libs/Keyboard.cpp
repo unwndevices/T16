@@ -1,5 +1,9 @@
 #include "Keyboard.hpp"
 
+// Mirror of DEBUG_KEY_PRESS in Adc.cpp — flip both to 1 to enable diagnostic
+// host-vs-host (laptop vs Raspberry Pi) press logs.
+#define DEBUG_KEY_PRESS 1
+
 // --- Free functions ---
 
 float fmap(float x, float in_min, float in_max, float out_min, float out_max)
@@ -30,6 +34,10 @@ void Key::Update(Adc *adc)
         log_d("Key started");
         state = STARTED;
         pressStartTime = millis();
+#if DEBUG_KEY_PRESS
+        Serial.printf("KEY id=%2u STARTED value=%.3f rel_thr=%.3f\n",
+                      idx, value, rel_threshold);
+#endif
     }
     else if (state == STARTED && value > press_threshold)
     {
@@ -39,6 +47,10 @@ void Key::Update(Adc *adc)
         velocity = fmap((float)pressTime, 55.0f, 4.0f, 0.18f, 1.0f);
 
         onStateChanged.Emit(idx, state);
+#if DEBUG_KEY_PRESS
+        Serial.printf("KEY id=%2u PRESSED value=%.3f press_thr=%.3f vel=%.3f dt=%lums\n",
+                      idx, value, press_threshold, velocity, pressTime);
+#endif
     }
     else if (value < rel_threshold && (state == PRESSED || state == AFTERTOUCH))
     {
